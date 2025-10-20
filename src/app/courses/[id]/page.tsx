@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { notFound, useParams } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import VimeoPlayer from '@/components/VimeoPlayer';
@@ -54,6 +55,8 @@ interface ProgressData {
 
 export default function CourseDetailPage() {
   const params = useParams();
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const id = params?.id as string;
 
   const [course, setCourse] = useState<CourseDetail | null>(null);
@@ -123,6 +126,17 @@ export default function CourseDetailPage() {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
+  // 수강 신청 버튼 클릭 핸들러
+  const handleEnrollClick = () => {
+    if (!session) {
+      // 로그인하지 않은 경우 로그인 페이지로 리디렉션
+      router.push(`/login?callbackUrl=/courses/${id}`);
+    } else {
+      // 로그인한 경우 결제 페이지로 이동 (Phase 3에서 구현 예정)
+      alert('결제 기능은 Phase 3에서 구현 예정입니다.');
+    }
   };
 
   if (error) {
@@ -407,7 +421,10 @@ export default function CourseDetailPage() {
                     </Link>
                   </>
                 ) : (
-                  <button className="btn-primary w-full mb-3">
+                  <button
+                    onClick={handleEnrollClick}
+                    className="btn-primary w-full mb-3"
+                  >
                     수강 신청하기
                   </button>
                 )}

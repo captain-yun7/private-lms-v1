@@ -18,3 +18,4 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
 
 // Storage bucket 이름
 export const COURSE_FILES_BUCKET = 'course-files';
+export const COURSE_THUMBNAILS_BUCKET = 'course-thumbnails';

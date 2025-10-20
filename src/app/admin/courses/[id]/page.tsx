@@ -88,6 +88,10 @@ export default function EditCoursePage() {
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [fileUploading, setFileUploading] = useState(false);
 
+  // 썸네일 업로드 상태
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
+
   // 드래그 앤 드롭 센서 설정
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -121,6 +125,55 @@ export default function EditCoursePage() {
       alert('강의를 불러올 수 없습니다.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 썸네일 이미지 업로드 핸들러
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // 이미지 파일 확인
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드 가능합니다.');
+      return;
+    }
+
+    // 파일 크기 확인 (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('파일 크기는 10MB를 초과할 수 없습니다.');
+      return;
+    }
+
+    setUploadingThumbnail(true);
+
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+
+      const response = await fetch('/api/admin/courses/thumbnail', {
+        method: 'POST',
+        body: uploadFormData,
+      });
+
+      if (!response.ok) {
+        throw new Error('썸네일 업로드 실패');
+      }
+
+      const data = await response.json();
+
+      // 미리보기 설정
+      setThumbnailPreview(data.fileUrl);
+
+      // formData에 URL 저장
+      setFormData({ ...formData, thumbnailUrl: data.fileUrl });
+
+      alert('썸네일이 업로드되었습니다.');
+    } catch (error) {
+      console.error('Thumbnail upload error:', error);
+      alert('썸네일 업로드에 실패했습니다.');
+    } finally {
+      setUploadingThumbnail(false);
     }
   };
 
@@ -565,13 +618,60 @@ export default function EditCoursePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">썸네일 URL</label>
-            <input
-              type="url"
-              value={formData.thumbnailUrl}
-              onChange={(e) => setFormData({ ...formData, thumbnailUrl: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-2">썸네일 이미지</label>
+
+            {/* 파일 업로드 버튼 */}
+            <div className="mb-3">
+              <label className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                <svg className="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="text-sm text-gray-700">
+                  {uploadingThumbnail ? '업로드 중...' : '이미지 업로드'}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleThumbnailUpload}
+                  disabled={uploadingThumbnail}
+                  className="hidden"
+                />
+              </label>
+              <p className="mt-1 text-xs text-gray-500">JPG, PNG, WEBP, GIF (최대 10MB)</p>
+            </div>
+
+            {/* 미리보기 */}
+            {(thumbnailPreview || formData.thumbnailUrl) && (
+              <div className="mb-3 p-3 border border-gray-200 rounded-lg bg-gray-50">
+                <p className="text-xs text-gray-600 mb-2">미리보기 (실제 강의 카드 비율)</p>
+                <div className="max-w-md">
+                  <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
+                    <img
+                      src={thumbnailPreview || formData.thumbnailUrl}
+                      alt="썸네일 미리보기"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* URL 직접 입력 (선택적) */}
+            <details className="text-sm">
+              <summary className="cursor-pointer text-gray-600 hover:text-gray-900 mb-2">
+                또는 URL 직접 입력
+              </summary>
+              <input
+                type="url"
+                value={formData.thumbnailUrl}
+                onChange={(e) => {
+                  setFormData({ ...formData, thumbnailUrl: e.target.value });
+                  setThumbnailPreview(e.target.value);
+                }}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="https://example.com/image.jpg"
+              />
+            </details>
           </div>
 
           <div>
