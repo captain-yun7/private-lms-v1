@@ -12,8 +12,8 @@ export default function ContactPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 bg-bg-light py-20">
-        <div className="container">
+      <main className="flex-1 bg-bg-light py-20 mt-[73px]">
+        <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             {/* Header */}
             <div className="text-center mb-12">

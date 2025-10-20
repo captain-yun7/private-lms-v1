@@ -71,8 +71,8 @@ export default function CoursesPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary via-primary-dark to-purple-700 text-white py-16">
-        <div className="container">
+      <section className="bg-gradient-to-br from-primary via-primary-dark to-purple-700 text-white py-16 mt-[73px]">
+        <div className="container mx-auto px-4">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               나에게 맞는 강의를 찾아보세요
@@ -106,7 +106,7 @@ export default function CoursesPage() {
 
       {/* Courses Grid */}
       <main className="flex-1 bg-bg-light py-12">
-        <div className="container">
+        <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <div>
               <h2 className="text-2xl font-bold text-text-primary mb-2">

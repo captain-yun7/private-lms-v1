@@ -13,8 +13,8 @@ export default function AboutPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary via-primary-dark to-purple-700 text-white py-20 md:py-28">
-        <div className="container relative z-10">
+      <section className="relative bg-gradient-to-br from-primary via-primary-dark to-purple-700 text-white py-20 md:py-28 mt-[73px]">
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               Private LMS는?
@@ -29,7 +29,7 @@ export default function AboutPage() {
 
       {/* Features Section */}
       <section className="py-20 bg-white">
-        <div className="container">
+        <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-4">
               왜 Private LMS인가요?
@@ -123,7 +123,7 @@ export default function AboutPage() {
 
       {/* CTA Section */}
       <section className="py-20 bg-bg-light">
-        <div className="container">
+        <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-6">
               지금 바로 시작하세요
