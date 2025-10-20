@@ -1,269 +1,199 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // 기본 카테고리 생성
-  const categories = await Promise.all([
-    prisma.category.create({
-      data: {
-        name: 'LED 전광판',
-        description: '디지털 LED 전광판 광고',
-      },
-    }),
-    prisma.category.create({
-      data: {
-        name: '현수막',
-        description: '현수막 광고',
-      },
-    }),
-    prisma.category.create({
-      data: {
-        name: '버스정류장',
-        description: '버스정류장 광고판',
-      },
-    }),
-    prisma.category.create({
-      data: {
-        name: '지하철역',
-        description: '지하철역 내부 광고',
-      },
-    }),
-    prisma.category.create({
-      data: {
-        name: '옥외간판',
-        description: '건물 외벽 간판',
-      },
-    }),
-  ]);
+  // 1. 테스트 사용자 생성
+  const hashedPassword = await bcrypt.hash('password123', 10);
 
-  // 서울 주요 구 생성
-  const districts = await Promise.all([
-    prisma.district.create({ data: { name: '강남구', city: '서울' } }),
-    prisma.district.create({ data: { name: '서초구', city: '서울' } }),
-    prisma.district.create({ data: { name: '송파구', city: '서울' } }),
-    prisma.district.create({ data: { name: '강동구', city: '서울' } }),
-    prisma.district.create({ data: { name: '마포구', city: '서울' } }),
-    prisma.district.create({ data: { name: '용산구', city: '서울' } }),
-    prisma.district.create({ data: { name: '중구', city: '서울' } }),
-    prisma.district.create({ data: { name: '종로구', city: '서울' } }),
-  ]);
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@example.com' },
+    update: {},
+    create: {
+      email: 'admin@example.com',
+      name: '관리자',
+      password: hashedPassword,
+      role: 'ADMIN',
+    },
+  });
 
-  // 샘플 광고 데이터
-  const sampleAds = [
+  const instructor = await prisma.user.upsert({
+    where: { email: 'instructor@example.com' },
+    update: {},
+    create: {
+      email: 'instructor@example.com',
+      name: '김강사',
+      password: hashedPassword,
+      role: 'STUDENT', // 실제로는 강사 역할이 있어야 함
+    },
+  });
+
+  const student = await prisma.user.upsert({
+    where: { email: 'student@example.com' },
+    update: {},
+    create: {
+      email: 'student@example.com',
+      name: '이학생',
+      password: hashedPassword,
+      role: 'STUDENT',
+    },
+  });
+
+  console.log('✅ Created users');
+
+  // 2. 샘플 강의 생성
+  const courses = [
     {
-      title: '강남역 LED 전광판 A구역',
-      slug: 'gangnam-led-a',
-      description: '강남역 2번 출구 정면 대형 LED 전광판입니다.',
-      categoryId: categories[0].id, // LED 전광판
-      districtId: districts[0].id, // 강남구
-      location: {
-        address: '서울시 강남구 강남대로 396',
-        coordinates: [127.027926, 37.497954],
-        landmarks: ['강남역', '강남역사거리', 'CGV 강남'],
-        district: '강남구'
-      },
-      specs: {
-        type: 'LED 전광판',
-        size: '10m x 3m',
-        resolution: '1920x576',
-        material: 'LED',
-        installation: '건물 외벽'
-      },
-      pricing: {
-        monthly: 3000000,
-        deposit: 1000000,
-        minimumPeriod: 3,
-        currency: 'KRW'
-      },
-      metadata: {
-        traffic: '일평균 10만명 이상',
-        visibility: '매우 좋음',
-        nearbyBusinesses: ['강남역', 'CGV', '스타벅스', '맥도날드'],
-        operatingHours: '24시간',
-        restrictions: ['음주 광고 불가', '의료 광고 제한']
-      }
+      title: '웹 개발 완벽 가이드',
+      description: 'HTML, CSS, JavaScript부터 React까지 모던 웹 개발의 모든 것을 배워보세요.',
+      price: 99000,
+      thumbnailUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085',
+      instructorName: '김강사',
+      instructorIntro: '10년차 웹 개발자. 네이버, 카카오에서 근무 경험',
+      isPublished: true,
     },
     {
-      title: '홍대입구역 버스정류장 광고',
-      slug: 'hongdae-bus-stop',
-      description: '홍대입구역 인근 주요 버스정류장 광고판입니다.',
-      categoryId: categories[2].id, // 버스정류장
-      districtId: districts[4].id, // 마포구
-      location: {
-        address: '서울시 마포구 양화로 160',
-        coordinates: [126.924910, 37.556628],
-        landmarks: ['홍대입구역', '홍익대학교', '홍대거리'],
-        district: '마포구'
-      },
-      specs: {
-        type: '버스정류장 광고판',
-        size: '2m x 1.2m',
-        material: '후면조명 필름',
-        installation: '버스정류장'
-      },
-      pricing: {
-        monthly: 800000,
-        deposit: 300000,
-        minimumPeriod: 6,
-        currency: 'KRW'
-      },
-      metadata: {
-        traffic: '일평균 5만명',
-        visibility: '좋음',
-        nearbyBusinesses: ['홍익대학교', '클럽', '카페', '음식점'],
-        operatingHours: '24시간',
-        restrictions: []
-      }
+      title: 'UI/UX 디자인 기초',
+      description: '사용자 중심의 인터페이스 디자인 원칙과 실전 프로젝트',
+      price: 79000,
+      thumbnailUrl: 'https://images.unsplash.com/photo-1561070791-2526d30994b5',
+      instructorName: '이디자이너',
+      instructorIntro: 'Google, Apple에서 UX 디자이너로 근무',
+      isPublished: true,
     },
     {
-      title: '잠실역 지하철 광고',
-      slug: 'jamsil-subway-ad',
-      description: '잠실역 대합실 메인 광고 공간입니다.',
-      categoryId: categories[3].id, // 지하철역
-      districtId: districts[2].id, // 송파구
-      location: {
-        address: '서울시 송파구 올림픽로 지하 265',
-        coordinates: [127.100311, 37.513292],
-        landmarks: ['잠실역', '롯데월드', '잠실야구장'],
-        district: '송파구'
-      },
-      specs: {
-        type: '지하철 광고판',
-        size: '5m x 2m',
-        material: '후면조명 필름',
-        installation: '지하철 대합실'
-      },
-      pricing: {
-        monthly: 1500000,
-        deposit: 500000,
-        minimumPeriod: 3,
-        currency: 'KRW'
-      },
-      metadata: {
-        traffic: '일평균 15만명',
-        visibility: '매우 좋음',
-        nearbyBusinesses: ['롯데월드', '롯데백화점', '잠실야구장'],
-        operatingHours: '첫차-막차',
-        restrictions: ['지하철공사 심의 필요']
-      }
+      title: 'Python 데이터 분석',
+      description: 'Pandas, NumPy부터 데이터 시각화까지 완벽 마스터',
+      price: 109000,
+      thumbnailUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71',
+      instructorName: '박데이터',
+      instructorIntro: '데이터 사이언티스트 7년차. 삼성전자 AI팀 근무',
+      isPublished: true,
     },
     {
-      title: '명동 현수막 광고',
-      slug: 'myeongdong-banner',
-      description: '명동 메인스트리트 현수막 광고 위치입니다.',
-      categoryId: categories[1].id, // 현수막
-      districtId: districts[6].id, // 중구
-      location: {
-        address: '서울시 중구 명동길 26',
-        coordinates: [126.981893, 37.563692],
-        landmarks: ['명동역', '명동성당', '롯데백화점'],
-        district: '중구'
-      },
-      specs: {
-        type: '현수막',
-        size: '8m x 1m',
-        material: '배너천',
-        installation: '가로등 현수막'
-      },
-      pricing: {
-        monthly: 500000,
-        deposit: 200000,
-        minimumPeriod: 1,
-        currency: 'KRW'
-      },
-      metadata: {
-        traffic: '일평균 8만명',
-        visibility: '좋음',
-        nearbyBusinesses: ['명동성당', '롯데백화점', '쇼핑몰'],
-        operatingHours: '24시간',
-        restrictions: ['구청 허가 필요']
-      }
+      title: 'React Native 모바일 앱 개발',
+      description: 'iOS와 Android 앱을 동시에 개발하는 크로스 플랫폼 기술',
+      price: 129000,
+      thumbnailUrl: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c',
+      instructorName: '최모바일',
+      instructorIntro: '모바일 앱 개발 전문가. 배달의민족 앱 개발 참여',
+      isPublished: true,
     },
     {
-      title: '이태원 옥외간판',
-      slug: 'itaewon-outdoor-sign',
-      description: '이태원 메인스트리트 건물 외벽 간판 광고입니다.',
-      categoryId: categories[4].id, // 옥외간판
-      districtId: districts[5].id, // 용산구
-      location: {
-        address: '서울시 용산구 이태원로 200',
-        coordinates: [126.994041, 37.534567],
-        landmarks: ['이태원역', '해밀톤호텔', 'N서울타워'],
-        district: '용산구'
-      },
-      specs: {
-        type: '옥외간판',
-        size: '6m x 2m',
-        material: 'LED 백라이트',
-        installation: '건물 외벽'
-      },
-      pricing: {
-        monthly: 1200000,
-        deposit: 400000,
-        minimumPeriod: 6,
-        currency: 'KRW'
-      },
-      metadata: {
-        traffic: '일평균 6만명',
-        visibility: '매우 좋음',
-        nearbyBusinesses: ['외국인 관광지', '레스토랑', '바'],
-        operatingHours: '24시간',
-        restrictions: ['구청 간판 심의 필요']
-      }
-    }
+      title: '디지털 마케팅 전략',
+      description: 'SNS, 콘텐츠, SEO까지 효과적인 온라인 마케팅 기법',
+      price: 89000,
+      thumbnailUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f',
+      instructorName: '정마케터',
+      instructorIntro: '디지털 마케팅 15년차. 쿠팡, 무신사 마케팅팀 리드',
+      isPublished: true,
+    },
   ];
 
-  // 광고 데이터 생성
-  for (const adData of sampleAds) {
-    const ad = await prisma.ad.create({
+  for (const courseData of courses) {
+    const course = await prisma.course.create({
+      data: courseData,
+    });
+
+    // 각 강의에 영상 추가
+    await prisma.video.createMany({
+      data: [
+        {
+          courseId: course.id,
+          title: '강의 소개 및 개발 환경 설정',
+          description: '강의 전체 개요와 필요한 개발 환경을 설정합니다.',
+          vimeoUrl: 'https://vimeo.com/912345678',
+          vimeoId: '912345678',
+          duration: 720, // 12분
+          order: 1,
+          isPreview: true,
+        },
+        {
+          courseId: course.id,
+          title: '기초 개념 이해하기',
+          description: '기본 개념과 핵심 원리를 학습합니다.',
+          vimeoUrl: 'https://vimeo.com/912345679',
+          vimeoId: '912345679',
+          duration: 1800, // 30분
+          order: 2,
+          isPreview: true,
+        },
+        {
+          courseId: course.id,
+          title: '실전 프로젝트 시작',
+          description: '배운 내용을 바탕으로 실제 프로젝트를 시작합니다.',
+          vimeoUrl: 'https://vimeo.com/912345680',
+          vimeoId: '912345680',
+          duration: 2400, // 40분
+          order: 3,
+          isPreview: false,
+        },
+        {
+          courseId: course.id,
+          title: '고급 기능 구현',
+          description: '심화 내용과 고급 기능을 다룹니다.',
+          vimeoUrl: 'https://vimeo.com/912345681',
+          vimeoId: '912345681',
+          duration: 1920, // 32분
+          order: 4,
+          isPreview: false,
+        },
+      ],
+    });
+
+    // 강의 자료 추가
+    await prisma.courseFile.createMany({
+      data: [
+        {
+          courseId: course.id,
+          fileName: `${course.title.replace(/\s+/g, '_')}_notes.pdf`,
+          fileUrl: `https://example.com/files/${course.id}/notes.pdf`,
+          fileSize: 1024000, // 1MB
+        },
+        {
+          courseId: course.id,
+          fileName: `${course.title.replace(/\s+/g, '_')}_examples.zip`,
+          fileUrl: `https://example.com/files/${course.id}/examples.zip`,
+          fileSize: 2048000, // 2MB
+        },
+      ],
+    });
+
+    console.log(`✅ Created course: ${course.title}`);
+  }
+
+  // 3. 샘플 수강 신청 (학생이 일부 강의 구매)
+  const enrolledCourse = courses[0]; // 첫 번째 강의
+  const createdCourse = await prisma.course.findFirst({
+    where: { title: enrolledCourse.title },
+  });
+
+  if (createdCourse) {
+    await prisma.enrollment.create({
       data: {
-        title: adData.title,
-        slug: adData.slug,
-        description: adData.description,
-        categoryId: adData.categoryId,
-        districtId: adData.districtId,
-        location: adData.location,
-        specs: adData.specs,
-        pricing: adData.pricing,
-        metadata: adData.metadata,
+        userId: student.id,
+        courseId: createdCourse.id,
       },
     });
 
-    // 각 광고에 샘플 이미지 추가 (더미 이미지 URL)
-    await Promise.all([
-      prisma.adImage.create({
-        data: {
-          adId: ad.id,
-          url: `https://picsum.photos/800/600?random=${ad.id}-1`,
-          alt: `${ad.title} 메인 이미지`,
-          order: 0,
-        },
-      }),
-      prisma.adImage.create({
-        data: {
-          adId: ad.id,
-          url: `https://picsum.photos/800/600?random=${ad.id}-2`,
-          alt: `${ad.title} 측면 뷰`,
-          order: 1,
-        },
-      }),
-    ]);
-
-    console.log(`✅ Created ad: ${ad.title}`);
+    console.log(`✅ Enrolled student in: ${createdCourse.title}`);
   }
 
   console.log('🎉 Seeding completed!');
-  console.log(`Created ${categories.length} categories`);
-  console.log(`Created ${districts.length} districts`);
-  console.log(`Created ${sampleAds.length} ads with images`);
+  console.log(`Created 3 users (admin, instructor, student)`);
+  console.log(`Created ${courses.length} courses with videos and files`);
+  console.log('\n📝 Test credentials:');
+  console.log('Admin: admin@example.com / password123');
+  console.log('Instructor: instructor@example.com / password123');
+  console.log('Student: student@example.com / password123');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('❌ Seeding error:', e);
     process.exit(1);
   })
   .finally(async () => {

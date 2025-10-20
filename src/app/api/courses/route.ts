@@ -11,18 +11,15 @@ export async function GET(request: Request) {
 
     // 검색 및 필터 조건
     const where: any = {
-      published: true, // 공개된 강의만
+      isPublished: true, // 공개된 강의만
     };
 
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
+        { instructorName: { contains: search, mode: 'insensitive' } },
       ];
-    }
-
-    if (category && category !== 'all') {
-      where.category = category;
     }
 
     // 정렬 조건
@@ -52,13 +49,6 @@ export async function GET(request: Request) {
       where,
       orderBy,
       include: {
-        instructor: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-          },
-        },
         _count: {
           select: {
             enrollments: true,
@@ -74,18 +64,14 @@ export async function GET(request: Request) {
       title: course.title,
       description: course.description,
       price: course.price,
-      thumbnail: course.thumbnail,
-      category: course.category,
-      duration: course.duration,
-      instructor: {
-        id: course.instructor.id,
-        name: course.instructor.name || '알 수 없음',
-        image: course.instructor.image,
-      },
+      thumbnailUrl: course.thumbnailUrl,
+      instructorName: course.instructorName,
+      instructorIntro: course.instructorIntro,
       studentCount: course._count.enrollments,
       videoCount: course._count.videos,
-      published: course.published,
+      isPublished: course.isPublished,
       createdAt: course.createdAt,
+      updatedAt: course.updatedAt,
     }));
 
     return NextResponse.json({
