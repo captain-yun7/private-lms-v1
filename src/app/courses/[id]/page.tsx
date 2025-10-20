@@ -1,95 +1,117 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import Image from 'next/image';
+import { notFound, useParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
-export const metadata = {
-  title: '강의 상세',
-  description: '강의의 자세한 정보를 확인하고 수강하세요.',
-};
+interface Video {
+  id: string;
+  title: string;
+  description: string | null;
+  vimeoUrl: string;
+  vimeoId: string | null;
+  duration: number;
+  order: number;
+  isPreview: boolean;
+}
 
-// TODO: Phase 2에서 실제 데이터베이스에서 데이터를 가져올 예정
-const coursesData = [
-  {
-    id: '1',
-    title: '웹 개발 완벽 가이드',
-    description: 'HTML, CSS, JavaScript부터 React까지 모던 웹 개발의 모든 것을 배워보세요. 실무에 바로 적용할 수 있는 프로젝트 중심의 강의입니다.',
-    fullDescription: `이 강의는 웹 개발의 기초부터 심화까지 모든 것을 다룹니다.
+interface CourseFile {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  createdAt: string;
+}
 
-### 강의 내용
-- HTML5 기본 문법과 시맨틱 태그
-- CSS3 레이아웃과 Flexbox, Grid
-- JavaScript ES6+ 문법
-- React 기초부터 고급 패턴까지
-- 실전 프로젝트: 포트폴리오 웹사이트 제작
+interface CourseDetail {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  thumbnailUrl: string;
+  instructorName: string;
+  instructorIntro: string;
+  isPublished: boolean;
+  videos: Video[];
+  files: CourseFile[];
+  studentCount: number;
+  videoCount: number;
+  totalDuration: number;
+  isEnrolled: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
-### 수강 대상
-- 웹 개발을 처음 시작하는 분
-- 프론트엔드 개발자로 취업을 준비하는 분
-- 기존 개발자 중 최신 기술을 배우고 싶은 분
+export default function CourseDetailPage() {
+  const params = useParams();
+  const id = params?.id as string;
 
-### 선수 지식
-- 컴퓨터 기본 사용법
-- 영어 읽기 (기술 문서 이해를 위해)`,
-    price: 99000,
-    thumbnailGradient: 'from-blue-500 to-purple-600',
-    category: '개발',
-    duration: '12시간',
-    rating: 4.8,
-    reviewCount: 234,
-    studentCount: 1234,
-    instructor: '김개발',
-    instructorIntro: '10년차 프론트엔드 개발자이며, 네이버, 카카오 등에서 근무한 경력이 있습니다.',
-    videos: [
-      { id: 1, title: '강의 소개 및 개발 환경 설정', duration: 720, isPreview: true },
-      { id: 2, title: 'HTML 기초', duration: 1800, isPreview: true },
-      { id: 3, title: 'CSS 기초와 선택자', duration: 2400, isPreview: false },
-      { id: 4, title: 'Flexbox 완벽 정복', duration: 1920, isPreview: false },
-      { id: 5, title: 'JavaScript 기본 문법', duration: 2700, isPreview: false },
-      { id: 6, title: 'React 시작하기', duration: 1680, isPreview: false },
-    ],
-  },
-  {
-    id: '2',
-    title: 'UI/UX 디자인 기초',
-    description: '사용자 중심의 인터페이스 디자인 원칙과 실전 프로젝트',
-    fullDescription: 'UI/UX 디자인의 기초를 배우고 실전 프로젝트를 진행합니다.',
-    price: 79000,
-    thumbnailGradient: 'from-pink-500 to-red-600',
-    category: '디자인',
-    duration: '8시간',
-    rating: 4.9,
-    reviewCount: 189,
-    studentCount: 789,
-    instructor: '이디자인',
-    instructorIntro: 'Google, Apple에서 UX 디자이너로 근무했습니다.',
-    videos: [
-      { id: 1, title: '디자인 기초 이론', duration: 1200, isPreview: true },
-      { id: 2, title: '색상 이론', duration: 1500, isPreview: false },
-    ],
-  },
-];
+  const [course, setCourse] = useState<CourseDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-export default async function CourseDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
-  const course = coursesData.find((c) => c.id === id);
+  useEffect(() => {
+    if (id) {
+      fetchCourse();
+    }
+  }, [id]);
 
-  if (!course) {
-    notFound();
-  }
+  const fetchCourse = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/courses/${id}`);
+
+      if (!response.ok) {
+        setError(true);
+        return;
+      }
+
+      const data = await response.json();
+      setCourse(data);
+    } catch (err) {
+      console.error('강의 상세 정보 로딩 실패:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) {
+      return `${hours}시간 ${minutes > 0 ? minutes + '분' : ''}`;
+    }
     return `${minutes}분`;
   };
 
-  const totalDuration = course.videos.reduce((sum, video) => sum + video.duration, 0);
-  const totalHours = Math.floor(totalDuration / 3600);
-  const totalMinutes = Math.floor((totalDuration % 3600) / 60);
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
+  if (error) {
+    notFound();
+  }
+
+  if (loading || !course) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const totalHours = Math.floor(course.totalDuration / 3600);
+  const totalMinutes = Math.floor((course.totalDuration % 3600) / 60);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -109,13 +131,6 @@ export default async function CourseDetailPage({
                 <span className="text-white">{course.title}</span>
               </div>
 
-              {/* Category Badge */}
-              <div className="mb-4">
-                <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
-                  {course.category}
-                </span>
-              </div>
-
               {/* Title */}
               <h1 className="text-4xl md:text-5xl font-bold mb-4">
                 {course.title}
@@ -129,14 +144,6 @@ export default async function CourseDetailPage({
               {/* Stats */}
               <div className="flex flex-wrap items-center gap-6 mb-6">
                 <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <span className="font-semibold">{course.rating}</span>
-                  <span className="text-gray-200">({course.reviewCount}개 평가)</span>
-                </div>
-
-                <div className="flex items-center gap-2">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
@@ -147,33 +154,39 @@ export default async function CourseDetailPage({
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>{course.duration}</span>
+                  <span>{totalHours}시간 {totalMinutes}분</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  <span>{course.videoCount}개 강의</span>
                 </div>
               </div>
 
               {/* Instructor */}
               <div className="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-lg">
                 <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold">
-                  {course.instructor[0]}
+                  {course.instructorName[0]}
                 </div>
                 <div>
                   <p className="text-sm text-gray-200">강사</p>
-                  <p className="font-semibold text-lg">{course.instructor}</p>
+                  <p className="font-semibold text-lg">{course.instructorName}</p>
                 </div>
               </div>
             </div>
 
-            {/* Preview Video Placeholder */}
+            {/* Preview Video/Thumbnail */}
             <div className="lg:block">
-              <div className={`aspect-video bg-gradient-to-br ${course.thumbnailGradient} rounded-xl shadow-2xl flex items-center justify-center`}>
-                <div className="text-center">
-                  <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                  <p className="text-white text-lg font-semibold">미리보기 영상</p>
-                </div>
+              <div className="aspect-video rounded-xl shadow-2xl overflow-hidden bg-gray-100">
+                <Image
+                  src={course.thumbnailUrl}
+                  alt={course.title}
+                  width={800}
+                  height={450}
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>
@@ -188,10 +201,8 @@ export default async function CourseDetailPage({
               {/* Course Description */}
               <div className="bg-white rounded-2xl shadow-card p-8">
                 <h2 className="text-2xl font-bold text-text-primary mb-6">강의 소개</h2>
-                <div className="prose prose-lg max-w-none">
-                  <div className="text-text-primary whitespace-pre-line">
-                    {course.fullDescription}
-                  </div>
+                <div className="text-text-primary whitespace-pre-line">
+                  {course.description}
                 </div>
               </div>
 
@@ -208,12 +219,17 @@ export default async function CourseDetailPage({
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-semibold">
-                          {index + 1}
+                          {video.order}
                         </div>
                         <div>
                           <h3 className="font-semibold text-text-primary">
                             {video.title}
                           </h3>
+                          {video.description && (
+                            <p className="text-sm text-text-secondary mt-1">
+                              {video.description}
+                            </p>
+                          )}
                           {video.isPreview && (
                             <span className="text-xs text-primary font-medium">
                               미리보기 가능
@@ -238,23 +254,62 @@ export default async function CourseDetailPage({
                 </div>
 
                 <div className="mt-6 pt-6 border-t border-border flex items-center justify-between">
-                  <span className="text-text-secondary">총 {course.videos.length}개 강의</span>
+                  <span className="text-text-secondary">총 {course.videoCount}개 강의</span>
                   <span className="font-semibold text-text-primary">
                     {totalHours}시간 {totalMinutes}분
                   </span>
                 </div>
               </div>
 
+              {/* Course Files */}
+              {course.files && course.files.length > 0 && (
+                <div className="bg-white rounded-2xl shadow-card p-8">
+                  <h2 className="text-2xl font-bold text-text-primary mb-6">
+                    강의 자료
+                  </h2>
+                  <div className="space-y-3">
+                    {course.files.map((file) => (
+                      <div
+                        key={file.id}
+                        className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-bg-secondary transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                          <div>
+                            <h3 className="font-medium text-text-primary">
+                              {file.fileName}
+                            </h3>
+                            <p className="text-sm text-text-secondary">
+                              {formatFileSize(file.fileSize)}
+                            </p>
+                          </div>
+                        </div>
+                        <a
+                          href={file.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm"
+                        >
+                          다운로드
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Instructor */}
               <div className="bg-white rounded-2xl shadow-card p-8">
                 <h2 className="text-2xl font-bold text-text-primary mb-6">강사 소개</h2>
                 <div className="flex items-start gap-6">
                   <div className="w-24 h-24 bg-gradient-to-br from-primary to-primary-light rounded-full flex items-center justify-center text-white text-4xl font-bold flex-shrink-0">
-                    {course.instructor[0]}
+                    {course.instructorName[0]}
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-text-primary mb-2">
-                      {course.instructor}
+                      {course.instructorName}
                     </h3>
                     <p className="text-text-secondary">
                       {course.instructorIntro}
@@ -276,9 +331,15 @@ export default async function CourseDetailPage({
                   <p className="text-sm text-text-secondary">평생 수강 가능</p>
                 </div>
 
-                <button className="btn-primary w-full mb-3">
-                  수강 신청하기
-                </button>
+                {course.isEnrolled ? (
+                  <Link href={`/learn/${course.id}`} className="btn-primary w-full block text-center">
+                    학습 시작하기
+                  </Link>
+                ) : (
+                  <button className="btn-primary w-full mb-3">
+                    수강 신청하기
+                  </button>
+                )}
 
                 <Link
                   href="/courses"
