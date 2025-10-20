@@ -17,11 +17,11 @@ export default function Home() {
 
         <div className="container relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fadeInUp">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fadeInUp leading-tight">
               전문가와 함께하는<br />
-              <span className="text-yellow-300">온라인 강의</span>
+              온라인 강의
             </h1>
-            <p className="text-lg md:text-xl text-gray-100 mb-8 animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
+            <p className="text-lg md:text-xl text-white/90 mb-8 animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
               언제 어디서나 최고의 강의를 들을 수 있습니다
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
@@ -134,7 +134,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             {/* Course Card 1 */}
-            <div className="card-hover group">
+            <Link href="/courses/1" className="card-hover group">
               <div className="relative aspect-video bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg mb-4 overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -165,10 +165,10 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* Course Card 2 */}
-            <div className="card-hover group">
+            <Link href="/courses/2" className="card-hover group">
               <div className="relative aspect-video bg-gradient-to-br from-pink-500 to-red-600 rounded-lg mb-4 overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -199,10 +199,10 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* Course Card 3 */}
-            <div className="card-hover group">
+            <Link href="/courses/3" className="card-hover group">
               <div className="relative aspect-video bg-gradient-to-br from-green-500 to-teal-600 rounded-lg mb-4 overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -233,7 +233,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
 
           <div className="text-center md:hidden">
@@ -257,7 +257,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
               지금 바로 시작하세요
             </h2>
-            <p className="text-lg text-gray-100 mb-8">
+            <p className="text-lg text-white/90 mb-8">
               전문가와 함께 성장하는 학습 경험을 만나보세요
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

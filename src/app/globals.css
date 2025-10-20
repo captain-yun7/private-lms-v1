@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Google Fonts - Pretendard Alternative */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+
 /* LiveKlass-Inspired Design System */
 
 :root {
@@ -49,7 +52,7 @@
   --color-border: var(--border);
 
   /* Fonts */
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+  --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
 
   /* Shadows */
   --shadow-sm: var(--shadow-sm);
