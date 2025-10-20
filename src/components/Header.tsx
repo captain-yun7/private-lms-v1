@@ -14,37 +14,28 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 glass z-50 border-b border-border">
-      <div className="container">
-        <nav className="flex items-center justify-between py-4">
+    <header className="fixed top-0 left-0 right-0 bg-white z-50 border-b border-gray-200">
+      <div className="max-w-[1400px] mx-auto px-8">
+        <nav className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-primary">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="8" fill="currentColor"/>
-              <path d="M10 12L16 18L22 12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-            <span>Private LMS</span>
+          <Link href="/" className="text-2xl font-bold text-black">
+            Private LMS
           </Link>
 
           {/* Desktop Navigation */}
-          <ul className="hidden md:flex items-center gap-8">
+          <ul className="hidden md:flex items-center gap-14">
             <li>
-              <Link href="/courses" className="text-text-primary hover:text-primary transition-colors font-medium">
+              <Link href="/courses" className="text-base text-gray-700 hover:text-black transition-colors font-medium">
                 강의
               </Link>
             </li>
             <li>
-              <Link href="/about" className="text-text-primary hover:text-primary transition-colors font-medium">
+              <Link href="/about" className="text-base text-gray-700 hover:text-black transition-colors font-medium">
                 소개
               </Link>
             </li>
             <li>
-              <Link href="/community" className="text-text-primary hover:text-primary transition-colors font-medium">
-                커뮤니티
-              </Link>
-            </li>
-            <li>
-              <Link href="/contact" className="text-text-primary hover:text-primary transition-colors font-medium">
+              <Link href="/contact" className="text-base text-gray-700 hover:text-black transition-colors font-medium">
                 문의
               </Link>
             </li>
@@ -102,13 +93,13 @@ export default function Header() {
               <>
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-text-primary hover:bg-bg-secondary rounded-lg transition-colors font-medium"
+                  className="px-4 py-2.5 text-gray-700 hover:text-black transition-colors font-medium"
                 >
                   로그인
                 </Link>
                 <Link
                   href="/signup"
-                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all hover:-translate-y-0.5 shadow-md hover:shadow-lg font-semibold"
+                  className="px-6 py-2.5 bg-black text-white rounded-md hover:bg-gray-900 transition-all font-medium"
                 >
                   시작하기
                 </Link>
@@ -152,15 +143,6 @@ export default function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   소개
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/community"
-                  className="block px-4 py-2 text-text-primary hover:bg-bg-secondary rounded-lg transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  커뮤니티
                 </Link>
               </li>
               <li>
