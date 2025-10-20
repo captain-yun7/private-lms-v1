@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { notFound, useParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import VimeoPlayer from '@/components/VimeoPlayer';
 
 interface Video {
   id: string;
@@ -52,6 +53,7 @@ export default function CourseDetailPage() {
   const [course, setCourse] = useState<CourseDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -112,6 +114,9 @@ export default function CourseDetailPage() {
 
   const totalHours = Math.floor(course.totalDuration / 3600);
   const totalMinutes = Math.floor((course.totalDuration % 3600) / 60);
+
+  // 첫 번째 미리보기 가능한 영상 찾기
+  const previewVideo = course.videos.find(video => video.isPreview);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -179,15 +184,29 @@ export default function CourseDetailPage() {
 
             {/* Preview Video/Thumbnail */}
             <div className="lg:block">
-              <div className="aspect-video rounded-xl shadow-2xl overflow-hidden bg-gray-100">
-                <Image
-                  src={course.thumbnailUrl}
-                  alt={course.title}
-                  width={800}
-                  height={450}
-                  className="w-full h-full object-cover"
-                />
+              <div className="aspect-video rounded-xl shadow-2xl overflow-hidden bg-gray-900">
+                {previewVideo ? (
+                  <VimeoPlayer
+                    vimeoUrl={previewVideo.vimeoUrl}
+                    controls={true}
+                    responsive={true}
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <Image
+                    src={course.thumbnailUrl}
+                    alt={course.title}
+                    width={800}
+                    height={450}
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
+              {previewVideo && (
+                <p className="text-sm text-gray-200 mt-2 text-center">
+                  미리보기: {previewVideo.title}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -242,7 +261,11 @@ export default function CourseDetailPage() {
                           {formatDuration(video.duration)}
                         </span>
                         {video.isPreview && (
-                          <button className="p-2 hover:bg-primary/10 rounded-lg transition-colors">
+                          <button
+                            onClick={() => setSelectedVideo(video)}
+                            className="p-2 hover:bg-primary/10 rounded-lg transition-colors"
+                            title="미리보기 재생"
+                          >
                             <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M8 5v14l11-7z" />
                             </svg>
@@ -391,6 +414,65 @@ export default function CourseDetailPage() {
       </main>
 
       <Footer />
+
+      {/* Video Preview Modal */}
+      {selectedVideo && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedVideo(null)}
+        >
+          <div
+            className="bg-white rounded-2xl w-full max-w-4xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <div>
+                <h3 className="text-lg font-bold text-text-primary">
+                  {selectedVideo.title}
+                </h3>
+                {selectedVideo.description && (
+                  <p className="text-sm text-text-secondary mt-1">
+                    {selectedVideo.description}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setSelectedVideo(null)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Video Player */}
+            <div className="aspect-video bg-gray-900">
+              <VimeoPlayer
+                vimeoUrl={selectedVideo.vimeoUrl}
+                controls={true}
+                responsive={true}
+                autoplay={true}
+                className="w-full h-full"
+              />
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-bg-secondary flex items-center justify-between">
+              <div className="text-sm text-text-secondary">
+                <span className="font-medium text-primary">미리보기</span> - 이 영상은 무료로 시청할 수 있습니다
+              </div>
+              <button
+                onClick={() => setSelectedVideo(null)}
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

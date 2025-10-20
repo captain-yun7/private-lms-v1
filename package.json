@@ -27,6 +27,7 @@
     "@tiptap/starter-kit": "^3.7.2",
     "@types/lodash": "^4.17.20",
     "@types/navermaps": "^3.9.1",
+    "@vimeo/player": "^2.29.7",
     "bcryptjs": "^3.0.2",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
