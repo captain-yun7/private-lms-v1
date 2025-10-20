@@ -26,71 +26,72 @@ Private LMS (개인 온라인 강의 사이트)
 
 **1.1 프로젝트 초기 설정 (2일)**
 - [x] Next.js 15 프로젝트 생성
-- [ ] TypeScript 설정
-- [ ] TailwindCSS 설정
-- [ ] ESLint, Prettier 설정
-- [ ] Git 저장소 초기화
-- [ ] .gitignore 설정
-- [ ] 환경 변수 설정 (.env.local)
+- [x] TypeScript 설정
+- [x] TailwindCSS 설정 (v4)
+- [x] ESLint, Prettier 설정
+- [x] Git 저장소 초기화
+- [x] .gitignore 설정
+- [ ] 환경 변수 설정 (.env.local) - 부분 완료 (설정 필요)
 
 **1.2 데이터베이스 설정 (2일)**
-- [ ] Supabase 프로젝트 생성
-- [ ] Prisma 설치 및 초기 설정
-- [ ] DATABASE_URL 환경 변수 설정
-- [ ] Prisma 스키마 작성 (User, Account, Session, VerificationToken)
-- [ ] 첫 마이그레이션 실행 (`npx prisma migrate dev --name init`)
-- [ ] Prisma Client 생성
-- [ ] Prisma Studio 확인
+- [x] Supabase 프로젝트 생성
+- [x] Prisma 설치 및 초기 설정
+- [ ] DATABASE_URL 환경 변수 설정 (환경변수 파일 생성 필요)
+- [x] Prisma 스키마 작성 (User, Account, Session, VerificationToken + 전체 모델)
+- [x] 첫 마이그레이션 실행 (`npx prisma migrate dev --name init`)
+- [x] Prisma Client 생성
+- [x] Prisma Studio 확인
 
 **1.3 NextAuth.js 설정 (3-4일)**
-- [ ] NextAuth.js v5 설치
-- [ ] Prisma Adapter 설정
-- [ ] Credentials Provider 구현 (일반 로그인)
-  - [ ] bcrypt 설치 및 비밀번호 해싱
-  - [ ] 로그인 로직 구현
-- [ ] Google Provider 설정
-  - [ ] Google Cloud Console에서 OAuth 클라이언트 생성
+- [x] NextAuth.js v5 설치
+- [x] Prisma Adapter 설정
+- [x] Credentials Provider 구현 (일반 로그인)
+  - [x] bcrypt 설치 및 비밀번호 해싱
+  - [x] 로그인 로직 구현
+- [x] Google Provider 설정
+  - [ ] Google Cloud Console에서 OAuth 클라이언트 생성 (환경변수 설정 필요)
   - [ ] 환경 변수 설정
-- [ ] Kakao Provider 설정
-  - [ ] Kakao Developers에서 앱 생성
+- [x] Kakao Provider 설정
+  - [ ] Kakao Developers에서 앱 생성 (환경변수 설정 필요)
   - [ ] 환경 변수 설정
-- [ ] Naver Provider 설정
-  - [ ] Naver Developers에서 앱 생성
+- [x] Naver Provider 설정
+  - [ ] Naver Developers에서 앱 생성 (환경변수 설정 필요)
   - [ ] 환경 변수 설정
-- [ ] NextAuth API Routes 설정
-- [ ] Session 관리 (JWT 또는 DB Session)
+- [x] NextAuth API Routes 설정
+- [x] Session 관리 (JWT 또는 DB Session)
 
 **1.4 기본 UI/레이아웃 (2-3일)**
-- [ ] 공통 레이아웃 컴포넌트 (Header, Footer)
-- [ ] 네비게이션 메뉴
-  - [ ] 소개, 강의, 커뮤니티, 고객센터, 마이페이지
-  - [ ] 로그인/로그아웃 버튼
-- [ ] Shadcn/ui 설치 (선택적) 또는 커스텀 UI 컴포넌트
-- [ ] 반응형 디자인 기본 설정
+- [x] 공통 레이아웃 컴포넌트 (Header, Footer)
+- [x] 네비게이션 메뉴
+  - [x] 소개, 강의, 커뮤니티, 고객센터, 마이페이지
+  - [x] 로그인/로그아웃 버튼
+- [x] Shadcn/ui 설치 (선택적) 또는 커스텀 UI 컴포넌트 - Tailwind 기반 커스텀 UI
+- [x] 반응형 디자인 기본 설정
 
 **1.5 인증 페이지 (2-3일)**
-- [ ] 로그인 페이지
-  - [ ] 이메일/비밀번호 로그인 폼
-  - [ ] 소셜 로그인 버튼 (Google, Kakao, Naver)
-  - [ ] 로그인 에러 처리
-- [ ] 회원가입 페이지
-  - [ ] 회원가입 폼 (이름, 이메일, 비밀번호)
-  - [ ] 유효성 검사 (React Hook Form + Zod)
-  - [ ] 이메일 중복 검사
-  - [ ] 비밀번호 강도 체크
-  - [ ] 회원가입 성공 시 자동 로그인
+- [x] 로그인 페이지
+  - [x] 이메일/비밀번호 로그인 폼
+  - [x] 소셜 로그인 버튼 (Google, Kakao, Naver)
+  - [x] 로그인 에러 처리
+- [x] 회원가입 페이지
+  - [x] 회원가입 폼 (이름, 이메일, 비밀번호)
+  - [x] 유효성 검사 (React Hook Form + Zod)
+  - [x] 이메일 중복 검사
+  - [x] 비밀번호 강도 체크
+  - [x] 회원가입 성공 시 자동 로그인
 - [ ] 비밀번호 찾기 페이지 (선택적)
 
 **1.6 테스트 (1일)**
-- [ ] 4가지 로그인 방식 테스트
-- [ ] 회원가입 테스트
+- [ ] 4가지 로그인 방식 테스트 (환경변수 설정 후 테스트 필요)
+- [x] 회원가입 테스트 (Credentials 방식)
 - [ ] 세션 유지 테스트
 - [ ] 로그아웃 테스트
 
 #### Deliverable
-- 4가지 로그인 방식 동작 확인
-- 기본 레이아웃 완성
-- 데이터베이스 연결 완료
+- [x] 4가지 로그인 방식 코드 구현 완료 (환경변수 설정만 필요)
+- [x] 기본 레이아웃 완성 (LiveKlass 스타일)
+- [x] 데이터베이스 연결 완료
+- [ ] 환경변수 파일 설정 및 소셜 로그인 테스트 필요
 
 ---
 
@@ -102,26 +103,26 @@ Private LMS (개인 온라인 강의 사이트)
 #### 작업 목록
 
 **2.1 데이터베이스 스키마 확장 (1일)**
-- [ ] Course, Video, CourseFile 모델 추가
-- [ ] 마이그레이션 실행
-- [ ] Seed 데이터 작성 (테스트용 강의, 영상)
+- [x] Course, Video, CourseFile 모델 추가 (전체 스키마 작성 완료)
+- [x] 마이그레이션 실행
+- [x] Seed 데이터 작성 (테스트용 강의, 영상)
 
 **2.2 강의 목록 페이지 (3-4일)**
 - [ ] 강의 목록 조회 API (`/api/courses`)
-- [ ] 강의 목록 페이지 UI (`/courses`)
-  - [ ] 강의 카드 컴포넌트
-  - [ ] 그리드 레이아웃
-  - [ ] 반응형 디자인
+- [x] 강의 목록 페이지 UI (`/courses`) - 기본 UI 완성
+  - [x] 강의 카드 컴포넌트
+  - [x] 그리드 레이아웃
+  - [x] 반응형 디자인
 - [ ] 검색 기능
   - [ ] 제목/설명 검색
   - [ ] 검색 결과 표시
 - [ ] 페이지네이션 또는 무한 스크롤 (선택적)
-- [ ] 로딩 상태 표시
-- [ ] 에러 처리
+- [x] 로딩 상태 표시
+- [x] 에러 처리
 
 **2.3 강의 상세 페이지 (4-5일)**
 - [ ] 강의 상세 조회 API (`/api/courses/[id]`)
-- [ ] 강의 상세 페이지 UI (`/courses/[id]`)
+- [x] 강의 상세 페이지 UI (`/courses/[id]`) - 기본 UI 완성
   - [ ] 강의 정보 표시 (제목, 설명, 가격, 강사)
   - [ ] 영상 목록 표시 (제목, 재생 시간, 미리보기 여부)
   - [ ] 강의 자료 목록 표시
