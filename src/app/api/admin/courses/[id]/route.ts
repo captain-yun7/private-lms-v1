@@ -24,14 +24,22 @@ export async function GET(
         videos: {
           orderBy: { order: 'asc' },
         },
+        courseFiles: {
+          orderBy: { createdAt: 'desc' },
+        },
       },
     });
 
-    if (!course) {
-      return NextResponse.json({ error: '강의를 찾을 수 없습니다' }, { status: 404 });
+    // courseFiles를 files로 변환 (클라이언트 인터페이스와 일치시키기 위해)
+    if (course) {
+      const { courseFiles, ...rest } = course;
+      return NextResponse.json({
+        ...rest,
+        files: courseFiles,
+      });
     }
 
-    return NextResponse.json(course);
+    return NextResponse.json({ error: '강의를 찾을 수 없습니다' }, { status: 404 });
   } catch (error) {
     console.error('강의 조회 실패:', error);
     return NextResponse.json({ error: '강의 조회 실패' }, { status: 500 });

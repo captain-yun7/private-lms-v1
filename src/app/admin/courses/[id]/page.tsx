@@ -15,6 +15,14 @@ interface Video {
   isPreview: boolean;
 }
 
+interface CourseFile {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  createdAt: string;
+}
+
 interface Course {
   id: string;
   title: string;
@@ -25,6 +33,7 @@ interface Course {
   instructorIntro: string | null;
   isPublished: boolean;
   videos: Video[];
+  files: CourseFile[];
 }
 
 export default function EditCoursePage() {
@@ -56,7 +65,11 @@ export default function EditCoursePage() {
   });
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+
+  // 강의 자료 관리 상태
+  const [showFileForm, setShowFileForm] = useState(false);
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [fileUploading, setFileUploading] = useState(false);
 
   useEffect(() => {
     fetchCourse();
@@ -136,7 +149,6 @@ export default function EditCoursePage() {
     }
 
     setUploading(true);
-    setUploadProgress(0);
 
     try {
       const formData = new FormData();
@@ -170,7 +182,6 @@ export default function EditCoursePage() {
       alert(error.message || '영상 업로드에 실패했습니다.');
     } finally {
       setUploading(false);
-      setUploadProgress(0);
     }
   };
 
@@ -250,6 +261,68 @@ export default function EditCoursePage() {
       console.error('Error:', error);
       alert('순서 변경에 실패했습니다.');
     }
+  };
+
+  // 강의 자료 업로드
+  const handleFileUploadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!fileToUpload) {
+      alert('파일을 선택해주세요');
+      return;
+    }
+
+    setFileUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', fileToUpload);
+
+      const response = await fetch(`/api/admin/courses/${courseId}/files`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || '파일 업로드 실패');
+      }
+
+      alert('파일이 업로드되었습니다.');
+      setShowFileForm(false);
+      setFileToUpload(null);
+      fetchCourse();
+    } catch (error: any) {
+      console.error('Error:', error);
+      alert(error.message || '파일 업로드에 실패했습니다.');
+    } finally {
+      setFileUploading(false);
+    }
+  };
+
+  // 강의 자료 삭제
+  const handleDeleteFile = async (fileId: string) => {
+    if (!confirm('이 파일을 삭제하시겠습니까?')) return;
+
+    try {
+      const response = await fetch(`/api/admin/files/${fileId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('파일 삭제 실패');
+
+      alert('파일이 삭제되었습니다.');
+      fetchCourse();
+    } catch (error) {
+      console.error('Error:', error);
+      alert('파일 삭제에 실패했습니다.');
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
   if (loading) {
@@ -560,6 +633,98 @@ export default function EditCoursePage() {
                   </button>
                 </div>
               ))}
+          </div>
+        )}
+      </div>
+
+      {/* 강의 자료 관리 */}
+      <div className="bg-white rounded-lg shadow p-6 mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">강의 자료 관리 ({course.files?.length || 0}개)</h2>
+          <button
+            onClick={() => setShowFileForm(!showFileForm)}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+          >
+            {showFileForm ? '취소' : '+ 파일 추가'}
+          </button>
+        </div>
+
+        {showFileForm && (
+          <form onSubmit={handleFileUploadSubmit} className="mb-6 p-4 bg-gray-50 rounded-lg">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">파일 선택 *</label>
+                <input
+                  type="file"
+                  onChange={(e) => setFileToUpload(e.target.files?.[0] || null)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  disabled={fileUploading}
+                />
+                {fileToUpload && (
+                  <p className="mt-1 text-sm text-gray-500">
+                    선택된 파일: {fileToUpload.name} ({formatFileSize(fileToUpload.size)})
+                  </p>
+                )}
+              </div>
+
+              {fileUploading && (
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <p className="text-sm font-medium text-blue-900 mb-2">파일 업로드 중...</p>
+                  <p className="text-xs text-blue-700">업로드가 완료될 때까지 기다려주세요.</p>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={fileUploading || !fileToUpload}
+                className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {fileUploading ? '업로드 중...' : '파일 업로드'}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {!course.files || course.files.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">등록된 파일이 없습니다</p>
+        ) : (
+          <div className="space-y-2">
+            {course.files.map((file) => (
+              <div
+                key={file.id}
+                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <svg className="w-8 h-8 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 truncate">{file.fileName}</p>
+                    <div className="flex items-center gap-3 text-sm text-gray-500">
+                      <span>{formatFileSize(file.fileSize)}</span>
+                      <span>•</span>
+                      <span>{new Date(file.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={file.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1 text-primary hover:text-primary-dark"
+                  >
+                    다운로드
+                  </a>
+                  <button
+                    onClick={() => handleDeleteFile(file.id)}
+                    className="px-3 py-1 text-red-600 hover:text-red-900"
+                  >
+                    삭제
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
