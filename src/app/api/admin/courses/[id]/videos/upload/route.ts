@@ -2,12 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { Vimeo } from '@vimeo/vimeo';
+import { writeFile, unlink } from 'fs/promises';
+import { join } from 'path';
+import { tmpdir } from 'os';
 
 // Vimeo 업로드
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  let tempFilePath: string | null = null;
+
   try {
     const session = await auth();
 
@@ -43,20 +48,33 @@ export async function POST(
       return NextResponse.json({ error: '제목이 필요합니다' }, { status: 400 });
     }
 
+    // 파일을 임시 디렉토리에 저장
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // 임시 파일 경로 생성 (고유한 파일명)
+    const tempFileName = `vimeo-upload-${Date.now()}-${file.name}`;
+    tempFilePath = join(tmpdir(), tempFileName);
+
+    // 임시 파일로 저장
+    await writeFile(tempFilePath, buffer);
+
     // Vimeo 클라이언트 생성
     const client = new Vimeo(null, null, vimeoToken);
 
-    // 파일을 Buffer로 변환
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    // 강의 정보 조회 (강의명을 폴더명으로 사용)
+    const course = await prisma.course.findUnique({
+      where: { id: params.id },
+      select: { title: true },
+    });
 
     // Vimeo에 업로드
     const vimeoResponse = await new Promise<any>((resolve, reject) => {
       client.upload(
-        buffer,
+        tempFilePath!,
         {
-          name: title,
-          description: description || '',
+          name: `[${course?.title || 'LMS'}] ${title}`, // 강의명을 영상 제목에 포함
+          description: `강의: ${course?.title || 'Unknown'}\n\n${description || ''}`,
           privacy: {
             view: 'unlisted', // 비공개 (링크로만 접근 가능)
           },
@@ -66,7 +84,7 @@ export async function POST(
           resolve({ uri });
         },
         (bytesUploaded: number, bytesTotal: number) => {
-          // 진행률 (추후 WebSocket으로 전달 가능)
+          // 진행률
           const percent = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
           console.log(`Upload progress: ${percent}%`);
         },
@@ -112,5 +130,15 @@ export async function POST(
       { error: error.message || '영상 업로드 실패' },
       { status: 500 }
     );
+  } finally {
+    // 임시 파일 삭제
+    if (tempFilePath) {
+      try {
+        await unlink(tempFilePath);
+        console.log('임시 파일 삭제 완료:', tempFilePath);
+      } catch (err) {
+        console.error('임시 파일 삭제 실패:', err);
+      }
+    }
   }
 }
