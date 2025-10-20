@@ -123,9 +123,9 @@ export default function CourseDetailPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary via-primary-dark to-purple-700 text-white py-16">
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section className="bg-gradient-to-br from-primary via-primary-dark to-purple-700 text-white py-16 mt-[73px]">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div>
               {/* Breadcrumb */}
               <div className="flex items-center gap-2 text-sm text-gray-200 mb-4">
@@ -183,7 +183,7 @@ export default function CourseDetailPage() {
             </div>
 
             {/* Preview Video/Thumbnail */}
-            <div className="lg:block">
+            <div className="w-full">
               <div className="aspect-video rounded-xl shadow-2xl overflow-hidden bg-gray-900">
                 {previewVideo ? (
                   <VimeoPlayer
@@ -203,7 +203,7 @@ export default function CourseDetailPage() {
                 )}
               </div>
               {previewVideo && (
-                <p className="text-sm text-gray-200 mt-2 text-center">
+                <p className="text-sm text-gray-200 mt-3 text-center">
                   미리보기: {previewVideo.title}
                 </p>
               )}
@@ -213,7 +213,7 @@ export default function CourseDetailPage() {
       </section>
 
       <main className="flex-1 bg-bg-light py-12">
-        <div className="container">
+        <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
