@@ -32,9 +32,36 @@ export default function VimeoPlayer({
   const playerRef = useRef<Player | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const initializedRef = useRef(false);
+
+  // 콜백 함수들을 ref로 저장하여 useEffect dependency 문제 해결
+  const onReadyRef = useRef(onReady);
+  const onPlayRef = useRef(onPlay);
+  const onPauseRef = useRef(onPause);
+  const onEndedRef = useRef(onEnded);
+  const onTimeUpdateRef = useRef(onTimeUpdate);
+
+  useEffect(() => {
+    onReadyRef.current = onReady;
+    onPlayRef.current = onPlay;
+    onPauseRef.current = onPause;
+    onEndedRef.current = onEnded;
+    onTimeUpdateRef.current = onTimeUpdate;
+  });
 
   useEffect(() => {
     if (!containerRef.current) return;
+
+    // React Strict Mode에서 중복 초기화 방지
+    if (initializedRef.current && playerRef.current) {
+      console.log('[VimeoPlayer] Already initialized, skipping');
+      return;
+    }
+
+    initializedRef.current = true;
+    let player: Player | null = null;
+
+    console.log('[VimeoPlayer] Starting initialization');
 
     try {
       // Vimeo URL에서 video ID 추출
@@ -63,21 +90,36 @@ export default function VimeoPlayer({
       }
 
       // Vimeo Player 초기화
-      const player = new Player(containerRef.current, {
+      console.log('[VimeoPlayer] Initializing player with video ID:', videoId);
+      player = new Player(containerRef.current, {
         id: parseInt(videoId),
         autoplay,
         controls,
         responsive,
         width: responsive ? undefined : 640,
+        playsinline: true,
+        dnt: true,
       });
 
+      console.log('[VimeoPlayer] Player instance created');
       playerRef.current = player;
 
       // Ready 이벤트
       player.ready().then(() => {
+        console.log('[VimeoPlayer] Player ready!');
+
+        // 플레이어 정보 확인
+        player!.getDuration().then((duration) => {
+          console.log('[VimeoPlayer] Video duration:', duration);
+        });
+
+        player!.getPaused().then((paused) => {
+          console.log('[VimeoPlayer] Is paused:', paused);
+        });
+
         setIsLoading(false);
         setError(null);
-        onReady?.();
+        onReadyRef.current?.();
       }).catch((err) => {
         console.error('Vimeo player error:', err);
         setError('비디오를 로드할 수 없습니다.');
@@ -85,38 +127,41 @@ export default function VimeoPlayer({
       });
 
       // 이벤트 리스너 등록
-      if (onPlay) {
-        player.on('play', onPlay);
-      }
+      player.on('play', () => {
+        console.log('[VimeoPlayer] play event');
+        onPlayRef.current?.();
+      });
 
-      if (onPause) {
-        player.on('pause', onPause);
-      }
+      player.on('pause', () => {
+        console.log('[VimeoPlayer] pause event');
+        onPauseRef.current?.();
+      });
 
-      if (onEnded) {
-        player.on('ended', onEnded);
-      }
+      player.on('ended', () => {
+        console.log('[VimeoPlayer] ended event');
+        onEndedRef.current?.();
+      });
 
-      if (onTimeUpdate) {
-        player.on('timeupdate', (data) => {
-          onTimeUpdate({
-            seconds: data.seconds,
-            percent: data.percent,
-            duration: data.duration,
-          });
+      player.on('timeupdate', (data) => {
+        console.log('[VimeoPlayer] timeupdate event:', data);
+        onTimeUpdateRef.current?.({
+          seconds: data.seconds,
+          percent: data.percent,
+          duration: data.duration,
         });
-      }
+      });
 
-      // Cleanup
+      // Cleanup - initializedRef는 리셋하지 않음 (React Strict Mode 대응)
       return () => {
-        player.destroy();
+        console.log('[VimeoPlayer] Cleanup called (strict mode), keeping player');
+        // playerRef와 initializedRef를 유지하여 재초기화 방지
       };
     } catch (err) {
       console.error('Failed to initialize Vimeo player:', err);
       setError('플레이어 초기화에 실패했습니다.');
       setIsLoading(false);
     }
-  }, [vimeoUrl, autoplay, controls, responsive, onReady, onPlay, onPause, onEnded, onTimeUpdate]);
+  }, [vimeoUrl, autoplay, controls, responsive]);
 
   return (
     <div className={`relative ${className}`}>

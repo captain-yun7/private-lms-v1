@@ -54,6 +54,7 @@ export default function LearnPage() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [progresses, setProgresses] = useState<Map<string, Progress>>(new Map());
   const [lastSavedPosition, setLastSavedPosition] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -67,6 +68,11 @@ export default function LearnPage() {
       fetchCourse();
     }
   }, [courseId, status]);
+
+  // 비디오 변경 시 lastSavedPosition 리셋
+  useEffect(() => {
+    setLastSavedPosition(0);
+  }, [currentVideoIndex]);
 
   const fetchCourse = async () => {
     try {
@@ -118,12 +124,21 @@ export default function LearnPage() {
   // 진도 저장 (5초마다 또는 비디오 완료 시)
   const saveProgress = async (videoId: string, position: number, isCompleted: boolean = false) => {
     try {
+      // 이미 저장 중이면 스킵
+      if (isSaving) {
+        return;
+      }
+
       // 5초 이상 차이나거나 완료 상태일 때만 저장
       if (Math.abs(position - lastSavedPosition) < 5 && !isCompleted) {
         return;
       }
 
-      await fetch('/api/progress', {
+      setIsSaving(true);
+
+      console.log('Saving progress:', { videoId, position: Math.floor(position), isCompleted });
+
+      const response = await fetch('/api/progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -133,15 +148,35 @@ export default function LearnPage() {
         }),
       });
 
-      setLastSavedPosition(position);
+      console.log('Save response:', response.status);
+
+      if (response.ok) {
+        setLastSavedPosition(position);
+
+        // 진도 정보 업데이트
+        if (isCompleted) {
+          const data = await response.json();
+          if (data.progress) {
+            setProgresses(prev => {
+              const newMap = new Map(prev);
+              newMap.set(videoId, data.progress);
+              return newMap;
+            });
+          }
+        }
+      }
     } catch (error) {
       console.error('진도 저장 실패:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   // 비디오 시간 업데이트 핸들러
   const handleTimeUpdate = (data: { seconds: number; percent: number; duration: number }) => {
     if (!currentVideo) return;
+
+    console.log('Time update:', data.seconds, 'seconds, progress:', Math.round(data.percent * 100) + '%');
 
     // 비디오가 90% 이상 재생되면 자동으로 완료 처리
     const isCompleted = data.percent >= 0.9;
@@ -151,6 +186,7 @@ export default function LearnPage() {
   // 비디오 종료 핸들러
   const handleVideoEnded = () => {
     if (!currentVideo) return;
+    console.log('Video ended');
     saveProgress(currentVideo.id, currentVideo.duration, true);
   };
 
@@ -229,6 +265,7 @@ export default function LearnPage() {
           <div className="flex-1 flex items-center justify-center">
             {currentVideo && (
               <VimeoPlayer
+                key={currentVideo.id}
                 vimeoUrl={currentVideo.vimeoUrl}
                 controls={true}
                 responsive={true}
