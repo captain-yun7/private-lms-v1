@@ -1,60 +1,22 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server';
+import { auth } from '@/auth';
 
-export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
+export default auth((req) => {
+  const isLoggedIn = !!req.auth;
+  const { pathname } = req.nextUrl;
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            request.cookies.set(name, value)
-            supabaseResponse.cookies.set(name, value, options)
-          })
-        },
-      },
-    }
-  )
+  // Protected routes
+  const protectedRoutes = ['/dashboard'];
+  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  // 관리자 페이지 보호
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (request.nextUrl.pathname === '/admin/login') {
-      // 이미 로그인된 사용자가 로그인 페이지에 접근하면 대시보드로 리다이렉트
-      if (user) {
-        return NextResponse.redirect(new URL('/admin/dashboard', request.url))
-      }
-    } else {
-      // 관리자 페이지에 접근하려는데 로그인하지 않은 경우 로그인 페이지로 리다이렉트
-      if (!user) {
-        return NextResponse.redirect(new URL('/admin/login', request.url))
-      }
-    }
+  if (isProtectedRoute && !isLoggedIn) {
+    const loginUrl = new URL('/login', req.url);
+    loginUrl.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
-  // creating a new response object with NextResponse.next() make sure to:
-  // 1. Pass the request in it, like so: NextResponse.next({ request })
-  // 2. Copy over the cookies, like so: supabaseResponse.cookies.getAll().forEach(...)
-  // 3. Change the response's status code, like so: supabaseResponse.status = 404
-
-  return supabaseResponse
-}
+  return NextResponse.next();
+});
 
 export const config = {
   matcher: [
@@ -63,8 +25,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
+     * - public assets
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
-}
+};
