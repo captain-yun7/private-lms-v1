@@ -95,8 +95,8 @@ export default async function DashboardPage() {
     <div className="min-h-screen flex flex-col bg-bg-light">
       <Header />
 
-      <main className="flex-1 py-12">
-        <div className="container">
+      <main className="flex-1 py-12 mt-[73px]">
+        <div className="container mx-auto px-4">
           {/* Welcome Section */}
           <div className="bg-white rounded-2xl shadow-card p-8 mb-8">
             <div className="flex items-center gap-4 mb-4">
