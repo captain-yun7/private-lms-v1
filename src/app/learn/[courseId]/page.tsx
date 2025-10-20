@@ -17,6 +17,13 @@ interface Video {
   isPreview: boolean;
 }
 
+interface Progress {
+  id: string;
+  lastPosition: number;
+  isCompleted: boolean;
+  completedAt: string | null;
+}
+
 interface CourseFile {
   id: string;
   fileName: string;
@@ -45,6 +52,8 @@ export default function LearnPage() {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showSidebar, setShowSidebar] = useState(true);
+  const [progresses, setProgresses] = useState<Map<string, Progress>>(new Map());
+  const [lastSavedPosition, setLastSavedPosition] = useState(0);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -78,12 +87,71 @@ export default function LearnPage() {
       }
 
       setCourse(data);
+
+      // 진도 정보 불러오기
+      await fetchProgress(courseId);
     } catch (error) {
       console.error('강의 로딩 실패:', error);
       router.push('/courses');
     } finally {
       setLoading(false);
     }
+  };
+
+  // 진도 정보 불러오기
+  const fetchProgress = async (courseId: string) => {
+    try {
+      const response = await fetch(`/api/progress?courseId=${courseId}`);
+      if (response.ok) {
+        const data = await response.json();
+        const progressMap = new Map<string, Progress>();
+        data.progresses?.forEach((p: any) => {
+          progressMap.set(p.videoId, p);
+        });
+        setProgresses(progressMap);
+      }
+    } catch (error) {
+      console.error('진도 조회 실패:', error);
+    }
+  };
+
+  // 진도 저장 (5초마다 또는 비디오 완료 시)
+  const saveProgress = async (videoId: string, position: number, isCompleted: boolean = false) => {
+    try {
+      // 5초 이상 차이나거나 완료 상태일 때만 저장
+      if (Math.abs(position - lastSavedPosition) < 5 && !isCompleted) {
+        return;
+      }
+
+      await fetch('/api/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          videoId,
+          lastPosition: Math.floor(position),
+          isCompleted,
+        }),
+      });
+
+      setLastSavedPosition(position);
+    } catch (error) {
+      console.error('진도 저장 실패:', error);
+    }
+  };
+
+  // 비디오 시간 업데이트 핸들러
+  const handleTimeUpdate = (data: { seconds: number; percent: number; duration: number }) => {
+    if (!currentVideo) return;
+
+    // 비디오가 90% 이상 재생되면 자동으로 완료 처리
+    const isCompleted = data.percent >= 0.9;
+    saveProgress(currentVideo.id, data.seconds, isCompleted);
+  };
+
+  // 비디오 종료 핸들러
+  const handleVideoEnded = () => {
+    if (!currentVideo) return;
+    saveProgress(currentVideo.id, currentVideo.duration, true);
   };
 
   const currentVideo = course?.videos[currentVideoIndex];
@@ -166,6 +234,8 @@ export default function LearnPage() {
                 responsive={true}
                 autoplay={false}
                 className="w-full h-full"
+                onTimeUpdate={handleTimeUpdate}
+                onEnded={handleVideoEnded}
               />
             )}
           </div>
@@ -244,9 +314,17 @@ export default function LearnPage() {
                   <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold ${
                     currentVideoIndex === index
                       ? 'bg-primary text-white'
+                      : progresses.get(video.id)?.isCompleted
+                      ? 'bg-green-600 text-white'
                       : 'bg-gray-600 text-gray-300'
                   }`}>
-                    {video.order}
+                    {progresses.get(video.id)?.isCompleted ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      video.order
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className={`font-medium mb-1 line-clamp-2 ${
@@ -254,8 +332,11 @@ export default function LearnPage() {
                     }`}>
                       {video.title}
                     </h4>
-                    <p className="text-gray-400 text-sm">
-                      {formatDuration(video.duration)}
+                    <p className="text-gray-400 text-sm flex items-center gap-2">
+                      <span>{formatDuration(video.duration)}</span>
+                      {progresses.get(video.id)?.isCompleted && (
+                        <span className="text-green-400 text-xs">완료</span>
+                      )}
                     </p>
                   </div>
                   {currentVideoIndex === index && (

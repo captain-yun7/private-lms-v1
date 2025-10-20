@@ -46,6 +46,12 @@ interface CourseDetail {
   updatedAt: string;
 }
 
+interface ProgressData {
+  totalVideos: number;
+  completedVideos: number;
+  progressRate: number;
+}
+
 export default function CourseDetailPage() {
   const params = useParams();
   const id = params?.id as string;
@@ -54,6 +60,7 @@ export default function CourseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [progressData, setProgressData] = useState<ProgressData | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -73,11 +80,33 @@ export default function CourseDetailPage() {
 
       const data = await response.json();
       setCourse(data);
+
+      // 수강 등록된 경우 진도 정보 불러오기
+      if (data.isEnrolled) {
+        fetchProgress(id);
+      }
     } catch (err) {
       console.error('강의 상세 정보 로딩 실패:', err);
       setError(true);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 진도 정보 불러오기
+  const fetchProgress = async (courseId: string) => {
+    try {
+      const response = await fetch(`/api/progress?courseId=${courseId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setProgressData({
+          totalVideos: data.totalVideos || 0,
+          completedVideos: data.completedVideos || 0,
+          progressRate: data.progressRate || 0,
+        });
+      }
+    } catch (error) {
+      console.error('진도 조회 실패:', error);
     }
   };
 
@@ -355,9 +384,28 @@ export default function CourseDetailPage() {
                 </div>
 
                 {course.isEnrolled ? (
-                  <Link href={`/learn/${course.id}`} className="btn-primary w-full block text-center">
-                    학습 시작하기
-                  </Link>
+                  <>
+                    {progressData && (
+                      <div className="mb-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm font-medium text-text-primary">학습 진도</span>
+                          <span className="text-sm font-semibold text-primary">{progressData.progressRate}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                          <div
+                            className="bg-primary h-full rounded-full transition-all duration-300"
+                            style={{ width: `${progressData.progressRate}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-text-secondary mt-1">
+                          {progressData.completedVideos} / {progressData.totalVideos} 강의 완료
+                        </p>
+                      </div>
+                    )}
+                    <Link href={`/learn/${course.id}`} className="btn-primary w-full block text-center">
+                      {progressData && progressData.progressRate > 0 ? '학습 계속하기' : '학습 시작하기'}
+                    </Link>
+                  </>
                 ) : (
                   <button className="btn-primary w-full mb-3">
                     수강 신청하기
