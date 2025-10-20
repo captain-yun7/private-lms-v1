@@ -98,16 +98,16 @@ async function main() {
       data: courseData,
     });
 
-    // 각 강의에 영상 추가
+    // 각 강의에 영상 추가 (실제 Vimeo 샘플 비디오 사용)
     await prisma.video.createMany({
       data: [
         {
           courseId: course.id,
           title: '강의 소개 및 개발 환경 설정',
           description: '강의 전체 개요와 필요한 개발 환경을 설정합니다.',
-          vimeoUrl: 'https://vimeo.com/912345678',
-          vimeoId: '912345678',
-          duration: 720, // 12분
+          vimeoUrl: 'https://vimeo.com/76979871',  // 실제 Vimeo 샘플 비디오
+          vimeoId: '76979871',
+          duration: 60, // 1분
           order: 1,
           isPreview: true,
         },
@@ -115,9 +115,9 @@ async function main() {
           courseId: course.id,
           title: '기초 개념 이해하기',
           description: '기본 개념과 핵심 원리를 학습합니다.',
-          vimeoUrl: 'https://vimeo.com/912345679',
-          vimeoId: '912345679',
-          duration: 1800, // 30분
+          vimeoUrl: 'https://vimeo.com/148751763',  // 실제 Vimeo 샘플 비디오
+          vimeoId: '148751763',
+          duration: 128, // 2분
           order: 2,
           isPreview: true,
         },
@@ -125,9 +125,9 @@ async function main() {
           courseId: course.id,
           title: '실전 프로젝트 시작',
           description: '배운 내용을 바탕으로 실제 프로젝트를 시작합니다.',
-          vimeoUrl: 'https://vimeo.com/912345680',
-          vimeoId: '912345680',
-          duration: 2400, // 40분
+          vimeoUrl: 'https://vimeo.com/253989945',  // 실제 Vimeo 샘플 비디오
+          vimeoId: '253989945',
+          duration: 180, // 3분
           order: 3,
           isPreview: false,
         },
@@ -135,9 +135,9 @@ async function main() {
           courseId: course.id,
           title: '고급 기능 구현',
           description: '심화 내용과 고급 기능을 다룹니다.',
-          vimeoUrl: 'https://vimeo.com/912345681',
-          vimeoId: '912345681',
-          duration: 1920, // 32분
+          vimeoUrl: 'https://vimeo.com/342571490',  // 실제 Vimeo 샘플 비디오
+          vimeoId: '342571490',
+          duration: 240, // 4분
           order: 4,
           isPreview: false,
         },
