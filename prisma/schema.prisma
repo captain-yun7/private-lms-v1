@@ -204,24 +204,34 @@ enum PaymentStatus {
 }
 
 model BankTransfer {
-  id                  String    @id @default(cuid())
-  paymentId           String    @unique
-  depositorName       String    // 입금자명
-  expectedDepositDate DateTime  // 입금 예정일
-  approvedAt          DateTime? // 승인 시각
-  rejectedAt          DateTime? // 거절 시각
-  rejectReason        String?   @db.Text
-  createdAt           DateTime  @default(now())
+  id                  String               @id @default(cuid())
+  paymentId           String               @unique
+  depositorName       String               // 입금자명
+  expectedDepositDate DateTime             // 입금 예정일
+  status              BankTransferStatus   @default(PENDING)
+  approvedAt          DateTime?            // 승인 시각
+  approvedBy          String?              // 승인자 ID
+  rejectedAt          DateTime?            // 거절 시각
+  rejectedBy          String?              // 거절자 ID
+  rejectionReason     String?              @db.Text
+  createdAt           DateTime             @default(now())
 
   payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
 
   @@map("bank_transfers")
 }
 
+enum BankTransferStatus {
+  PENDING   // 입금 대기
+  APPROVED  // 승인 완료
+  REJECTED  // 거절
+}
+
 model Receipt {
   id            String   @id @default(cuid())
   purchaseId    String   @unique
   receiptNumber String   @unique // 영수증 번호
+  amount        Int      // 결제 금액
   issuedAt      DateTime @default(now())
 
   purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)

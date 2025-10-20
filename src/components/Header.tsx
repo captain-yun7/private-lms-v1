@@ -77,6 +77,13 @@ export default function Header() {
                     >
                       마이페이지
                     </Link>
+                    <Link
+                      href="/mypage/payments"
+                      className="block px-4 py-2 text-text-primary hover:bg-bg-secondary transition-colors"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      결제 내역
+                    </Link>
                     <button
                       onClick={() => {
                         setUserMenuOpen(false);
@@ -164,6 +171,15 @@ export default function Header() {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       마이페이지
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/mypage/payments"
+                      className="block px-4 py-2 text-text-primary hover:bg-bg-secondary rounded-lg transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      결제 내역
                     </Link>
                   </li>
                   <li>

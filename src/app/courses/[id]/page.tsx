@@ -134,8 +134,8 @@ export default function CourseDetailPage() {
       // 로그인하지 않은 경우 로그인 페이지로 리디렉션
       router.push(`/login?callbackUrl=/courses/${id}`);
     } else {
-      // 로그인한 경우 결제 페이지로 이동 (Phase 3에서 구현 예정)
-      alert('결제 기능은 Phase 3에서 구현 예정입니다.');
+      // 로그인한 경우 결제 페이지로 이동
+      router.push(`/checkout/${id}`);
     }
   };
 

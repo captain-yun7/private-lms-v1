@@ -28,6 +28,7 @@
     "@tiptap/extension-placeholder": "^3.7.2",
     "@tiptap/react": "^3.7.2",
     "@tiptap/starter-kit": "^3.7.2",
+    "@tosspayments/tosspayments-sdk": "^2.4.0",
     "@types/lodash": "^4.17.20",
     "@types/navermaps": "^3.9.1",
     "@vimeo/player": "^2.29.7",
