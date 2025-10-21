@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import AdminSidebar from '@/components/AdminSidebar';
 
 interface Notice {
   id: string;
@@ -98,13 +97,8 @@ export default function AdminNoticeEditPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-gray-50">
-        <AdminSidebar />
-        <div className="flex-1 ml-64">
-          <div className="flex justify-center items-center h-screen">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          </div>
-        </div>
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -114,10 +108,8 @@ export default function AdminNoticeEditPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <AdminSidebar />
-      <div className="flex-1 ml-64">
-        <div className="p-8">
+    <>
+      <div>
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">공지사항 수정</h1>
@@ -203,8 +195,7 @@ export default function AdminNoticeEditPage() {
               </div>
             </form>
           </div>
-        </div>
       </div>
-    </div>
+    </>
   );
 }

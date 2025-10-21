@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import AdminSidebar from '@/components/AdminSidebar';
 
 export default function AdminNoticeNewPage() {
   const router = useRouter();
@@ -55,10 +54,8 @@ export default function AdminNoticeNewPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <AdminSidebar />
-      <div className="flex-1 ml-64">
-        <div className="p-8">
+    <>
+      <div>
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">공지사항 작성</h1>
@@ -144,8 +141,7 @@ export default function AdminNoticeNewPage() {
               </div>
             </form>
           </div>
-        </div>
       </div>
-    </div>
+    </>
   );
 }

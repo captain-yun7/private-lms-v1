@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import AdminSidebar from '@/components/AdminSidebar';
 
 interface Notice {
   id: string;
@@ -97,10 +96,8 @@ export default function AdminNoticesPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <AdminSidebar />
-      <div className="flex-1 ml-64">
-        <div className="p-8">
+    <>
+      <div>
           {/* Header */}
           <div className="mb-8 flex items-center justify-between">
             <div>
@@ -264,8 +261,7 @@ export default function AdminNoticesPage() {
               )}
             </>
           )}
-        </div>
       </div>
-    </div>
+    </>
   );
 }
