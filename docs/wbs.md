@@ -225,7 +225,7 @@ Private LMS (개인 온라인 강의 사이트)
 
 ---
 
-### Phase 3: 결제 시스템 (2-3주)
+### Phase 3: 결제 시스템 (2-3주) ✅ **완료**
 
 #### 목표
 토스페이먼츠 카드 결제, 무통장입금, 영수증, 환불 기능 구현
@@ -233,131 +233,149 @@ Private LMS (개인 온라인 강의 사이트)
 #### 작업 목록
 
 **3.1 데이터베이스 스키마 확장 (1일)**
-- [ ] Purchase, Payment, BankTransfer, Receipt, TaxInvoice, Refund 모델 추가
-- [ ] 마이그레이션 실행
+- [x] Purchase, Payment, BankTransfer, Receipt, TaxInvoice, Refund 모델 추가
+- [x] 마이그레이션 실행
 
 **3.2 토스페이먼츠 연동 준비 (1일)**
-- [ ] 토스페이먼츠 가입 및 테스트 키 발급
-- [ ] 환경 변수 설정 (클라이언트 키, 시크릿 키)
-- [ ] `@tosspayments/payment-sdk` 설치 (또는 직접 API 호출)
+- [x] 토스페이먼츠 가입 및 테스트 키 발급
+- [x] 환경 변수 설정 (클라이언트 키, 시크릿 키)
+- [x] `@tosspayments/payment-widget-sdk` 설치
 
 **3.3 결제 페이지 (3-4일)**
-- [ ] 결제 페이지 UI (`/checkout/[courseId]`)
-  - [ ] 강의 정보 요약
-  - [ ] 결제 수단 선택 (카드/무통장입금)
-  - [ ] 구매자 정보 입력 (이름, 이메일, 전화번호)
-  - [ ] 구매 동의 체크박스
-  - [ ] "결제하기" 버튼 (카드)
-  - [ ] "입금 정보 제출" 버튼 (무통장입금)
-- [ ] 결제 수단별 UI 토글
-- [ ] 유효성 검사
+- [x] 결제 페이지 UI (`/checkout/[courseId]`)
+  - [x] 강의 정보 요약
+  - [x] 결제 수단 선택 (카드/무통장입금)
+  - [x] 구매자 정보 입력 (이름, 이메일, 전화번호)
+  - [x] 구매 동의 체크박스
+  - [x] "결제하기" 버튼 (카드)
+  - [x] "입금 정보 제출" 버튼 (무통장입금)
+- [x] 결제 수단별 UI 토글
+- [x] 유효성 검사
 
 **3.4 카드 결제 (토스페이먼츠) (4-5일)**
-- [ ] 결제 요청 API (`POST /api/payments/request`)
-  - [ ] Purchase 레코드 생성 (status: PENDING)
-  - [ ] Payment 레코드 생성
-  - [ ] orderId 생성 (UUID)
-  - [ ] 클라이언트에 결제 정보 반환
-- [ ] 토스페이먼츠 결제창 호출
-  - [ ] 클라이언트에서 토스페이먼츠 SDK 사용
-  - [ ] 결제창 띄우기
-- [ ] 결제 성공 콜백 처리 (`/checkout/success`)
-  - [ ] 쿼리 파라미터에서 paymentKey, orderId, amount 추출
-  - [ ] 결제 승인 API (`POST /api/payments/confirm`)
-    - [ ] 토스페이먼츠 API로 결제 승인 요청
-    - [ ] Payment 상태 "COMPLETED"로 변경
-    - [ ] Purchase 상태 "COMPLETED"로 변경
-    - [ ] Enrollment 생성 (수강 등록)
-    - [ ] Receipt 생성 (영수증)
-  - [ ] 결제 완료 페이지 표시
-- [ ] 결제 실패 콜백 처리 (`/checkout/fail`)
-  - [ ] 실패 사유 표시
-  - [ ] 결제 페이지로 복귀 버튼
+- [x] 결제 요청 API (`POST /api/payments/request`)
+  - [x] Purchase 레코드 생성 (status: PENDING)
+  - [x] Payment 레코드 생성
+  - [x] orderId 생성 (UUID)
+  - [x] 클라이언트에 결제 정보 반환
+- [x] 토스페이먼츠 결제창 호출
+  - [x] 클라이언트에서 토스페이먼츠 Widget SDK 사용
+  - [x] 결제창 띄우기 (카드, 간편결제, 카카오페이, 네이버페이 지원)
+- [x] 결제 성공 콜백 처리 (`/checkout/success`)
+  - [x] 쿼리 파라미터에서 paymentKey, orderId, amount 추출
+  - [x] 결제 승인 API (`POST /api/payments/confirm`)
+    - [x] 토스페이먼츠 API로 결제 승인 요청
+    - [x] Payment 상태 "COMPLETED"로 변경
+    - [x] Purchase 상태 "COMPLETED"로 변경
+    - [x] Enrollment 생성 (수강 등록) - 중복 방지 로직 포함
+    - [x] Receipt 생성 (영수증) - 중복 방지 로직 포함
+  - [x] 결제 완료 페이지 표시
+- [x] 결제 실패 콜백 처리 (`/checkout/fail`)
+  - [x] 실패 사유 표시
+  - [x] 결제 페이지로 복귀 버튼
 
 **3.5 무통장입금 (3-4일)**
-- [ ] 무통장입금 정보 입력 폼
-  - [ ] 입금자명
-  - [ ] 입금 예정일
-- [ ] 무통장입금 요청 API (`POST /api/payments/bank-transfer`)
-  - [ ] Purchase 생성 (status: PENDING)
-  - [ ] Payment 생성 (method: BANK_TRANSFER, status: PENDING)
-  - [ ] BankTransfer 생성
-  - [ ] 입금 대기 상태로 저장
-- [ ] 입금 대기 안내 페이지
-  - [ ] 입금 계좌 정보 표시
-  - [ ] 입금자명 확인
-  - [ ] 관리자 승인 안내
+- [x] 무통장입금 정보 입력 폼
+  - [x] 입금자명
+  - [x] 입금 예정일
+- [x] 무통장입금 요청 API (`POST /api/payments/bank-transfer`)
+  - [x] Purchase 생성 (status: PENDING)
+  - [x] Payment 생성 (method: BANK_TRANSFER, status: PENDING)
+  - [x] BankTransfer 생성
+  - [x] 입금 대기 상태로 저장
+- [x] 입금 대기 안내 페이지 (`/checkout/bank-transfer-pending`)
+  - [x] 입금 계좌 정보 표시
+  - [x] 입금자명 확인
+  - [x] 관리자 승인 안내
 
 **3.6 관리자: 무통장입금 관리 (3일)**
-- [ ] 무통장입금 관리 페이지 (`/admin/payments/bank-transfers`)
-  - [ ] 입금 대기 목록 조회
-  - [ ] 각 항목별 "승인", "거절" 버튼
-- [ ] 입금 승인 API (`POST /api/admin/payments/bank-transfers/[id]/approve`)
-  - [ ] Payment 상태 "COMPLETED"로 변경
-  - [ ] Purchase 상태 "COMPLETED"로 변경
-  - [ ] BankTransfer.approvedAt 설정
-  - [ ] Enrollment 생성 (수강 등록)
-  - [ ] Receipt 생성
-  - [ ] 사용자 알림 (이메일 - 선택적)
-- [ ] 입금 거절 API (`POST /api/admin/payments/bank-transfers/[id]/reject`)
-  - [ ] 거절 사유 입력
-  - [ ] Payment 상태 유지 또는 "CANCELED"로 변경
-  - [ ] BankTransfer.rejectedAt, rejectReason 설정
-  - [ ] 사용자 알림
+- [x] 무통장입금 관리 페이지 (`/admin/payments/bank-transfers`)
+  - [x] 입금 대기 목록 조회
+  - [x] 각 항목별 "승인", "거절" 버튼
+- [x] 입금 승인 API (`POST /api/admin/payments/bank-transfers/[id]/approve`)
+  - [x] Payment 상태 "COMPLETED"로 변경
+  - [x] Purchase 상태 "COMPLETED"로 변경
+  - [x] BankTransfer.approvedAt 설정
+  - [x] Enrollment 생성 (수강 등록)
+  - [x] Receipt 생성
+  - [ ] 사용자 알림 (이메일 - 선택적, 미구현)
+- [x] 입금 거절 API (`POST /api/admin/payments/bank-transfers/[id]/reject`)
+  - [x] 거절 사유 입력
+  - [x] Payment 상태 "CANCELED"로 변경
+  - [x] BankTransfer.rejectedAt, rejectReason 설정
+  - [ ] 사용자 알림 (선택적, 미구현)
 
 **3.7 영수증 (2-3일)**
-- [ ] 영수증 조회 페이지 (`/receipts/[id]`)
-  - [ ] 영수증 정보 표시
-  - [ ] PDF 다운로드 버튼 (선택적 - react-pdf)
-  - [ ] 인쇄 버튼
-- [ ] 영수증 조회 API (`GET /api/receipts/[id]`)
-- [ ] PDF 생성 (선택적)
+- [x] 영수증 조회 페이지 (`/receipts/[id]`)
+  - [x] 영수증 정보 표시
+  - [x] 인쇄 버튼
+  - [ ] PDF 다운로드 버튼 (선택적 - 미구현)
+- [x] 영수증 조회 API (`GET /api/receipts/[id]`)
+- [ ] PDF 생성 (선택적 - 미구현)
   - [ ] react-pdf 또는 puppeteer 사용
   - [ ] 영수증 템플릿 디자인
 
 **3.8 환불 (3-4일)**
-- [ ] 환불 신청 페이지 (`/refunds/request/[purchaseId]`)
-  - [ ] 환불 사유 입력
-  - [ ] 환불 계좌 정보 입력 (무통장입금용)
-  - [ ] 환불 신청 API (`POST /api/refunds`)
-    - [ ] Refund 레코드 생성 (status: PENDING)
-- [ ] 관리자: 환불 관리 페이지 (`/admin/refunds`)
-  - [ ] 환불 신청 목록
-  - [ ] 각 항목별 "승인", "거절" 버튼
-- [ ] 환불 승인 API (`POST /api/admin/refunds/[id]/approve`)
-  - [ ] 카드 결제: 토스페이먼츠 결제 취소 API 호출
-  - [ ] 무통장입금: 수동 환불 처리 안내
-  - [ ] Refund 상태 "COMPLETED"로 변경
-  - [ ] Purchase 상태 "REFUNDED"로 변경
-  - [ ] Enrollment 삭제 또는 상태 변경
-  - [ ] 사용자 알림
-- [ ] 환불 거절 API (`POST /api/admin/refunds/[id]/reject`)
-  - [ ] 거절 사유 입력
-  - [ ] Refund 상태 "REJECTED"로 변경
-  - [ ] 사용자 알림
+- [x] 환불 신청 페이지 (`/refunds/request/[purchaseId]`)
+  - [x] 환불 사유 입력 (최소 10자)
+  - [x] 환불 계좌 정보 입력 (무통장입금용)
+  - [x] 환불 신청 API (`POST /api/refunds`)
+    - [x] Refund 레코드 생성 (status: PENDING)
+    - [x] **환불 정책 검사: 7일 이내 + 진도율 10% 미만**
+- [x] 관리자: 환불 관리 페이지 (`/admin/refunds`)
+  - [x] 환불 신청 목록
+  - [x] 상태별 필터링 (ALL, PENDING, COMPLETED, REJECTED)
+  - [x] 각 항목별 "승인", "거절" 버튼
+- [x] 환불 승인 API (`POST /api/admin/refunds/[id]/approve`)
+  - [x] 카드 결제: 토스페이먼츠 결제 취소 API 호출
+  - [x] 무통장입금: 수동 환불 처리 안내
+  - [x] **1년 경과 체크: TossPayments API 제한 확인**
+  - [x] Refund 상태 "COMPLETED"로 변경
+  - [x] Purchase 상태 "REFUNDED"로 변경
+  - [x] Enrollment 삭제
+  - [x] Progress 삭제
+  - [ ] 사용자 알림 (선택적, 미구현)
+- [x] 환불 거절 API (`POST /api/admin/refunds/[id]/reject`)
+  - [x] 거절 사유 입력 (최소 10자)
+  - [x] Refund 상태 "REJECTED"로 변경
+  - [ ] 사용자 알림 (선택적, 미구현)
 
 **3.9 마이페이지: 결제 내역 (2-3일)**
-- [ ] 결제 내역 페이지 (`/mypage/payments`)
-  - [ ] 구매한 강의 목록
-  - [ ] 결제 정보 (날짜, 금액, 수단, 상태)
-  - [ ] 영수증 조회 버튼
-  - [ ] 환불 신청 버튼 (가능한 경우)
-- [ ] 결제 내역 조회 API (`GET /api/users/me/payments`)
-- [ ] 필터링 (결제 상태별)
+- [x] 결제 내역 페이지 (`/mypage/payments`)
+  - [x] 구매한 강의 목록
+  - [x] 결제 정보 (날짜, 금액, 수단, 상태)
+  - [x] 영수증 조회 버튼
+  - [x] 환불 신청 버튼 (가능한 경우)
+  - [x] 환불 상태 표시
+- [x] 결제 내역 조회 API (`GET /api/mypage/payments`)
+- [ ] 필터링 (결제 상태별 - 선택적, 미구현)
 
 **3.10 테스트 (2일)**
-- [ ] 카드 결제 테스트 (토스페이먼츠 테스트 키)
-- [ ] 무통장입금 테스트
-- [ ] 관리자: 입금 승인/거절 테스트
-- [ ] 영수증 조회/출력 테스트
-- [ ] 환불 신청/승인/거절 테스트
-- [ ] 결제 후 수강 등록 확인
+- [x] 카드 결제 테스트 (토스페이먼츠 테스트 키)
+- [x] 카카오페이 결제 테스트
+- [ ] 무통장입금 테스트 (미완료)
+- [ ] 관리자: 입금 승인/거절 테스트 (미완료)
+- [x] 영수증 조회/출력 테스트
+- [x] 환불 신청/승인/거절 테스트
+- [x] 결제 후 수강 등록 확인
+- [x] 환불 정책 테스트 (7일 + 10%)
 
 #### Deliverable
-- 카드 결제 및 무통장입금 기능
-- 결제 후 강의 수강 가능
-- 영수증 발급
-- 환불 기본 기능
+- [x] 카드 결제 및 무통장입금 기능
+- [x] 결제 후 강의 수강 가능
+- [x] 영수증 발급 및 조회
+- [x] 환불 시스템 (신청/승인/거절)
+- [x] 환불 정책 (7일 + 10%) 구현
+- [x] TossPayments Widget SDK 연동 완료
+- [x] NextAuth v5 호환성 확보
+
+#### 추가 구현 사항
+- [x] 결제 안정성 개선 (Enrollment/Receipt 중복 방지)
+- [x] 관리자 계정 결제 시 실제 구매자에게 수강 등록
+- [x] 환불 정책 문서화 (7일 + 10% 제한, 관리자 1년 제한)
+- [x] TossPayments 테스트 모드 안전성 가이드
+- [x] Phase 3 테스트 가이드 작성
+- [x] 테스트 스크립트 작성 (`scripts/test-phase3.sh`)
 
 ---
 
