@@ -37,6 +37,8 @@ export default function AdminInquiryDetailPage() {
   const [loading, setLoading] = useState(true);
   const [replyContent, setReplyContent] = useState('');
   const [replyLoading, setReplyLoading] = useState(false);
+  const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
 
   useEffect(() => {
     if (params.id) {
@@ -92,7 +94,6 @@ export default function AdminInquiryDetailPage() {
 
       if (response.ok) {
         alert('답변이 등록되었습니다');
-        // 문의 다시 불러오기
         fetchInquiry(inquiry.id);
         setReplyContent('');
       } else {
@@ -103,6 +104,68 @@ export default function AdminInquiryDetailPage() {
       alert('답변 등록에 실패했습니다');
     } finally {
       setReplyLoading(false);
+    }
+  };
+
+  const handleEditReply = (reply: InquiryReply) => {
+    setEditingReplyId(reply.id);
+    setEditContent(reply.content);
+  };
+
+  const handleUpdateReply = async (replyId: string) => {
+    if (editContent.length < 10) {
+      alert('답변 내용을 10자 이상 입력해주세요');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/inquiries/replies/${replyId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: editContent,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('답변이 수정되었습니다');
+        setEditingReplyId(null);
+        setEditContent('');
+        if (inquiry) fetchInquiry(inquiry.id);
+      } else {
+        alert(data.error || '답변 수정에 실패했습니다');
+      }
+    } catch (error) {
+      console.error('답변 수정 실패:', error);
+      alert('답변 수정에 실패했습니다');
+    }
+  };
+
+  const handleDeleteReply = async (replyId: string) => {
+    if (!confirm('정말 이 답변을 삭제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/inquiries/replies/${replyId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('답변이 삭제되었습니다');
+        if (inquiry) fetchInquiry(inquiry.id);
+      } else {
+        alert(data.error || '답변 삭제에 실패했습니다');
+      }
+    } catch (error) {
+      console.error('답변 삭제 실패:', error);
+      alert('답변 삭제에 실패했습니다');
     }
   };
 
@@ -202,20 +265,66 @@ export default function AdminInquiryDetailPage() {
             <div className="px-8 py-6 border-b border-blue-100 bg-blue-100">
               <h3 className="text-xl font-bold text-gray-900">작성된 답변</h3>
             </div>
-            <div className="px-8 py-8">
+            <div className="px-8 py-8 space-y-6">
               {inquiry.replies.map((reply) => (
-                <div key={reply.id} className="mb-6 last:mb-0">
-                  <div className="flex items-center text-sm text-gray-600 mb-3">
-                    <span className="font-medium text-primary">
-                      {reply.admin.name || '관리자'}
-                    </span>
-                    <span className="mx-2">·</span>
-                    <span>{formatDate(reply.createdAt)}</span>
+                <div key={reply.id} className="bg-white p-6 rounded-lg">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="font-medium text-primary">
+                        {reply.admin.name || '관리자'}
+                      </span>
+                      <span className="mx-2">·</span>
+                      <span>{formatDate(reply.createdAt)}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      {editingReplyId === reply.id ? (
+                        <>
+                          <button
+                            onClick={() => handleUpdateReply(reply.id)}
+                            className="text-sm text-primary hover:text-primary-dark font-medium"
+                          >
+                            저장
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingReplyId(null);
+                              setEditContent('');
+                            }}
+                            className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+                          >
+                            취소
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleEditReply(reply)}
+                            className="text-sm text-primary hover:text-primary-dark font-medium"
+                          >
+                            수정
+                          </button>
+                          <button
+                            onClick={() => handleDeleteReply(reply.id)}
+                            className="text-sm text-red-600 hover:text-red-700 font-medium"
+                          >
+                            삭제
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <div
-                    className="prose max-w-none"
-                    dangerouslySetInnerHTML={{ __html: reply.content }}
-                  />
+                  {editingReplyId === reply.id ? (
+                    <TiptapEditor
+                      content={editContent}
+                      onChange={setEditContent}
+                      placeholder="답변 내용을 수정하세요"
+                    />
+                  ) : (
+                    <div
+                      className="prose max-w-none"
+                      dangerouslySetInnerHTML={{ __html: reply.content }}
+                    />
+                  )}
                 </div>
               ))}
             </div>
