@@ -40,8 +40,8 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="text-base text-gray-700 hover:text-black transition-colors font-medium">
-                문의
+              <Link href="/inquiries/new" className="text-base text-gray-700 hover:text-black transition-colors font-medium">
+                1:1 문의
               </Link>
             </li>
           </ul>
@@ -88,6 +88,13 @@ export default function Header() {
                       onClick={() => setUserMenuOpen(false)}
                     >
                       결제 내역
+                    </Link>
+                    <Link
+                      href="/mypage/inquiries"
+                      className="block px-4 py-2 text-text-primary hover:bg-bg-secondary transition-colors"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      내 문의
                     </Link>
                     <button
                       onClick={() => {
@@ -168,11 +175,11 @@ export default function Header() {
               </li>
               <li>
                 <Link
-                  href="/contact"
+                  href="/inquiries/new"
                   className="block px-4 py-2 text-text-primary hover:bg-bg-secondary rounded-lg transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  문의
+                  1:1 문의
                 </Link>
               </li>
 
@@ -194,6 +201,15 @@ export default function Header() {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       결제 내역
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/mypage/inquiries"
+                      className="block px-4 py-2 text-text-primary hover:bg-bg-secondary rounded-lg transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      내 문의
                     </Link>
                   </li>
                   <li>
