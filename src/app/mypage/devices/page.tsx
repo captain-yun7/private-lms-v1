@@ -52,14 +52,6 @@ export default function MyDevicesPage() {
       return;
     }
 
-    if (
-      !confirm(
-        '현재 기기를 등록하시겠습니까?\n\n최대 2개의 기기만 등록할 수 있으며, 등록된 기기에서만 강의를 시청할 수 있습니다.'
-      )
-    ) {
-      return;
-    }
-
     try {
       const response = await fetch('/api/devices', {
         method: 'POST',
