@@ -30,6 +30,11 @@ export default function Header() {
               </Link>
             </li>
             <li>
+              <Link href="/notices" className="text-base text-gray-700 hover:text-black transition-colors font-medium">
+                공지사항
+              </Link>
+            </li>
+            <li>
               <Link href="/about" className="text-base text-gray-700 hover:text-black transition-colors font-medium">
                 소개
               </Link>
@@ -141,6 +146,15 @@ export default function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   강의
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/notices"
+                  className="block px-4 py-2 text-text-primary hover:bg-bg-secondary rounded-lg transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  공지사항
                 </Link>
               </li>
               <li>
