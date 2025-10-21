@@ -20,6 +20,15 @@ interface PaymentItem {
       title: string;
       thumbnailUrl: string | null;
     };
+    receipt?: {
+      id: string;
+      receiptNumber: string;
+    };
+    refund?: {
+      id: string;
+      status: string;
+      reason: string;
+    };
   };
   bankTransfer?: {
     id: string;
@@ -352,13 +361,30 @@ export default function MyPaymentsPage() {
                             >
                               강의 보기
                             </Link>
-                            <Link
-                              href={`/receipts/${payment.purchase.id}`}
-                              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
-                            >
-                              영수증 보기
-                            </Link>
+                            {payment.purchase.receipt && (
+                              <Link
+                                href={`/receipts/${payment.purchase.receipt.id}`}
+                                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                              >
+                                영수증 보기
+                              </Link>
+                            )}
+                            {!payment.purchase.refund && (
+                              <Link
+                                href={`/refunds/request/${payment.purchase.id}`}
+                                className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm"
+                              >
+                                환불 신청
+                              </Link>
+                            )}
                           </>
+                        )}
+                        {payment.purchase.refund && (
+                          <div className="px-4 py-2 bg-orange-50 text-orange-700 rounded-lg text-sm">
+                            환불 {payment.purchase.refund.status === 'PENDING' ? '신청됨' :
+                                  payment.purchase.refund.status === 'COMPLETED' ? '완료' :
+                                  payment.purchase.refund.status === 'REJECTED' ? '거절됨' : '처리 중'}
+                          </div>
                         )}
                         {payment.method === 'BANK_TRANSFER' &&
                          payment.bankTransfer?.status === 'REJECTED' && (

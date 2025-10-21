@@ -31,6 +31,19 @@ export async function GET() {
                 thumbnailUrl: true,
               },
             },
+            receipt: {
+              select: {
+                id: true,
+                receiptNumber: true,
+              },
+            },
+            refund: {
+              select: {
+                id: true,
+                status: true,
+                reason: true,
+              },
+            },
           },
         },
         bankTransfer: true,
