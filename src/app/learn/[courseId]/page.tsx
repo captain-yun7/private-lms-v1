@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import VimeoPlayer from '@/components/VimeoPlayer';
+import DeviceVerifiedPlayer from '@/components/DeviceVerifiedPlayer';
 
 interface Video {
   id: string;
@@ -283,7 +283,7 @@ export default function LearnPage() {
           {/* Video Player */}
           <div className="flex-1 flex items-center justify-center">
             {currentVideo && (
-              <VimeoPlayer
+              <DeviceVerifiedPlayer
                 key={currentVideo.id}
                 vimeoUrl={currentVideo.vimeoUrl}
                 controls={true}

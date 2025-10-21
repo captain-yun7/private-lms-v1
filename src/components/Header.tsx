@@ -96,6 +96,13 @@ export default function Header() {
                     >
                       내 문의
                     </Link>
+                    <Link
+                      href="/mypage/devices"
+                      className="block px-4 py-2 text-text-primary hover:bg-bg-secondary transition-colors"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      등록 기기 관리
+                    </Link>
                     <button
                       onClick={() => {
                         setUserMenuOpen(false);
@@ -210,6 +217,15 @@ export default function Header() {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       내 문의
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/mypage/devices"
+                      className="block px-4 py-2 text-text-primary hover:bg-bg-secondary rounded-lg transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      등록 기기 관리
                     </Link>
                   </li>
                   <li>
