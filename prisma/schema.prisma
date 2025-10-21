@@ -242,19 +242,21 @@ model Receipt {
 }
 
 model TaxInvoice {
-  id              String           @id @default(cuid())
-  purchaseId      String           @unique
-  businessNumber  String           // 사업자등록번호
-  companyName     String           // 상호명
-  ceoName         String           // 대표자명
-  address         String           // 사업장 주소
-  businessType    String           // 업태
-  businessCategory String          // 종목
-  email           String           // 이메일 (발송용)
-  issuedAt        DateTime?        // 발행 시각
-  status          TaxInvoiceStatus @default(REQUESTED)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id             String           @id @default(cuid())
+  purchaseId     String           @unique
+  businessNumber String           // 사업자등록번호
+  companyName    String           // 상호명
+  ceoName        String           // 대표자명
+  address        String           // 사업장 주소
+  businessType   String?          // 업태
+  businessItem   String?          // 종목
+  email          String           // 이메일 (발송용)
+  phone          String           // 연락처
+  amount         Int              // 금액
+  issuedAt       DateTime?        // 발행 시각
+  status         TaxInvoiceStatus @default(REQUESTED)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
 

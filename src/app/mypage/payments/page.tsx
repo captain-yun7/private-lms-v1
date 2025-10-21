@@ -362,12 +362,20 @@ export default function MyPaymentsPage() {
                               강의 보기
                             </Link>
                             {payment.purchase.receipt && (
-                              <Link
-                                href={`/receipts/${payment.purchase.receipt.id}`}
-                                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
-                              >
-                                영수증 보기
-                              </Link>
+                              <>
+                                <Link
+                                  href={`/receipts/${payment.purchase.receipt.id}`}
+                                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                                >
+                                  영수증 보기
+                                </Link>
+                                <Link
+                                  href={`/mypage/payments/${payment.purchase.id}/tax-invoice`}
+                                  className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
+                                >
+                                  세금계산서 신청
+                                </Link>
+                              </>
                             )}
                             {!payment.purchase.refund && (
                               <Link
