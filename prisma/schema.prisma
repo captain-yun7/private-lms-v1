@@ -333,18 +333,19 @@ model Progress {
 // ===========================
 
 model Device {
-  id             String   @id @default(cuid())
-  userId         String
-  deviceId       String   // FingerprintJS 또는 고유 식별자
-  deviceName     String   // 예: "Chrome on Windows"
-  userAgent      String   @db.Text
-  ipAddress      String?
-  lastAccessedAt DateTime @default(now())
-  createdAt      DateTime @default(now())
+  id          String   @id @default(cuid())
+  userId      String
+  fingerprint String   // FingerprintJS 고유 식별자
+  name        String   // 사용자가 지정한 기기 이름
+  userAgent   String?  @db.Text
+  platform    String?
+  language    String?
+  lastUsedAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, deviceId])
+  @@unique([userId, fingerprint])
   @@map("devices")
   @@index([userId])
 }
