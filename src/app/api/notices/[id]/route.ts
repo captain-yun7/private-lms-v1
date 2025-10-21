@@ -13,7 +13,7 @@ export async function GET(
     const notice = await prisma.notice.update({
       where: { id },
       data: {
-        viewCount: {
+        views: {
           increment: 1,
         },
       },
@@ -22,7 +22,7 @@ export async function GET(
         title: true,
         content: true,
         isPinned: true,
-        viewCount: true,
+        views: true,
         createdAt: true,
         updatedAt: true,
       },

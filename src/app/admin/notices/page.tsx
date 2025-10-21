@@ -9,7 +9,7 @@ interface Notice {
   title: string;
   content: string;
   isPinned: boolean;
-  viewCount: number;
+  views: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -197,7 +197,7 @@ export default function AdminNoticesPage() {
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {notice.viewCount}
+                          {notice.views}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(notice.createdAt)}

@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
           title: true,
           content: true,
           isPinned: true,
-          viewCount: true,
+          views: true,
           createdAt: true,
           updatedAt: true,
         },
