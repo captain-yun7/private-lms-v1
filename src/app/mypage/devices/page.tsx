@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useDeviceFingerprint } from '@/hooks/useDeviceFingerprint';
+import { generateDeviceName } from '@/lib/fingerprint';
 
 interface Device {
   id: string;
@@ -60,7 +61,7 @@ export default function MyDevicesPage() {
         },
         body: JSON.stringify({
           fingerprint,
-          name: `${deviceInfo.platform} 기기`,
+          name: generateDeviceName(deviceInfo.platform, deviceInfo.userAgent),
           userAgent: deviceInfo.userAgent,
           platform: deviceInfo.platform,
           language: deviceInfo.language,
@@ -174,7 +175,7 @@ export default function MyDevicesPage() {
             <h3 className="text-sm font-semibold text-blue-900 mb-2">현재 기기 정보</h3>
             {fingerprint && deviceInfo ? (
               <div className="text-sm text-blue-800 space-y-1">
-                <p>플랫폼: {deviceInfo.platform}</p>
+                <p>플랫폼: {generateDeviceName(deviceInfo.platform, deviceInfo.userAgent)}</p>
                 <p>언어: {deviceInfo.language}</p>
                 <p>
                   상태:{' '}

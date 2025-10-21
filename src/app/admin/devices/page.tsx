@@ -35,23 +35,18 @@ export default function AdminDevicesPage() {
   });
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
-  const [searchUserId, setSearchUserId] = useState('');
 
   useEffect(() => {
     fetchDevices(1);
   }, []);
 
-  const fetchDevices = async (page: number, userId?: string) => {
+  const fetchDevices = async (page: number) => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
         page: page.toString(),
         limit: '20',
       });
-
-      if (userId) {
-        params.append('userId', userId);
-      }
 
       const response = await fetch(`/api/admin/devices?${params}`);
       const data = await response.json();
@@ -70,11 +65,6 @@ export default function AdminDevicesPage() {
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchDevices(1, searchUserId || undefined);
-  };
-
   const handleDeleteDevice = async (id: string) => {
     if (!confirm('이 기기를 삭제하시겠습니까?\n사용자는 해당 기기에서 강의를 시청할 수 없게 됩니다.')) {
       return;
@@ -90,7 +80,7 @@ export default function AdminDevicesPage() {
 
       if (response.ok) {
         alert('기기가 삭제되었습니다');
-        fetchDevices(pagination.page, searchUserId || undefined);
+        fetchDevices(pagination.page);
       } else {
         alert(data.error || '기기 삭제에 실패했습니다');
       }
@@ -127,37 +117,6 @@ export default function AdminDevicesPage() {
           <h1 className="text-3xl font-bold text-gray-900">기기 관리</h1>
           <p className="mt-2 text-gray-600">사용자의 등록 기기를 관리합니다</p>
         </div>
-
-        {/* Search */}
-        <form onSubmit={handleSearch} className="mb-6">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={searchUserId}
-              onChange={(e) => setSearchUserId(e.target.value)}
-              placeholder="사용자 ID로 검색 (선택사항)"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-            <button
-              type="submit"
-              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-            >
-              검색
-            </button>
-            {searchUserId && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchUserId('');
-                  fetchDevices(1);
-                }}
-                className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                초기화
-              </button>
-            )}
-          </div>
-        </form>
 
         {/* Stats */}
         <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -267,14 +226,14 @@ export default function AdminDevicesPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex-1 flex justify-between sm:hidden">
                     <button
-                      onClick={() => fetchDevices(pagination.page - 1, searchUserId || undefined)}
+                      onClick={() => fetchDevices(pagination.page - 1)}
                       disabled={pagination.page === 1}
                       className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       이전
                     </button>
                     <button
-                      onClick={() => fetchDevices(pagination.page + 1, searchUserId || undefined)}
+                      onClick={() => fetchDevices(pagination.page + 1)}
                       disabled={pagination.page === pagination.totalPages}
                       className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -297,7 +256,7 @@ export default function AdminDevicesPage() {
                     <div>
                       <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                         <button
-                          onClick={() => fetchDevices(pagination.page - 1, searchUserId || undefined)}
+                          onClick={() => fetchDevices(pagination.page - 1)}
                           disabled={pagination.page === 1}
                           className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -326,7 +285,7 @@ export default function AdminDevicesPage() {
                             return (
                               <button
                                 key={page}
-                                onClick={() => fetchDevices(page, searchUserId || undefined)}
+                                onClick={() => fetchDevices(page)}
                                 className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                                   page === pagination.page
                                     ? 'z-10 bg-primary border-primary text-white'
@@ -338,7 +297,7 @@ export default function AdminDevicesPage() {
                             );
                           })}
                         <button
-                          onClick={() => fetchDevices(pagination.page + 1, searchUserId || undefined)}
+                          onClick={() => fetchDevices(pagination.page + 1)}
                           disabled={pagination.page === pagination.totalPages}
                           className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >

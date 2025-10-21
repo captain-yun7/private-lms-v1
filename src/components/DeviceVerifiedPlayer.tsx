@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import VimeoPlayer from './VimeoPlayer';
 import { useDeviceFingerprint } from '@/hooks/useDeviceFingerprint';
+import { generateDeviceName } from '@/lib/fingerprint';
 
 interface DeviceVerifiedPlayerProps {
   vimeoUrl: string;
@@ -66,7 +67,7 @@ export default function DeviceVerifiedPlayer(props: DeviceVerifiedPlayerProps) {
               },
               body: JSON.stringify({
                 fingerprint,
-                name: `${deviceInfo.platform} 기기`,
+                name: generateDeviceName(deviceInfo.platform, deviceInfo.userAgent),
                 userAgent: deviceInfo.userAgent,
                 platform: deviceInfo.platform,
                 language: deviceInfo.language,
