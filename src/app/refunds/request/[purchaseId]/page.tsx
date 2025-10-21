@@ -64,7 +64,25 @@ export default function RefundRequestPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "환불 신청에 실패했습니다");
+        // 상세 에러 메시지 처리
+        let errorMessage = data.error || "환불 신청에 실패했습니다";
+
+        // 7일 제한 에러
+        if (data.daysElapsed) {
+          errorMessage = `${data.error}\n\n결제일: ${new Date(data.paymentDate).toLocaleDateString('ko-KR')}\n경과일: ${data.daysElapsed}일\n\n환불 정책: 결제일로부터 7일 이내만 환불 가능합니다.`;
+        }
+
+        // 진도율 제한 에러
+        if (data.currentProgress) {
+          errorMessage = `${data.error}\n\n현재 진도율: ${data.currentProgress}%\n허용 진도율: ${data.maxProgress}% 미만\n\n환불 정책: 진도율 10% 미만인 경우에만 환불 가능합니다.`;
+        }
+
+        // 추가 상세 정보
+        if (data.detail) {
+          errorMessage = `${errorMessage}\n\n${data.detail}`;
+        }
+
+        throw new Error(errorMessage);
       }
 
       alert("환불 신청이 완료되었습니다. 관리자 승인 후 처리됩니다.");
@@ -88,7 +106,7 @@ export default function RefundRequestPage() {
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600">{error}</p>
+              <p className="text-red-600 whitespace-pre-line">{error}</p>
             </div>
           )}
 
@@ -198,14 +216,17 @@ export default function RefundRequestPage() {
             )}
 
             {/* 환불 정책 안내 */}
-            <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <h3 className="font-semibold text-gray-900 mb-2">
                 환불 정책 안내
               </h3>
-              <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
+              <ul className="text-sm text-gray-700 space-y-2 list-disc list-inside">
+                <li className="font-semibold text-red-600">
+                  <strong>환불 가능 조건:</strong> 결제일로부터 7일 이내 + 진도율 10% 미만
+                </li>
                 <li>환불 신청 후 관리자 승인까지 1-2 영업일이 소요됩니다</li>
-                <li>카드 결제: 카드사를 통해 자동 환불 처리됩니다</li>
-                <li>무통장입금: 입력하신 계좌로 환불금이 입금됩니다</li>
+                <li>카드 결제: 카드사를 통해 자동 환불 처리됩니다 (3-7일 소요)</li>
+                <li>무통장입금: 입력하신 계좌로 환불금이 입금됩니다 (1-2일 소요)</li>
                 <li>
                   환불 승인 후 수강 등록이 자동으로 취소되며, 강의를 수강할 수
                   없습니다

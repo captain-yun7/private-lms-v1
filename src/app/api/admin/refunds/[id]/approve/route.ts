@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 // POST /api/admin/refunds/[id]/approve - 환불 승인
@@ -9,7 +8,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     // 관리자 권한 확인
     if (!session?.user || session.user.role !== "ADMIN") {
@@ -61,6 +60,41 @@ export async function POST(
     }
 
     const { purchase, payment } = refund.purchase;
+
+    // ========================================
+    // TossPayments API 제한: 1년 경과 여부 확인
+    // ========================================
+    // 카드 결제인 경우, 결제일로부터 1년이 경과하면 TossPayments API로 자동 취소 불가
+    // 1년 경과 시 수동 환불로 안내
+    if (payment.method === "CARD" && payment.paymentKey && payment.paidAt) {
+      const paymentDate = new Date(payment.paidAt);
+      const now = new Date();
+      const yearsDiff = (now.getTime() - paymentDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
+
+      if (yearsDiff > 1) {
+        // 1년 경과: API 호출하지 않고 수동 처리 안내
+        return NextResponse.json(
+          {
+            success: false,
+            requireManualRefund: true,
+            error: "자동 환불이 불가능합니다",
+            detail: "결제일로부터 1년이 경과하여 TossPayments API로 자동 취소가 불가능합니다.",
+            instruction: "관리자가 직접 고객 계좌로 환불 처리해주세요.",
+            refundInfo: {
+              amount: refund.refundAmount,
+              userName: refund.purchase.user.name,
+              userEmail: refund.purchase.user.email,
+              accountInfo: refund.accountBank && refund.accountNumber && refund.accountHolder
+                ? `${refund.accountBank} ${refund.accountNumber} (${refund.accountHolder})`
+                : "환불 계좌 정보 없음 - 고객에게 문의 필요",
+            },
+            paymentDate: payment.paidAt,
+            yearsElapsed: parseFloat(yearsDiff.toFixed(2)),
+          },
+          { status: 400 }
+        );
+      }
+    }
 
     // 카드 결제인 경우 토스페이먼츠 API로 환불 처리
     if (payment.method === "CARD" && payment.paymentKey) {

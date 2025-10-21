@@ -83,10 +83,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const tossData = await tossResponse.json();
+    await tossResponse.json(); // TossPayments 응답 확인
 
     // 트랜잭션으로 처리
-    const result = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       // 1. Payment 업데이트
       await tx.payment.update({
         where: { id: payment.id },
@@ -105,22 +105,46 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // 3. Enrollment 생성 (수강 등록)
-      const enrollment = await tx.enrollment.create({
-        data: {
-          userId: session.user.id,
-          courseId: payment.purchase.courseId,
+      // 3. Enrollment 생성 (수강 등록) - 중복 방지
+      // 실제 구매자(purchase.userId)에게 수강 등록
+      const existingEnrollment = await tx.enrollment.findUnique({
+        where: {
+          userId_courseId: {
+            userId: payment.purchase.userId,
+            courseId: payment.purchase.courseId,
+          },
         },
       });
 
-      // 4. Receipt 생성 (영수증)
-      const receiptNumber = `R${Date.now()}${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
-      await tx.receipt.create({
-        data: {
+      let enrollment;
+      if (existingEnrollment) {
+        enrollment = existingEnrollment;
+      } else {
+        enrollment = await tx.enrollment.create({
+          data: {
+            userId: payment.purchase.userId,
+            courseId: payment.purchase.courseId,
+          },
+        });
+      }
+
+      // 4. Receipt 생성 (영수증) - 중복 방지
+      const existingReceipt = await tx.receipt.findUnique({
+        where: {
           purchaseId: payment.purchaseId,
-          receiptNumber,
         },
       });
+
+      if (!existingReceipt) {
+        const receiptNumber = `R${Date.now()}${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+        await tx.receipt.create({
+          data: {
+            purchaseId: payment.purchaseId,
+            receiptNumber,
+            amount: payment.purchase.amount,
+          },
+        });
+      }
 
       return { enrollment };
     });
@@ -136,7 +160,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: '잘못된 요청 데이터입니다.', details: error.errors },
+        { error: '잘못된 요청 데이터입니다.', details: error.issues },
         { status: 400 }
       );
     }

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -14,7 +13,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     // 관리자 권한 확인
     if (!session?.user || session.user.role !== "ADMIN") {
@@ -91,7 +90,7 @@ export async function POST(
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "잘못된 요청 데이터입니다", details: error.errors },
+        { error: "잘못된 요청 데이터입니다", details: error.issues },
         { status: 400 }
       );
     }

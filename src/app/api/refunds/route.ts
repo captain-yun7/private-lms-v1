@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -16,7 +15,7 @@ const refundRequestSchema = z.object({
 // POST /api/refunds - 환불 신청
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -36,6 +35,7 @@ export async function POST(request: NextRequest) {
         payment: true,
         course: {
           select: {
+            id: true,
             title: true,
           },
         },
@@ -98,6 +98,56 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // ========================================
+    // 환불 정책 검사: 7일 + 진도율 10% 제한
+    // ========================================
+
+    // 1. 결제일로부터 7일 경과 확인
+    const paymentDate = new Date(purchase.createdAt);
+    const now = new Date();
+    const daysDiff = Math.floor((now.getTime() - paymentDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysDiff > 7) {
+      return NextResponse.json(
+        {
+          error: "환불 신청 기간이 지났습니다",
+          detail: "결제일로부터 7일 이내에만 환불 신청이 가능합니다",
+          paymentDate: purchase.createdAt,
+          daysElapsed: daysDiff,
+        },
+        { status: 400 }
+      );
+    }
+
+    // 2. 진도율 10% 이상 확인
+    const totalVideos = await prisma.video.count({
+      where: { courseId: purchase.course.id },
+    });
+
+    const completedVideos = await prisma.progress.count({
+      where: {
+        userId: purchase.userId,
+        isCompleted: true,
+        video: {
+          courseId: purchase.course.id,
+        },
+      },
+    });
+
+    const progressRate = totalVideos > 0 ? (completedVideos / totalVideos) * 100 : 0;
+
+    if (progressRate > 10) {
+      return NextResponse.json(
+        {
+          error: "환불 신청이 불가능합니다",
+          detail: "진도율 10% 미만인 경우에만 환불 가능합니다",
+          currentProgress: parseFloat(progressRate.toFixed(1)),
+          maxProgress: 10,
+        },
+        { status: 400 }
+      );
+    }
+
     // 환불 신청 생성
     const refund = await prisma.refund.create({
       data: {
@@ -137,7 +187,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "잘못된 요청 데이터입니다", details: error.errors },
+        { error: "잘못된 요청 데이터입니다", details: error.issues },
         { status: 400 }
       );
     }
