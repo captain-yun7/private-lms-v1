@@ -44,6 +44,12 @@ export async function GET() {
                 reason: true,
               },
             },
+            taxInvoice: {
+              select: {
+                id: true,
+                status: true,
+              },
+            },
           },
         },
         bankTransfer: true,

@@ -29,6 +29,10 @@ interface PaymentItem {
       status: string;
       reason: string;
     };
+    taxInvoice?: {
+      id: string;
+      status: string;
+    };
   };
   bankTransfer?: {
     id: string;
@@ -369,12 +373,18 @@ export default function MyPaymentsPage() {
                                 >
                                   영수증 보기
                                 </Link>
-                                <Link
-                                  href={`/mypage/payments/${payment.purchase.id}/tax-invoice`}
-                                  className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
-                                >
-                                  세금계산서 신청
-                                </Link>
+                                {payment.purchase.taxInvoice ? (
+                                  <div className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg text-sm">
+                                    세금계산서 {payment.purchase.taxInvoice.status === 'REQUESTED' ? '신청됨' : '발급완료'}
+                                  </div>
+                                ) : (
+                                  <Link
+                                    href={`/mypage/payments/${payment.purchase.id}/tax-invoice`}
+                                    className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
+                                  >
+                                    세금계산서 신청
+                                  </Link>
+                                )}
                               </>
                             )}
                             {!payment.purchase.refund && (
