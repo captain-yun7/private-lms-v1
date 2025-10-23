@@ -39,7 +39,7 @@ interface StudentDetail {
       method: string;
       status: string;
       paidAt: string | null;
-    };
+    } | null;
   }>;
   devices: Array<{
     id: string;
@@ -296,7 +296,7 @@ export default function StudentDetailPage() {
                         {formatAmount(purchase.amount)}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900">
-                        {purchase.payment.method === 'CARD' ? '카드' : '무통장입금'}
+                        {purchase.payment?.method === 'CARD' ? '카드' : purchase.payment?.method === 'BANK_TRANSFER' ? '무통장입금' : '-'}
                       </td>
                       <td className="px-4 py-3 text-sm">
                         <span
@@ -316,7 +316,7 @@ export default function StudentDetailPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-500">
-                        {purchase.payment.paidAt
+                        {purchase.payment?.paidAt
                           ? formatDate(purchase.payment.paidAt)
                           : formatDate(purchase.createdAt)}
                       </td>
