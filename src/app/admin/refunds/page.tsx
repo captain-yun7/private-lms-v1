@@ -1,9 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import AdminSidebar from "@/components/AdminSidebar";
 
 interface Refund {
   id: string;
@@ -33,8 +30,6 @@ interface Refund {
 }
 
 export default function AdminRefundsPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
   const [refunds, setRefunds] = useState<Refund[]>([]);
   const [filteredRefunds, setFilteredRefunds] = useState<Refund[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,19 +41,8 @@ export default function AdminRefundsPage() {
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-      return;
-    }
-
-    if (status === "authenticated") {
-      if (session?.user?.role !== "ADMIN") {
-        router.push("/");
-        return;
-      }
-      fetchRefunds();
-    }
-  }, [status, session]);
+    fetchRefunds();
+  }, []);
 
   useEffect(() => {
     filterRefunds();
@@ -194,24 +178,14 @@ export default function AdminRefundsPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-gray-50">
-        <AdminSidebar />
-        <div className="flex-1 p-8">
-          <div className="text-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">로딩 중...</p>
-          </div>
-        </div>
+      <div className="flex justify-center items-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <AdminSidebar />
-
-      <div className="flex-1 p-8">
-        <div className="max-w-7xl mx-auto">
+    <div>
           {/* 헤더 */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">환불 관리</h1>
@@ -364,8 +338,6 @@ export default function AdminRefundsPage() {
               </table>
             </div>
           )}
-        </div>
-      </div>
 
       {/* 거절 사유 입력 모달 */}
       {showRejectModal && selectedRefund && (
