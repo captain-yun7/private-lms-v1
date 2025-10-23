@@ -8,11 +8,11 @@ interface Payment {
   orderId: string;
   method: string;
   status: string;
-  amount: number;
   paidAt: string | null;
   createdAt: string;
   purchase: {
     id: string;
+    amount: number;
     user: {
       id: string;
       name: string | null;
@@ -386,7 +386,7 @@ export default function AdminPaymentsPage() {
                       </Link>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatAmount(payment.amount)}
+                      {formatAmount(payment.purchase.amount)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {getMethodLabel(payment.method)}

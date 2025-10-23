@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    const [payments, total, stats] = await Promise.all([
+    const [payments, total] = await Promise.all([
       prisma.payment.findMany({
         where,
         include: {
@@ -82,29 +82,61 @@ export async function GET(request: NextRequest) {
         take: limit,
       }),
       prisma.payment.count({ where }),
-      // 통계 데이터
-      prisma.payment.aggregate({
-        where,
-        _sum: {
-          amount: true,
-        },
-        _count: {
-          id: true,
-        },
-      }),
     ]);
 
-    // 상태별 통계
-    const statusStats = await prisma.payment.groupBy({
-      by: ['status'],
-      where: method ? { method } : {},
-      _count: {
-        id: true,
-      },
+    // 통계 데이터 - Purchase 기준으로 계산
+    const purchaseWhere: any = {};
+    if (method || status) {
+      purchaseWhere.payment = {};
+      if (method) purchaseWhere.payment.method = method;
+      if (status) purchaseWhere.payment.status = status;
+    }
+    if (startDate || endDate) {
+      if (!purchaseWhere.payment) purchaseWhere.payment = {};
+      purchaseWhere.payment.createdAt = {};
+      if (startDate) purchaseWhere.payment.createdAt.gte = new Date(startDate);
+      if (endDate) purchaseWhere.payment.createdAt.lte = new Date(endDate);
+    }
+    if (search) {
+      purchaseWhere.user = {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' as const } },
+          { email: { contains: search, mode: 'insensitive' as const } },
+        ],
+      };
+    }
+
+    const stats = await prisma.purchase.aggregate({
+      where: purchaseWhere,
       _sum: {
         amount: true,
       },
+      _count: {
+        id: true,
+      },
     });
+
+    // 상태별 통계 - Payment를 조회하고 Purchase에서 amount 가져오기
+    const allPaymentsForStats = await prisma.payment.findMany({
+      where: method ? { method } : {},
+      select: {
+        status: true,
+        purchase: {
+          select: {
+            amount: true,
+          },
+        },
+      },
+    });
+
+    const statusStats = allPaymentsForStats.reduce((acc, payment) => {
+      if (!acc[payment.status]) {
+        acc[payment.status] = { count: 0, amount: 0 };
+      }
+      acc[payment.status].count++;
+      acc[payment.status].amount += payment.purchase.amount;
+      return acc;
+    }, {} as Record<string, { count: number; amount: number }>);
 
     return NextResponse.json({
       payments,

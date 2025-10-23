@@ -102,6 +102,29 @@ export default function StudentDetailPage() {
     return amount.toLocaleString('ko-KR') + '원';
   };
 
+  const handleRemoveDevice = async (deviceId: string) => {
+    if (!confirm('정말 이 기기를 해제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/devices/${deviceId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        alert('기기가 해제되었습니다');
+        fetchStudent(); // 새로고침
+      } else {
+        const data = await response.json();
+        alert(data.error || '기기 해제에 실패했습니다');
+      }
+    } catch (error) {
+      console.error('기기 해제 실패:', error);
+      alert('기기 해제에 실패했습니다');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-20">
@@ -326,6 +349,12 @@ export default function StudentDetailPage() {
                         등록일: {formatDate(device.createdAt)}
                       </p>
                     </div>
+                    <button
+                      onClick={() => handleRemoveDevice(device.id)}
+                      className="px-3 py-1 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
+                    >
+                      해제
+                    </button>
                   </div>
                 </div>
               ))}
