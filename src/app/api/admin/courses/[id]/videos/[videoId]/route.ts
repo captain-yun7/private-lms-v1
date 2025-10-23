@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 // 영상 삭제
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; videoId: string } }
+  { params }: { params: Promise<{ id: string; videoId: string }> }
 ) {
   try {
     const session = await auth();

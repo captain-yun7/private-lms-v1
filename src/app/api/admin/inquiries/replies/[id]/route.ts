@@ -6,7 +6,7 @@ import { z } from 'zod';
 // PATCH /api/admin/inquiries/replies/[id] - 답변 수정
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -15,7 +15,7 @@ export async function PATCH(
       return NextResponse.json({ error: '관리자 권한이 필요합니다' }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
 
     // 유효성 검사
@@ -51,7 +51,7 @@ export async function PATCH(
 // DELETE /api/admin/inquiries/replies/[id] - 답변 삭제
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -60,7 +60,7 @@ export async function DELETE(
       return NextResponse.json({ error: '관리자 권한이 필요합니다' }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // 답변 확인 및 문의 조회
     const reply = await prisma.inquiryReply.findUnique({

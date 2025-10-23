@@ -6,7 +6,7 @@ import { supabaseAdmin, COURSE_FILES_BUCKET } from '@/lib/supabase';
 // DELETE /api/admin/files/[id] - 강의 자료 삭제
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 관리자 권한 확인

@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 // PATCH /api/admin/courses/[id]/videos/reorder - 영상 순서 일괄 변경
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();

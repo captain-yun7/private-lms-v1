@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 // POST /api/admin/payments/bank-transfers/[id]/reject - 무통장입금 거절
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -18,7 +18,7 @@ export async function POST(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { reason } = body;
 

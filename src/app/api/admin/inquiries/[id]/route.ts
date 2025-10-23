@@ -5,7 +5,7 @@ import { auth } from '@/auth';
 // GET /api/admin/inquiries/[id] - 문의 상세 조회 (관리자)
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -14,7 +14,7 @@ export async function GET(
       return NextResponse.json({ error: '관리자 권한이 필요합니다' }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     const inquiry = await prisma.inquiry.findUnique({
       where: { id },

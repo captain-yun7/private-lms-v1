@@ -6,7 +6,7 @@ import { z } from 'zod';
 // POST /api/admin/inquiries/[id]/reply - 문의 답변 작성
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();

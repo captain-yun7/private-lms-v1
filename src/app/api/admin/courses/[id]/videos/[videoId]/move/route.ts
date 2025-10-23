@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 // 영상 순서 변경
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; videoId: string } }
+  { params }: { params: Promise<{ id: string; videoId: string }> }
 ) {
   try {
     const session = await auth();

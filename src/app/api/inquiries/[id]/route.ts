@@ -6,7 +6,7 @@ import { z } from 'zod';
 // GET /api/inquiries/[id] - 문의 상세 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -15,7 +15,7 @@ export async function GET(
       return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     const inquiry = await prisma.inquiry.findUnique({
       where: { id },
@@ -81,7 +81,7 @@ export async function GET(
 // PATCH /api/inquiries/[id] - 문의 수정 (답변 전에만 가능)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -90,7 +90,7 @@ export async function PATCH(
       return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
 
     // 기존 문의 확인
@@ -169,7 +169,7 @@ export async function PATCH(
 // DELETE /api/inquiries/[id] - 문의 삭제 (답변 전에만 가능)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -178,7 +178,7 @@ export async function DELETE(
       return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // 기존 문의 확인
     const existingInquiry = await prisma.inquiry.findUnique({

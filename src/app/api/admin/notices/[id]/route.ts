@@ -13,7 +13,7 @@ const updateNoticeSchema = z.object({
 // PATCH /api/admin/notices/[id] - 관리자: 공지사항 수정
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -25,7 +25,7 @@ export async function PATCH(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const data = updateNoticeSchema.parse(body);
 
@@ -58,7 +58,7 @@ export async function PATCH(
 // DELETE /api/admin/notices/[id] - 관리자: 공지사항 삭제
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -70,7 +70,7 @@ export async function DELETE(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     await prisma.notice.delete({
       where: { id },

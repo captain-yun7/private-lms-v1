@@ -6,7 +6,7 @@ import { supabaseAdmin, COURSE_FILES_BUCKET } from '@/lib/supabase';
 // POST /api/admin/courses/[id]/files - 강의 자료 업로드
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 관리자 권한 확인

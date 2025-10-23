@@ -5,7 +5,7 @@ import { auth } from '@/auth';
 // POST /api/admin/tax-invoices/[id]/issue - 세금계산서 발행 처리
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -14,7 +14,7 @@ export async function POST(
       return NextResponse.json({ error: '관리자 권한이 필요합니다' }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // 세금계산서 확인
     const taxInvoice = await prisma.taxInvoice.findUnique({

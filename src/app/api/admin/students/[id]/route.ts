@@ -5,7 +5,7 @@ import { auth } from '@/auth';
 // GET /api/admin/students/[id] - 학생 상세 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -14,7 +14,7 @@ export async function GET(
       return NextResponse.json({ error: '관리자 권한이 필요합니다' }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     const student = await prisma.user.findUnique({
       where: { id },

@@ -9,7 +9,7 @@ import { tmpdir } from 'os';
 // Vimeo 업로드
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   let tempFilePath: string | null = null;
 

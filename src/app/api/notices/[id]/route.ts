@@ -4,10 +4,10 @@ import { prisma } from "@/lib/prisma";
 // GET /api/notices/[id] - 공지사항 상세 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // 공지사항 조회 및 조회수 증가
     const notice = await prisma.notice.update({
