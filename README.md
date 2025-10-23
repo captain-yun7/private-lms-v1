@@ -75,11 +75,106 @@
 ### Device Fingerprinting
 - **FingerprintJS** - 기기 고유 식별
 
-## 템플릿으로 새 프로젝트 시작하기
+## 📦 템플릿 버전 선택
 
-### 방법 1: GitHub Template 사용 (권장)
+이 저장소는 2가지 템플릿 버전을 제공합니다. 프로젝트 요구사항에 맞는 버전을 선택하세요.
 
-1. 현재 저장소 GitHub 페이지에서 "Use this template" 버튼 클릭
+### 🎯 버전 비교
+
+| 항목 | v0.1.0-starter | v1.0.0-template |
+|------|----------------|-----------------|
+| **추천 대상** | 직접 기능 구현 원할 때 | 빠른 런칭 필요할 때 |
+| **난이도** | 중급 | 초급~중급 |
+| **개발 시간** | 2-4주 | 1-2주 |
+| | | |
+| **기본 구조** | ✅ | ✅ |
+| Next.js 15 + TypeScript | ✅ | ✅ |
+| TailwindCSS 4 | ✅ | ✅ |
+| Prisma + Supabase | ✅ | ✅ |
+| NextAuth.js v5 | ✅ | ✅ |
+| 기본 페이지 (About, Contact) | ✅ | ✅ |
+| LiveKlass 스타일 UI | ✅ | ✅ |
+| | | |
+| **LMS 기능** | ❌ | ✅ |
+| 강의/영상 관리 | ❌ | ✅ |
+| 결제 시스템 | ❌ | ✅ |
+| 진도율 추적 | ❌ | ✅ |
+| 기기 제한 | ❌ | ✅ |
+| 관리자 대시보드 | ❌ | ✅ |
+| 공지사항/문의 | ❌ | ✅ |
+
+### 🚀 v0.1.0-starter (Starter Template)
+
+**순수한 시작점 - 기본 인프라만 갖춘 템플릿**
+
+```bash
+git clone --branch v0.1.0-starter <저장소-URL> my-project
+cd my-project
+rm -rf .git
+git init
+git add .
+git commit -m "feat: Initial commit from starter template v0.1.0"
+```
+
+**포함 내용:**
+- ✅ Next.js 15 App Router 구조
+- ✅ Prisma 스키마 (완전한 LMS 모델 포함, 사용은 선택)
+- ✅ Supabase 연결 설정
+- ✅ NextAuth.js 인증 (Google OAuth, 로그인/회원가입)
+- ✅ 기본 페이지 (/, /about, /dashboard, /contact, /community)
+- ✅ Header/Footer 컴포넌트
+- ✅ 미들웨어 보호 라우트
+
+**장점:**
+- 깨끗한 코드베이스로 시작
+- 원하는 기능만 선택적으로 구현
+- Prisma 스키마 참고 가능
+
+**적합한 경우:**
+- LMS 기능을 직접 구현하고 싶을 때
+- 프로젝트 구조와 UI만 활용하고 싶을 때
+- 완전히 다른 기능을 만들고 싶을 때
+
+---
+
+### 🎓 v1.0.0-template (Full LMS Template)
+
+**완성된 LMS - 모든 기능이 포함된 템플릿**
+
+```bash
+git clone --branch v1.0.0-template <저장소-URL> my-lms-project
+cd my-lms-project
+rm -rf .git
+git init
+git add .
+git commit -m "feat: Initial commit from template v1.0.0"
+```
+
+**포함 내용:**
+- ✅ **v0.1.0-starter의 모든 것 +**
+- ✅ 강의/영상 관리 시스템 (Vimeo 연동)
+- ✅ 결제 시스템 (토스페이먼츠, 무통장입금)
+- ✅ 수강 진도율 관리
+- ✅ 기기 제한 (FingerprintJS, 최대 2개)
+- ✅ 관리자 대시보드 (통계, 회원/결제 관리)
+- ✅ 공지사항, 1:1 문의 시스템
+- ✅ 세금계산서, 환불 처리
+
+**장점:**
+- 즉시 배포 가능한 완성도
+- 커스터마이징만으로 런칭 가능
+- 모든 핵심 기능 구현됨
+
+**적합한 경우:**
+- 빠르게 LMS 사이트를 런칭하고 싶을 때
+- 대부분의 기능이 필요할 때
+- 브랜딩/디자인 변경만 하면 될 때
+
+---
+
+### 🔄 GitHub Template 사용 (모든 버전 공통)
+
+1. GitHub 저장소 페이지에서 "Use this template" 버튼 클릭
 2. 새 저장소 이름 입력 (예: `lms-client-john`)
 3. Private로 설정 후 생성
 4. 로컬에 클론
@@ -88,23 +183,8 @@ git clone <새-저장소-URL> my-lms-project
 cd my-lms-project
 ```
 
-### 방법 2: 태그 기준 복제
-
-```bash
-# v1.0.0-template 태그 시점의 코드로 시작
-git clone --branch v1.0.0-template <템플릿-저장소-URL> my-lms-project
-cd my-lms-project
-
-# 기존 git 히스토리 제거 후 새로 시작
-rm -rf .git
-git init
-git add .
-git commit -m "feat: Initial commit from template v1.0.0"
-
-# 새 원격 저장소 연결
-git remote add origin <새-저장소-URL>
-git push -u origin main
-```
+> **참고:** GitHub Template 사용 시 기본적으로 `main` 브랜치 (최신 코드)가 클론됩니다.
+> 특정 버전을 사용하려면 위의 태그 기준 복제 방법을 사용하세요.
 
 ## 초기 설정 가이드
 
@@ -322,10 +402,19 @@ npm run db:seed        # 시드 데이터 삽입
 
 ## 버전 히스토리
 
-- **v1.0.0** (2025-10-23) - 초기 템플릿 릴리스
-  - 기본 LMS 기능 완성
-  - 회원 관리, 강의 관리, 결제, 기기 제한
-  - 관리자 대시보드
+### v1.0.0-template (2025-10-23)
+**완성된 LMS 템플릿**
+- 회원 관리, 강의 관리, 결제, 기기 제한
+- 관리자 대시보드, 공지사항, 1:1 문의
+- 세금계산서, 환불 처리
+- 모든 핵심 기능 구현 완료
+
+### v0.1.0-starter (2025-10-20)
+**기본 인프라 템플릿**
+- Next.js 15 + Prisma + Supabase 초기 구조
+- NextAuth.js v5 인증 시스템
+- LiveKlass 스타일 UI
+- 기본 페이지 구조 (About, Dashboard, Contact, Community)
 
 ## 문제 해결
 
