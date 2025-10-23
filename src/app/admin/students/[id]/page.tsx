@@ -17,6 +17,9 @@ interface StudentDetail {
       id: string;
       title: string;
       thumbnailUrl: string | null;
+      _count?: {
+        videos: number;
+      };
     };
     progress: Array<{
       videoId: string;
@@ -139,7 +142,7 @@ export default function StudentDetailPage() {
 
   // 진도율 계산
   const calculateProgress = (enrollment: StudentDetail['enrollments'][0]) => {
-    const totalVideos = enrollment.progress.length;
+    const totalVideos = enrollment.course._count?.videos || 0;
     const completedVideos = enrollment.progress.filter(p => p.isCompleted).length;
     return totalVideos > 0 ? Math.round((completedVideos / totalVideos) * 100) : 0;
   };

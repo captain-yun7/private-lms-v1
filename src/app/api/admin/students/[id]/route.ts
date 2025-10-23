@@ -31,12 +31,11 @@ export async function GET(
                 id: true,
                 title: true,
                 thumbnailUrl: true,
-              },
-            },
-            progress: {
-              select: {
-                videoId: true,
-                isCompleted: true,
+                _count: {
+                  select: {
+                    videos: true,
+                  },
+                },
               },
             },
           },
@@ -86,7 +85,36 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ student });
+    // 각 enrollment의 진도율 정보 조회
+    const enrollmentsWithProgress = await Promise.all(
+      student.enrollments.map(async (enrollment) => {
+        // 해당 강의의 모든 비디오에 대한 진도율 조회
+        const progresses = await prisma.progress.findMany({
+          where: {
+            userId: id,
+            video: {
+              courseId: enrollment.course.id,
+            },
+          },
+          select: {
+            videoId: true,
+            isCompleted: true,
+          },
+        });
+
+        return {
+          ...enrollment,
+          progress: progresses,
+        };
+      })
+    );
+
+    return NextResponse.json({
+      student: {
+        ...student,
+        enrollments: enrollmentsWithProgress,
+      },
+    });
   } catch (error) {
     console.error('학생 상세 조회 에러:', error);
     return NextResponse.json(
