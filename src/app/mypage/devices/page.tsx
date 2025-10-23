@@ -32,12 +32,26 @@ export default function MyDevicesPage() {
     try {
       setLoading(true);
       const response = await fetch('/api/devices');
+
+      console.log('기기 목록 API 응답:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      });
+
       const data = await response.json();
+      console.log('기기 목록 데이터:', data);
 
       if (response.ok) {
-        setDevices(data.devices);
+        setDevices(data.devices || []);
       } else {
-        alert(data.error || '기기 목록을 불러오는데 실패했습니다');
+        console.error('기기 목록 API 에러:', data);
+        if (response.status === 401) {
+          alert('로그인이 필요합니다. 다시 로그인해주세요.');
+          window.location.href = '/login';
+        } else {
+          alert(data.error || '기기 목록을 불러오는데 실패했습니다');
+        }
       }
     } catch (error) {
       console.error('기기 목록 로딩 실패:', error);
