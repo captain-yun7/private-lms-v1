@@ -15,9 +15,20 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get('userId');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
+    const search = searchParams.get('search') || '';
     const skip = (page - 1) * limit;
 
-    const where = userId ? { userId } : {};
+    // 검색 조건
+    const where: any = userId ? { userId } : {};
+
+    if (search) {
+      where.user = {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' as const } },
+          { email: { contains: search, mode: 'insensitive' as const } },
+        ],
+      };
+    }
 
     const [devices, total] = await Promise.all([
       prisma.device.findMany({
