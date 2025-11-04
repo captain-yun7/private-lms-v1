@@ -174,7 +174,7 @@ export default function TiptapEditor({
   editable = true,
 }: TiptapEditorProps) {
   const [fontSize, setFontSize] = useState('16');
-  const [lineHeight, setLineHeight] = useState('1.5');
+  const [lineHeight, setLineHeight] = useState('normal');
   const [letterSpacing, setLetterSpacing] = useState('0');
   const [isDragging, setIsDragging] = useState(false);
 
@@ -468,10 +468,17 @@ export default function TiptapEditor({
             className="h-9 px-3 rounded-md text-sm bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             title="줄 간격"
           >
+            <option value="normal">줄간격 기본</option>
+            <option value="0.8">줄간격 0.8</option>
+            <option value="0.9">줄간격 0.9</option>
             <option value="1.0">줄간격 1.0</option>
-            <option value="1.15">줄간격 1.15</option>
+            <option value="1.1">줄간격 1.1</option>
+            <option value="1.2">줄간격 1.2</option>
+            <option value="1.3">줄간격 1.3</option>
+            <option value="1.4">줄간격 1.4</option>
             <option value="1.5">줄간격 1.5</option>
-            <option value="1.75">줄간격 1.75</option>
+            <option value="1.6">줄간격 1.6</option>
+            <option value="1.8">줄간격 1.8</option>
             <option value="2.0">줄간격 2.0</option>
             <option value="2.5">줄간격 2.5</option>
             <option value="3.0">줄간격 3.0</option>
