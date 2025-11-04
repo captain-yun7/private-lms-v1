@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import TiptapEditor from '@/components/TiptapEditor';
 
 interface Notice {
   id: string;
@@ -143,19 +144,11 @@ export default function AdminNoticeEditPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   내용 <span className="text-red-500">*</span>
                 </label>
-                <textarea
-                  value={formData.content}
-                  onChange={(e) =>
-                    setFormData({ ...formData, content: e.target.value })
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  rows={15}
+                <TiptapEditor
+                  content={formData.content}
+                  onChange={(content) => setFormData({ ...formData, content })}
                   placeholder="공지사항 내용을 입력하세요"
-                  required
                 />
-                <p className="mt-2 text-sm text-gray-500">
-                  HTML 태그를 사용하여 서식을 지정할 수 있습니다.
-                </p>
               </div>
 
               {/* 중요 공지 */}
