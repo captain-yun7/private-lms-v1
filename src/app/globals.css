@@ -45,3 +45,8 @@ body {
   display: inline-block;
   transition: outline 0.2s ease, box-shadow 0.2s ease;
 }
+
+/* 단락 간격 커스터마이제이션 - prose 기본 스타일 덮어쓰기 */
+.prose p[style*="margin-bottom"] {
+  margin-top: 0 !important;
+}

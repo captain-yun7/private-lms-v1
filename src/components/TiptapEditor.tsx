@@ -49,12 +49,12 @@ const FontSize = Extension.create({
   },
 });
 
-// LineHeight Extension
+// LineHeight Extension (for paragraphs and headings)
 const LineHeight = Extension.create({
   name: 'lineHeight',
   addOptions() {
     return {
-      types: ['textStyle'],
+      types: ['paragraph', 'heading'],
     };
   },
   addGlobalAttributes() {
@@ -80,11 +80,15 @@ const LineHeight = Extension.create({
   },
   addCommands() {
     return {
-      setLineHeight: (lineHeight: string) => ({ chain }) => {
-        return chain().setMark('textStyle', { lineHeight }).run();
+      setLineHeight: (lineHeight: string) => ({ commands }) => {
+        return this.options.types.every((type: string) =>
+          commands.updateAttributes(type, { lineHeight })
+        );
       },
-      unsetLineHeight: () => ({ chain }) => {
-        return chain().setMark('textStyle', { lineHeight: null }).removeEmptyTextStyle().run();
+      unsetLineHeight: () => ({ commands }) => {
+        return this.options.types.every((type: string) =>
+          commands.resetAttributes(type, 'lineHeight')
+        );
       },
     };
   },
@@ -126,6 +130,47 @@ const LetterSpacing = Extension.create({
       },
       unsetLetterSpacing: () => ({ chain }) => {
         return chain().setMark('textStyle', { letterSpacing: null }).removeEmptyTextStyle().run();
+      },
+    };
+  },
+});
+
+// ParagraphSpacing Extension (단락 간격)
+const ParagraphSpacing = Extension.create({
+  name: 'paragraphSpacing',
+  addOptions() {
+    return {
+      types: ['paragraph'],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          paragraphSpacing: {
+            default: null,
+            parseHTML: element => element.style.marginBottom?.replace('em', ''),
+            renderHTML: attributes => {
+              if (attributes.paragraphSpacing === null || attributes.paragraphSpacing === undefined) {
+                return {};
+              }
+              return {
+                style: `margin-bottom: ${attributes.paragraphSpacing}em !important`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setParagraphSpacing: (spacing: string) => ({ commands }) => {
+        return commands.updateAttributes('paragraph', { paragraphSpacing: spacing });
+      },
+      unsetParagraphSpacing: () => ({ commands }) => {
+        return commands.resetAttributes('paragraph', 'paragraphSpacing');
       },
     };
   },
@@ -174,8 +219,9 @@ export default function TiptapEditor({
   editable = true,
 }: TiptapEditorProps) {
   const [fontSize, setFontSize] = useState('16');
-  const [lineHeight, setLineHeight] = useState('normal');
+  const [lineHeight, setLineHeight] = useState('1.0');
   const [letterSpacing, setLetterSpacing] = useState('0');
+  const [paragraphSpacing, setParagraphSpacing] = useState('0');
   const [isDragging, setIsDragging] = useState(false);
 
   const editor = useEditor({
@@ -185,6 +231,7 @@ export default function TiptapEditor({
       FontSize,
       LineHeight,
       LetterSpacing,
+      ParagraphSpacing,
       Placeholder.configure({
         placeholder,
       }),
@@ -468,7 +515,9 @@ export default function TiptapEditor({
             className="h-9 px-3 rounded-md text-sm bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             title="줄 간격"
           >
-            <option value="normal">줄간격 기본</option>
+            <option value="0.5">줄간격 0.5</option>
+            <option value="0.6">줄간격 0.6</option>
+            <option value="0.7">줄간격 0.7</option>
             <option value="0.8">줄간격 0.8</option>
             <option value="0.9">줄간격 0.9</option>
             <option value="1.0">줄간격 1.0</option>
@@ -504,6 +553,33 @@ export default function TiptapEditor({
             <option value="1.5">자간 1.5px</option>
             <option value="2">자간 2px</option>
             <option value="3">자간 3px</option>
+          </select>
+
+          {/* Paragraph Spacing */}
+          <select
+            value={paragraphSpacing}
+            onChange={(e) => {
+              const spacing = e.target.value;
+              setParagraphSpacing(spacing);
+              if (editor) {
+                editor.chain().focus().setParagraphSpacing(spacing).run();
+              }
+            }}
+            className="h-9 px-3 rounded-md text-sm bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            title="단락 간격"
+          >
+            <option value="-1">단락간격 -1</option>
+            <option value="-0.75">단락간격 -0.75</option>
+            <option value="-0.5">단락간격 -0.5</option>
+            <option value="-0.25">단락간격 -0.25</option>
+            <option value="0">단락간격 0</option>
+            <option value="0.25">단락간격 0.25</option>
+            <option value="0.5">단락간격 0.5</option>
+            <option value="0.75">단락간격 0.75</option>
+            <option value="1">단락간격 1</option>
+            <option value="1.25">단락간격 1.25</option>
+            <option value="1.5">단락간격 1.5</option>
+            <option value="2">단락간격 2</option>
           </select>
 
           <div className="w-px h-6 bg-gray-200 mx-1"></div>
