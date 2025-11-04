@@ -18,8 +18,9 @@ export default function Header() {
       <div className="max-w-[1400px] mx-auto px-8">
         <nav className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold text-black">
-            Private LMS
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-xl font-bold text-blue-600">김대정 교수</span>
+            <span className="hidden sm:inline text-sm text-gray-500 font-normal">한국해양대학교</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -41,7 +42,7 @@ export default function Header() {
             </li>
             <li>
               <Link href="/inquiries/new" className="text-base text-gray-700 hover:text-black transition-colors font-medium">
-                1:1 문의
+                문의
               </Link>
             </li>
           </ul>
@@ -125,9 +126,9 @@ export default function Header() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="px-6 py-2.5 bg-black text-white rounded-md hover:bg-gray-900 transition-all font-medium"
+                  className="px-6 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all font-medium"
                 >
-                  시작하기
+                  회원가입
                 </Link>
               </>
             )}
@@ -186,7 +187,7 @@ export default function Header() {
                   className="block px-4 py-2 text-text-primary hover:bg-bg-secondary rounded-lg transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  1:1 문의
+                  문의
                 </Link>
               </li>
 
@@ -254,7 +255,7 @@ export default function Header() {
                     className="flex-1 text-center px-4 py-2 bg-primary text-white rounded-lg"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    시작하기
+                    회원가입
                   </Link>
                 </li>
               )}

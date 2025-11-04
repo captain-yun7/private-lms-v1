@@ -18,32 +18,11 @@ export async function GET(request: Request) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
-        { instructorName: { contains: search, mode: 'insensitive' } },
       ];
     }
 
-    // 정렬 조건
-    const orderBy: any = [];
-    switch (sort) {
-      case 'latest':
-        orderBy.push({ createdAt: 'desc' });
-        break;
-      case 'popular':
-        orderBy.push({ _count: { enrollments: 'desc' } });
-        break;
-      case 'price-low':
-        orderBy.push({ price: 'asc' });
-        break;
-      case 'price-high':
-        orderBy.push({ price: 'desc' });
-        break;
-      case 'rating':
-        // Note: rating 필드는 스키마에 없으므로 나중에 추가 필요
-        orderBy.push({ createdAt: 'desc' });
-        break;
-      default:
-        orderBy.push({ createdAt: 'desc' });
-    }
+    // 정렬 조건 (최신순으로 고정)
+    const orderBy: any = [{ createdAt: 'desc' }];
 
     const courses = await prisma.course.findMany({
       where,

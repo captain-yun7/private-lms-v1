@@ -216,11 +216,11 @@ export default function CourseDetailPage() {
               {/* Instructor */}
               <div className="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-lg">
                 <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold">
-                  {course.instructorName[0]}
+                  김
                 </div>
                 <div>
-                  <p className="text-sm text-gray-200">강사</p>
-                  <p className="font-semibold text-lg">{course.instructorName}</p>
+                  <p className="text-sm text-gray-200">한국해양대학교</p>
+                  <p className="font-semibold text-lg">김대정 교수</p>
                 </div>
               </div>
             </div>
@@ -367,17 +367,22 @@ export default function CourseDetailPage() {
               )}
 
               {/* Instructor */}
-              <div className="bg-white rounded-2xl shadow-card p-8">
-                <h2 className="text-2xl font-bold text-text-primary mb-6">강사 소개</h2>
+              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl shadow-card p-8 border-2 border-blue-100">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">강사 소개</h2>
                 <div className="flex items-start gap-6">
-                  <div className="w-24 h-24 bg-gradient-to-br from-primary to-primary-light rounded-full flex items-center justify-center text-white text-4xl font-bold flex-shrink-0">
-                    {course.instructorName[0]}
+                  <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full flex items-center justify-center text-white text-4xl font-bold flex-shrink-0">
+                    김
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-text-primary mb-2">
-                      {course.instructorName}
+                    <div className="mb-2">
+                      <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2">
+                        한국해양대학교
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      김대정 교수
                     </h3>
-                    <p className="text-text-secondary">
+                    <p className="text-gray-700 leading-relaxed">
                       {course.instructorIntro}
                     </p>
                   </div>
