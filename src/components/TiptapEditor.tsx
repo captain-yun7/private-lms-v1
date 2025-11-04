@@ -49,6 +49,88 @@ const FontSize = Extension.create({
   },
 });
 
+// LineHeight Extension
+const LineHeight = Extension.create({
+  name: 'lineHeight',
+  addOptions() {
+    return {
+      types: ['textStyle'],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          lineHeight: {
+            default: null,
+            parseHTML: element => element.style.lineHeight,
+            renderHTML: attributes => {
+              if (!attributes.lineHeight) {
+                return {};
+              }
+              return {
+                style: `line-height: ${attributes.lineHeight}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setLineHeight: (lineHeight: string) => ({ chain }) => {
+        return chain().setMark('textStyle', { lineHeight }).run();
+      },
+      unsetLineHeight: () => ({ chain }) => {
+        return chain().setMark('textStyle', { lineHeight: null }).removeEmptyTextStyle().run();
+      },
+    };
+  },
+});
+
+// LetterSpacing Extension
+const LetterSpacing = Extension.create({
+  name: 'letterSpacing',
+  addOptions() {
+    return {
+      types: ['textStyle'],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          letterSpacing: {
+            default: null,
+            parseHTML: element => element.style.letterSpacing.replace('px', ''),
+            renderHTML: attributes => {
+              if (!attributes.letterSpacing) {
+                return {};
+              }
+              return {
+                style: `letter-spacing: ${attributes.letterSpacing}px`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setLetterSpacing: (letterSpacing: string) => ({ chain }) => {
+        return chain().setMark('textStyle', { letterSpacing }).run();
+      },
+      unsetLetterSpacing: () => ({ chain }) => {
+        return chain().setMark('textStyle', { letterSpacing: null }).removeEmptyTextStyle().run();
+      },
+    };
+  },
+});
+
 // Resizable Image Extension
 const ResizableImage = Image.extend({
   addAttributes() {
@@ -92,6 +174,8 @@ export default function TiptapEditor({
   editable = true,
 }: TiptapEditorProps) {
   const [fontSize, setFontSize] = useState('16');
+  const [lineHeight, setLineHeight] = useState('1.5');
+  const [letterSpacing, setLetterSpacing] = useState('0');
   const [isDragging, setIsDragging] = useState(false);
 
   const editor = useEditor({
@@ -99,6 +183,8 @@ export default function TiptapEditor({
       StarterKit,
       TextStyle,
       FontSize,
+      LineHeight,
+      LetterSpacing,
       Placeholder.configure({
         placeholder,
       }),
@@ -357,15 +443,60 @@ export default function TiptapEditor({
               }
             }}
             className="h-9 px-3 rounded-md text-sm bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            title="글자 크기"
           >
-            <option value="12">12</option>
-            <option value="14">14</option>
-            <option value="16">16</option>
-            <option value="18">18</option>
-            <option value="20">20</option>
-            <option value="24">24</option>
-            <option value="28">28</option>
-            <option value="32">32</option>
+            <option value="12">12px</option>
+            <option value="14">14px</option>
+            <option value="16">16px</option>
+            <option value="18">18px</option>
+            <option value="20">20px</option>
+            <option value="24">24px</option>
+            <option value="28">28px</option>
+            <option value="32">32px</option>
+          </select>
+
+          {/* Line Height */}
+          <select
+            value={lineHeight}
+            onChange={(e) => {
+              const height = e.target.value;
+              setLineHeight(height);
+              if (editor) {
+                editor.chain().focus().setLineHeight(height).run();
+              }
+            }}
+            className="h-9 px-3 rounded-md text-sm bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            title="줄 간격"
+          >
+            <option value="1.0">줄간격 1.0</option>
+            <option value="1.15">줄간격 1.15</option>
+            <option value="1.5">줄간격 1.5</option>
+            <option value="1.75">줄간격 1.75</option>
+            <option value="2.0">줄간격 2.0</option>
+            <option value="2.5">줄간격 2.5</option>
+            <option value="3.0">줄간격 3.0</option>
+          </select>
+
+          {/* Letter Spacing */}
+          <select
+            value={letterSpacing}
+            onChange={(e) => {
+              const spacing = e.target.value;
+              setLetterSpacing(spacing);
+              if (editor) {
+                editor.chain().focus().setLetterSpacing(spacing).run();
+              }
+            }}
+            className="h-9 px-3 rounded-md text-sm bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            title="자간"
+          >
+            <option value="-1">자간 -1px</option>
+            <option value="0">자간 0px</option>
+            <option value="0.5">자간 0.5px</option>
+            <option value="1">자간 1px</option>
+            <option value="1.5">자간 1.5px</option>
+            <option value="2">자간 2px</option>
+            <option value="3">자간 3px</option>
           </select>
 
           <div className="w-px h-6 bg-gray-200 mx-1"></div>
