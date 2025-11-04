@@ -73,7 +73,17 @@ export default function SignupPage() {
         return;
       }
 
-      router.push('/dashboard');
+      // Get the current session to check role
+      const sessionResponse = await fetch('/api/auth/session');
+      const session = await sessionResponse.json();
+
+      // Redirect based on role (default STUDENT for new signups)
+      if (session?.user?.role === 'ADMIN') {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard');
+      }
+
       router.refresh();
     } catch (err) {
       setError('회원가입 중 오류가 발생했습니다');
@@ -86,7 +96,8 @@ export default function SignupPage() {
     setError('');
 
     try {
-      await signIn(provider, { callbackUrl: '/dashboard' });
+      // Use callback page for role-based redirect
+      await signIn(provider, { callbackUrl: '/auth/callback' });
     } catch (err) {
       setError('회원가입 중 오류가 발생했습니다');
       setLoading(false);

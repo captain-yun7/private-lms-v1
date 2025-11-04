@@ -45,7 +45,23 @@ export default function LoginPage() {
         return;
       }
 
-      router.push('/dashboard');
+      // Get the current session to check role
+      const response = await fetch('/api/auth/session');
+      const session = await response.json();
+
+      // Check for callbackUrl in query params
+      const searchParams = new URLSearchParams(window.location.search);
+      const callbackUrl = searchParams.get('callbackUrl');
+
+      // Redirect based on priority: callbackUrl > role-based redirect
+      if (callbackUrl) {
+        router.push(callbackUrl);
+      } else if (session?.user?.role === 'ADMIN') {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard');
+      }
+
       router.refresh();
     } catch (err) {
       setError('로그인 중 오류가 발생했습니다');
@@ -58,7 +74,11 @@ export default function LoginPage() {
     setError('');
 
     try {
-      await signIn(provider, { callbackUrl: '/dashboard' });
+      // Check for callbackUrl in query params
+      const searchParams = new URLSearchParams(window.location.search);
+      const callbackUrl = searchParams.get('callbackUrl') || '/auth/callback';
+
+      await signIn(provider, { callbackUrl });
     } catch (err) {
       setError('로그인 중 오류가 발생했습니다');
       setLoading(false);
