@@ -82,7 +82,6 @@ export default function EditCoursePage() {
   });
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   // 강의 자료 관리 상태
   const [showFileForm, setShowFileForm] = useState(false);
@@ -229,7 +228,6 @@ export default function EditCoursePage() {
     }
 
     setUploading(true);
-    setUploadProgress(0);
 
     try {
       const formData = new FormData();
@@ -238,41 +236,15 @@ export default function EditCoursePage() {
       formData.append('description', videoFormData.description);
       formData.append('isPreview', videoFormData.isPreview.toString());
 
-      // XMLHttpRequest를 사용하여 업로드 진행률 추적
-      await new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-
-        // 업로드 진행률 이벤트
-        xhr.upload.addEventListener('progress', (e) => {
-          if (e.lengthComputable) {
-            const percentComplete = (e.loaded / e.total) * 100;
-            setUploadProgress(Math.round(percentComplete));
-          }
-        });
-
-        // 완료 이벤트
-        xhr.addEventListener('load', () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            resolve();
-          } else {
-            try {
-              const error = JSON.parse(xhr.responseText);
-              reject(new Error(error.error || '영상 업로드 실패'));
-            } catch {
-              reject(new Error('영상 업로드 실패'));
-            }
-          }
-        });
-
-        // 에러 이벤트
-        xhr.addEventListener('error', () => {
-          reject(new Error('네트워크 오류가 발생했습니다.'));
-        });
-
-        // 요청 시작
-        xhr.open('POST', `/api/admin/courses/${courseId}/videos/upload`);
-        xhr.send(formData);
+      const response = await fetch(`/api/admin/courses/${courseId}/videos/upload`, {
+        method: 'POST',
+        body: formData,
       });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || '영상 업로드 실패');
+      }
 
       alert('영상이 업로드되었습니다.');
       setShowVideoForm(false);
@@ -283,12 +255,10 @@ export default function EditCoursePage() {
         isPreview: false,
       });
       setUploadFile(null);
-      setUploadProgress(0);
       fetchCourse();
     } catch (error: any) {
       console.error('Error:', error);
       alert(error.message || '영상 업로드에 실패했습니다.');
-      setUploadProgress(0);
     } finally {
       setUploading(false);
     }
@@ -580,7 +550,6 @@ export default function EditCoursePage() {
                 </span>
               )}
             </div>
-            <p className="text-sm text-gray-500">{video.vimeoUrl}</p>
           </div>
         </div>
         <button
@@ -880,30 +849,14 @@ export default function EditCoursePage() {
 
               {uploading && (
                 <div className="p-4 bg-blue-50 rounded-lg space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-blue-900">영상 업로드 중...</p>
-                    <p className="text-sm font-bold text-blue-900">{uploadProgress}%</p>
-                  </div>
-
-                  {/* 진행률 바 */}
-                  <div className="w-full bg-blue-200 rounded-full h-3 overflow-hidden">
-                    <div
-                      className="bg-blue-600 h-full rounded-full transition-all duration-300 ease-out flex items-center justify-end px-2"
-                      style={{ width: `${uploadProgress}%` }}
-                    >
-                      {uploadProgress > 10 && (
-                        <span className="text-[10px] font-bold text-white">
-                          {uploadProgress}%
-                        </span>
-                      )}
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-900"></div>
+                    <p className="text-sm font-medium text-blue-900">영상을 업로드 중...</p>
                   </div>
 
                   <div className="space-y-1">
                     <p className="text-xs text-blue-700">
-                      {uploadProgress < 100
-                        ? '업로드가 완료될 때까지 기다려주세요. 시간이 오래 걸릴 수 있습니다.'
-                        : 'Vimeo에 영상을 처리하는 중입니다...'}
+                      영상을 처리하는 중입니다. 시간이 오래 걸릴 수 있습니다.
                     </p>
                     {uploadFile && (
                       <p className="text-xs text-blue-600">
