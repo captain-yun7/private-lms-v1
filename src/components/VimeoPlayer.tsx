@@ -182,7 +182,7 @@ export default function VimeoPlayer({
   }, [vimeoUrl, autoplay, controls, responsive]);
 
   return (
-    <div className={`relative w-full aspect-video ${className}`}>
+    <div className={`relative ${className || 'w-full aspect-video'}`}>
       {/* Loading State */}
       {isLoading && (
         <div className="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">

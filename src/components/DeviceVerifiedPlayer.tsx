@@ -109,10 +109,12 @@ export default function DeviceVerifiedPlayer(props: DeviceVerifiedPlayerProps) {
   // 로딩 중
   if (fpLoading || verifying) {
     return (
-      <div className="w-full aspect-video bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-white">기기 확인 중...</p>
+      <div className={props.className || 'w-full aspect-video'}>
+        <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+            <p className="text-white">기기 확인 중...</p>
+          </div>
         </div>
       </div>
     );
@@ -121,8 +123,9 @@ export default function DeviceVerifiedPlayer(props: DeviceVerifiedPlayerProps) {
   // 기기 미등록 - 2개 초과시에만 표시 (자동 등록 실패)
   if (!verified) {
     return (
-      <div className="w-full aspect-video bg-gray-900 flex items-center justify-center">
-        <div className="max-w-lg text-center p-8">
+      <div className={props.className || 'w-full aspect-video'}>
+        <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+          <div className="max-w-lg text-center p-8">
           <svg
             className="w-16 h-16 text-red-500 mx-auto mb-4"
             fill="none"
@@ -162,6 +165,7 @@ export default function DeviceVerifiedPlayer(props: DeviceVerifiedPlayerProps) {
             기기 관리 페이지에서 기존 기기를 삭제하면<br />
             이 기기가 자동으로 등록됩니다.
           </p>
+        </div>
         </div>
       </div>
     );

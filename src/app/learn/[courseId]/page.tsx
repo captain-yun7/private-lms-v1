@@ -281,18 +281,20 @@ export default function LearnPage() {
         {/* Main Video Player */}
         <div className="flex-1 flex flex-col bg-black">
           {/* Video Player */}
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center p-4">
             {currentVideo && (
-              <DeviceVerifiedPlayer
-                key={currentVideo.id}
-                vimeoUrl={currentVideo.vimeoUrl}
-                controls={true}
-                responsive={true}
-                autoplay={false}
-                className="w-full h-full"
-                onTimeUpdate={handleTimeUpdate}
-                onEnded={handleVideoEnded}
-              />
+              <div className="w-full max-w-6xl">
+                <DeviceVerifiedPlayer
+                  key={currentVideo.id}
+                  vimeoUrl={currentVideo.vimeoUrl}
+                  controls={true}
+                  responsive={true}
+                  autoplay={false}
+                  className="w-full aspect-video"
+                  onTimeUpdate={handleTimeUpdate}
+                  onEnded={handleVideoEnded}
+                />
+              </div>
             )}
           </div>
 
