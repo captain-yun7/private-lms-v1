@@ -281,6 +281,9 @@ export default function EditCoursePage() {
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
   const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
 
+  // 영상 길이 업데이트 상태
+  const [updatingDuration, setUpdatingDuration] = useState(false);
+
   // 드래그 앤 드롭 센서 설정
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -706,6 +709,44 @@ export default function EditCoursePage() {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
+  // 영상 길이 업데이트
+  const handleUpdateDuration = async () => {
+    if (!confirm('모든 영상의 길이를 Vimeo에서 가져와 업데이트하시겠습니까?')) return;
+
+    setUpdatingDuration(true);
+
+    try {
+      const response = await fetch('/api/admin/videos/update-duration', {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || '영상 길이 업데이트 실패');
+      }
+
+      const result = await response.json();
+
+      if (result.errors && result.errors.length > 0) {
+        alert(
+          `업데이트 완료!\n\n` +
+          `성공: ${result.successCount}개\n` +
+          `실패: ${result.failCount}개\n\n` +
+          `오류:\n${result.errors.join('\n')}`
+        );
+      } else {
+        alert(`영상 길이가 업데이트되었습니다.\n업데이트된 영상: ${result.successCount}개`);
+      }
+
+      fetchCourse();
+    } catch (error: any) {
+      console.error('Error:', error);
+      alert(error.message || '영상 길이 업데이트에 실패했습니다.');
+    } finally {
+      setUpdatingDuration(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -882,12 +923,22 @@ export default function EditCoursePage() {
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900">영상 관리 ({course.videos.length}개)</h2>
-          <button
-            onClick={() => setShowVideoForm(!showVideoForm)}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-          >
-            {showVideoForm ? '취소' : '+ 영상 추가'}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleUpdateDuration}
+              disabled={updatingDuration}
+              className="px-4 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="duration이 0인 영상들의 길이를 Vimeo에서 가져옵니다"
+            >
+              {updatingDuration ? '업데이트 중...' : '영상 길이 업데이트'}
+            </button>
+            <button
+              onClick={() => setShowVideoForm(!showVideoForm)}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+            >
+              {showVideoForm ? '취소' : '+ 영상 추가'}
+            </button>
+          </div>
         </div>
 
         {showVideoForm && (

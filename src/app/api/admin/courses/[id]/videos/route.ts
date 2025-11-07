@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { Vimeo } from '@vimeo/vimeo';
 
 // 영상 추가
 export async function POST(
@@ -26,6 +27,41 @@ export async function POST(
     const vimeoIdMatch = vimeoUrl.match(/vimeo\.com\/(\d+)/);
     const vimeoId = vimeoIdMatch ? vimeoIdMatch[1] : null;
 
+    if (!vimeoId) {
+      return NextResponse.json({ error: '유효한 Vimeo URL이 아닙니다' }, { status: 400 });
+    }
+
+    // Vimeo API로 영상 정보 가져오기
+    const vimeoToken = process.env.VIMEO_ACCESS_TOKEN;
+    let duration = null;
+
+    if (vimeoToken && vimeoToken !== 'your-vimeo-access-token') {
+      try {
+        const client = new Vimeo(null, null, vimeoToken);
+
+        const videoInfo = await new Promise<any>((resolve, reject) => {
+          client.request(
+            {
+              method: 'GET',
+              path: `/videos/${vimeoId}`,
+            },
+            (error: any, body: any) => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve(body);
+              }
+            }
+          );
+        });
+
+        duration = videoInfo.duration || null;
+      } catch (error) {
+        console.warn('Vimeo API에서 duration 가져오기 실패:', error);
+        // duration을 가져오지 못해도 영상 추가는 계속 진행
+      }
+    }
+
     // 현재 최대 순서 조회
     const maxOrder = await prisma.video.aggregate({
       where: { courseId: id },
@@ -41,6 +77,7 @@ export async function POST(
         vimeoId,
         title,
         description: description || null,
+        duration,
         order: nextOrder,
         isPreview: isPreview || false,
       },

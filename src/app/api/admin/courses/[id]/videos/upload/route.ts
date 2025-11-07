@@ -100,6 +100,31 @@ export async function POST(
     const vimeoId = vimeoResponse.uri.split('/').pop();
     const vimeoUrl = `https://vimeo.com/${vimeoId}`;
 
+    // Vimeo API로 영상 정보 가져오기 (duration 포함)
+    let duration = null;
+    try {
+      const videoInfo = await new Promise<any>((resolve, reject) => {
+        client.request(
+          {
+            method: 'GET',
+            path: `/videos/${vimeoId}`,
+          },
+          (error: any, body: any) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(body);
+            }
+          }
+        );
+      });
+
+      duration = videoInfo.duration || null;
+    } catch (error) {
+      console.warn('Vimeo API에서 duration 가져오기 실패:', error);
+      // duration을 가져오지 못해도 영상 추가는 계속 진행
+    }
+
     // 현재 최대 순서 조회
     const maxOrder = await prisma.video.aggregate({
       where: { courseId: id },
@@ -116,6 +141,7 @@ export async function POST(
         vimeoId,
         title,
         description: description || null,
+        duration,
         order: nextOrder,
         isPreview: isPreview || false,
       },
