@@ -98,10 +98,11 @@ export async function POST(
 
     // Vimeo URI에서 ID 추출 (예: /videos/123456789)
     const vimeoId = vimeoResponse.uri.split('/').pop();
-    const vimeoUrl = `https://vimeo.com/${vimeoId}`;
 
-    // Vimeo API로 영상 정보 가져오기 (duration 포함)
+    // Vimeo API로 영상 정보 가져오기 (duration 및 올바른 URL 포함)
     let duration = null;
+    let vimeoUrl = `https://vimeo.com/${vimeoId}`; // 기본값
+
     try {
       const videoInfo = await new Promise<any>((resolve, reject) => {
         client.request(
@@ -120,9 +121,14 @@ export async function POST(
       });
 
       duration = videoInfo.duration || null;
+
+      // Privacy hash가 포함된 올바른 URL 사용 (unlisted 영상용)
+      if (videoInfo.link) {
+        vimeoUrl = videoInfo.link;
+      }
     } catch (error) {
-      console.warn('Vimeo API에서 duration 가져오기 실패:', error);
-      // duration을 가져오지 못해도 영상 추가는 계속 진행
+      console.warn('Vimeo API에서 영상 정보 가져오기 실패:', error);
+      // 정보를 가져오지 못해도 영상 추가는 계속 진행
     }
 
     // 현재 최대 순서 조회

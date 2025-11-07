@@ -31,9 +31,10 @@ export async function POST(
       return NextResponse.json({ error: '유효한 Vimeo URL이 아닙니다' }, { status: 400 });
     }
 
-    // Vimeo API로 영상 정보 가져오기
+    // Vimeo API로 영상 정보 가져오기 (duration 및 올바른 URL)
     const vimeoToken = process.env.VIMEO_ACCESS_TOKEN;
     let duration = null;
+    let correctVimeoUrl = vimeoUrl; // 기본값은 사용자가 입력한 URL
 
     if (vimeoToken && vimeoToken !== 'your-vimeo-access-token') {
       try {
@@ -56,9 +57,14 @@ export async function POST(
         });
 
         duration = videoInfo.duration || null;
+
+        // Privacy hash가 포함된 올바른 URL 사용 (unlisted 영상용)
+        if (videoInfo.link) {
+          correctVimeoUrl = videoInfo.link;
+        }
       } catch (error) {
-        console.warn('Vimeo API에서 duration 가져오기 실패:', error);
-        // duration을 가져오지 못해도 영상 추가는 계속 진행
+        console.warn('Vimeo API에서 영상 정보 가져오기 실패:', error);
+        // 정보를 가져오지 못해도 영상 추가는 계속 진행
       }
     }
 
@@ -73,7 +79,7 @@ export async function POST(
     const video = await prisma.video.create({
       data: {
         courseId: id,
-        vimeoUrl,
+        vimeoUrl: correctVimeoUrl,
         vimeoId,
         title,
         description: description || null,
