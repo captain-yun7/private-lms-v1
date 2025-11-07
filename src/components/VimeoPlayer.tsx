@@ -64,8 +64,16 @@ export default function VimeoPlayer({
     console.log('[VimeoPlayer] Starting initialization');
 
     try {
-      // Vimeo URL에서 video ID 추출
-      const getVimeoId = (url: string): string | null => {
+      // Vimeo URL에서 video ID와 privacy hash 추출
+      const parseVimeoUrl = (url: string): { id: string; hash?: string } | null => {
+        // https://vimeo.com/123456789/abcdef123 형식 (unlisted with hash)
+        const hashPattern = /vimeo\.com\/(\d+)\/([a-zA-Z0-9]+)/;
+        const hashMatch = url.match(hashPattern);
+        if (hashMatch && hashMatch[1] && hashMatch[2]) {
+          return { id: hashMatch[1], hash: hashMatch[2] };
+        }
+
+        // 일반적인 패턴들
         const patterns = [
           /vimeo\.com\/(\d+)/,
           /vimeo\.com\/video\/(\d+)/,
@@ -75,31 +83,42 @@ export default function VimeoPlayer({
         for (const pattern of patterns) {
           const match = url.match(pattern);
           if (match && match[1]) {
-            return match[1];
+            return { id: match[1] };
           }
         }
         return null;
       };
 
-      const videoId = getVimeoId(vimeoUrl);
+      const parsedUrl = parseVimeoUrl(vimeoUrl);
 
-      if (!videoId) {
+      if (!parsedUrl) {
         setError('유효하지 않은 Vimeo URL입니다.');
         setIsLoading(false);
         return;
       }
 
       // Vimeo Player 초기화
-      console.log('[VimeoPlayer] Initializing player with video ID:', videoId);
-      player = new Player(containerRef.current, {
-        id: parseInt(videoId),
+      console.log('[VimeoPlayer] Initializing player:', parsedUrl);
+
+      // unlisted 영상의 경우 URL로 초기화 (hash 포함)
+      const playerOptions: any = {
         autoplay,
         controls,
         responsive,
         width: responsive ? undefined : 640,
         playsinline: true,
         dnt: true,
-      });
+      };
+
+      if (parsedUrl.hash) {
+        // Privacy hash가 있으면 전체 URL 사용
+        playerOptions.url = vimeoUrl;
+      } else {
+        // 일반 공개 영상은 ID만 사용
+        playerOptions.id = parseInt(parsedUrl.id);
+      }
+
+      player = new Player(containerRef.current, playerOptions);
 
       console.log('[VimeoPlayer] Player instance created');
       playerRef.current = player;
