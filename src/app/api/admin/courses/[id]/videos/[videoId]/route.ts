@@ -2,6 +2,43 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 
+// 영상 수정
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; videoId: string }> }
+) {
+  try {
+    const session = await auth();
+
+    if (!session?.user) {
+      return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
+    }
+
+    if (session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 });
+    }
+
+    const { videoId } = await params;
+    const body = await request.json();
+    const { title, description, isPreview } = body;
+
+    // 영상 업데이트
+    const updatedVideo = await prisma.video.update({
+      where: { id: videoId },
+      data: {
+        ...(title !== undefined && { title }),
+        ...(description !== undefined && { description }),
+        ...(isPreview !== undefined && { isPreview }),
+      },
+    });
+
+    return NextResponse.json(updatedVideo);
+  } catch (error) {
+    console.error('영상 수정 실패:', error);
+    return NextResponse.json({ error: '영상 수정 실패' }, { status: 500 });
+  }
+}
+
 // 영상 삭제
 export async function DELETE(
   request: NextRequest,

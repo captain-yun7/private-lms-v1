@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import {
@@ -53,6 +53,186 @@ interface Course {
   files: CourseFile[];
 }
 
+// Sortable Video Item 컴포넌트를 외부로 분리
+const SortableVideoItem = memo(function SortableVideoItem({
+  video,
+  index,
+  totalVideos,
+  isEditing,
+  editFormData,
+  onEditFormChange,
+  onSave,
+  onCancel,
+  onEdit,
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+}: {
+  video: Video;
+  index: number;
+  totalVideos: number;
+  isEditing: boolean;
+  editFormData: { title: string; description: string; isPreview: boolean };
+  onEditFormChange: (data: { title: string; description: string; isPreview: boolean }) => void;
+  onSave: (videoId: string) => void;
+  onCancel: () => void;
+  onEdit: (video: Video) => void;
+  onDelete: (videoId: string) => void;
+  onMoveUp: (videoId: string) => void;
+  onMoveDown: (videoId: string) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: video.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 bg-white"
+    >
+      {isEditing ? (
+        // 편집 모드
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">영상 제목 *</label>
+            <input
+              type="text"
+              value={editFormData.title}
+              onChange={(e) => onEditFormChange({ ...editFormData, title: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="영상 제목을 입력하세요"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">영상 설명</label>
+            <textarea
+              value={editFormData.description}
+              onChange={(e) => onEditFormChange({ ...editFormData, description: e.target.value })}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="영상 설명을 입력하세요"
+            />
+          </div>
+
+          <div>
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={editFormData.isPreview}
+                onChange={(e) => onEditFormChange({ ...editFormData, isPreview: e.target.checked })}
+                className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+              />
+              <span className="ml-2 text-sm text-gray-700">미리보기 영상으로 설정</span>
+            </label>
+          </div>
+
+          <div className="flex items-center gap-2 pt-2">
+            <button
+              onClick={() => onSave(video.id)}
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+            >
+              저장
+            </button>
+            <button
+              onClick={onCancel}
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      ) : (
+        // 일반 모드
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4 flex-1">
+            {/* 드래그 핸들 */}
+            <div
+              {...attributes}
+              {...listeners}
+              className="cursor-grab-custom active:cursor-grabbing-custom p-2 hover:bg-gray-100 rounded transition-colors select-none"
+              title="드래그하여 순서 변경"
+            >
+              <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                <circle cx="9" cy="5" r="1.5" />
+                <circle cx="9" cy="12" r="1.5" />
+                <circle cx="9" cy="19" r="1.5" />
+                <circle cx="15" cy="5" r="1.5" />
+                <circle cx="15" cy="12" r="1.5" />
+                <circle cx="15" cy="19" r="1.5" />
+              </svg>
+            </div>
+
+            {/* 순서 변경 버튼 (보조) */}
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={() => onMoveUp(video.id)}
+                disabled={index === 0}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-30"
+                title="위로 이동"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => onMoveDown(video.id)}
+                disabled={index === totalVideos - 1}
+                className="p-1 hover:bg-gray-200 rounded disabled:opacity-30"
+                title="아래로 이동"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-gray-900">{video.order}. {video.title}</span>
+                {video.isPreview && (
+                  <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
+                    미리보기
+                  </span>
+                )}
+              </div>
+              {video.description && (
+                <p className="text-sm text-gray-600 mt-1">{video.description}</p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onEdit(video)}
+              className="px-3 py-1 text-primary hover:text-primary-dark"
+            >
+              수정
+            </button>
+            <button
+              onClick={() => onDelete(video.id)}
+              className="px-3 py-1 text-red-600 hover:text-red-900"
+            >
+              삭제
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
 export default function EditCoursePage() {
   const router = useRouter();
   const params = useParams();
@@ -82,6 +262,14 @@ export default function EditCoursePage() {
   });
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+
+  // 영상 편집 상태
+  const [editingVideoId, setEditingVideoId] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    description: '',
+    isPreview: false,
+  });
 
   // 강의 자료 관리 상태
   const [showFileForm, setShowFileForm] = useState(false);
@@ -307,6 +495,48 @@ export default function EditCoursePage() {
     }
   };
 
+  const handleEditVideo = (video: Video) => {
+    setEditingVideoId(video.id);
+    setEditFormData({
+      title: video.title,
+      description: video.description || '',
+      isPreview: video.isPreview,
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingVideoId(null);
+    setEditFormData({
+      title: '',
+      description: '',
+      isPreview: false,
+    });
+  };
+
+  const handleSaveVideo = async (videoId: string) => {
+    if (!editFormData.title.trim()) {
+      alert('영상 제목을 입력해주세요.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/courses/${courseId}/videos/${videoId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editFormData),
+      });
+
+      if (!response.ok) throw new Error('영상 수정 실패');
+
+      alert('영상이 수정되었습니다.');
+      setEditingVideoId(null);
+      fetchCourse();
+    } catch (error) {
+      console.error('Error:', error);
+      alert('영상 수정에 실패했습니다.');
+    }
+  };
+
   const handleDeleteCourse = async () => {
     if (!confirm('이 강의를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
 
@@ -474,92 +704,6 @@ export default function EditCoursePage() {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  };
-
-  // Sortable Video Item 컴포넌트
-  const SortableVideoItem = ({ video, index }: { video: Video; index: number }) => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({ id: video.id });
-
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      opacity: isDragging ? 0.5 : 1,
-    };
-
-    return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 bg-white"
-      >
-        <div className="flex items-center gap-4 flex-1">
-          {/* 드래그 핸들 */}
-          <div
-            {...attributes}
-            {...listeners}
-            className="cursor-grab-custom active:cursor-grabbing-custom p-2 hover:bg-gray-100 rounded transition-colors select-none"
-            title="드래그하여 순서 변경"
-          >
-            <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-              <circle cx="9" cy="5" r="1.5" />
-              <circle cx="9" cy="12" r="1.5" />
-              <circle cx="9" cy="19" r="1.5" />
-              <circle cx="15" cy="5" r="1.5" />
-              <circle cx="15" cy="12" r="1.5" />
-              <circle cx="15" cy="19" r="1.5" />
-            </svg>
-          </div>
-
-          {/* 순서 변경 버튼 (보조) */}
-          <div className="flex flex-col gap-1">
-            <button
-              onClick={() => moveVideo(video.id, 'up')}
-              disabled={index === 0}
-              className="p-1 hover:bg-gray-200 rounded disabled:opacity-30"
-              title="위로 이동"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-              </svg>
-            </button>
-            <button
-              onClick={() => moveVideo(video.id, 'down')}
-              disabled={index === course?.videos.length! - 1}
-              className="p-1 hover:bg-gray-200 rounded disabled:opacity-30"
-              title="아래로 이동"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-gray-900">{video.order}. {video.title}</span>
-              {video.isPreview && (
-                <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
-                  미리보기
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-        <button
-          onClick={() => handleDeleteVideo(video.id)}
-          className="px-3 py-1 text-red-600 hover:text-red-900"
-        >
-          삭제
-        </button>
-      </div>
-    );
   };
 
   if (loading) {
@@ -898,6 +1042,16 @@ export default function EditCoursePage() {
                       key={video.id}
                       video={video}
                       index={index}
+                      totalVideos={course.videos.length}
+                      isEditing={editingVideoId === video.id}
+                      editFormData={editFormData}
+                      onEditFormChange={setEditFormData}
+                      onSave={handleSaveVideo}
+                      onCancel={handleCancelEdit}
+                      onEdit={handleEditVideo}
+                      onDelete={handleDeleteVideo}
+                      onMoveUp={(id) => moveVideo(id, 'up')}
+                      onMoveDown={(id) => moveVideo(id, 'down')}
                     />
                   ))}
               </div>

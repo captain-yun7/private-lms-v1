@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 // GET /api/courses/[id]/files/[fileId]/download - 강의 자료 다운로드
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string; fileId: string } }
+  { params }: { params: Promise<{ id: string; fileId: string }> }
 ) {
   try {
     const session = await auth();
@@ -17,7 +17,7 @@ export async function GET(
       );
     }
 
-    const { id: courseId, fileId } = params;
+    const { id: courseId, fileId } = await params;
 
     // 1. 파일 존재 확인
     const file = await prisma.courseFile.findUnique({

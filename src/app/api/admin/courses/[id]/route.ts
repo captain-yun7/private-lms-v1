@@ -18,8 +18,10 @@ export async function GET(
       return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 });
     }
 
+    const { id } = await params;
+
     const course = await prisma.course.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         videos: {
           orderBy: { order: 'asc' },
@@ -62,11 +64,12 @@ export async function PUT(
       return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const { title, description, price, instructorName, instructorIntro, thumbnailUrl, isPublished } = body;
 
     const course = await prisma.course.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         description,
@@ -101,8 +104,10 @@ export async function DELETE(
       return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 });
     }
 
+    const { id } = await params;
+
     await prisma.course.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });

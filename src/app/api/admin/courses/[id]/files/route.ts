@@ -15,7 +15,7 @@ export async function POST(
       return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 });
     }
 
-    const courseId = params.id;
+    const { id: courseId } = await params;
 
     // 강의 존재 확인
     const course = await prisma.course.findUnique({

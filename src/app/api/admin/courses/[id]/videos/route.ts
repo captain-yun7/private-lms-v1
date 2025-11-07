@@ -18,6 +18,7 @@ export async function POST(
       return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const { vimeoUrl, title, description, isPreview } = body;
 
@@ -27,7 +28,7 @@ export async function POST(
 
     // 현재 최대 순서 조회
     const maxOrder = await prisma.video.aggregate({
-      where: { courseId: params.id },
+      where: { courseId: id },
       _max: { order: true },
     });
 
@@ -35,7 +36,7 @@ export async function POST(
 
     const video = await prisma.video.create({
       data: {
-        courseId: params.id,
+        courseId: id,
         vimeoUrl,
         vimeoId,
         title,

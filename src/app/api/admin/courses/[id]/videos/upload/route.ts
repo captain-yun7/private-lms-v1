@@ -62,9 +62,11 @@ export async function POST(
     // Vimeo 클라이언트 생성
     const client = new Vimeo(null, null, vimeoToken);
 
+    const { id } = await params;
+
     // 강의 정보 조회 (강의명을 폴더명으로 사용)
     const course = await prisma.course.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: { title: true },
     });
 
@@ -100,7 +102,7 @@ export async function POST(
 
     // 현재 최대 순서 조회
     const maxOrder = await prisma.video.aggregate({
-      where: { courseId: params.id },
+      where: { courseId: id },
       _max: { order: true },
     });
 
@@ -109,7 +111,7 @@ export async function POST(
     // DB에 영상 정보 저장
     const video = await prisma.video.create({
       data: {
-        courseId: params.id,
+        courseId: id,
         vimeoUrl,
         vimeoId,
         title,

@@ -18,12 +18,13 @@ export async function PATCH(
       return NextResponse.json({ error: '권한이 없습니다' }, { status: 403 });
     }
 
+    const { id, videoId } = await params;
     const body = await request.json();
     const { direction } = body; // 'up' or 'down'
 
     // 현재 영상 조회
     const currentVideo = await prisma.video.findUnique({
-      where: { id: params.videoId },
+      where: { id: videoId },
     });
 
     if (!currentVideo) {
@@ -33,7 +34,7 @@ export async function PATCH(
     // 교체할 영상 찾기
     const targetVideo = await prisma.video.findFirst({
       where: {
-        courseId: params.id,
+        courseId: id,
         order: direction === 'up' ? currentVideo.order - 1 : currentVideo.order + 1,
       },
     });
