@@ -281,9 +281,9 @@ export default function LearnPage() {
         {/* Main Video Player */}
         <div className="flex-1 flex flex-col bg-black">
           {/* Video Player */}
-          <div className="flex-1 flex items-center justify-center p-4">
+          <div className="flex-1 flex items-center justify-center p-8">
             {currentVideo && (
-              <div className="w-full max-w-6xl">
+              <div className="w-full max-w-4xl">
                 <DeviceVerifiedPlayer
                   key={currentVideo.id}
                   vimeoUrl={currentVideo.vimeoUrl}
