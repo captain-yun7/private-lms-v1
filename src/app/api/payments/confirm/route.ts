@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { CouponService } from '@/lib/services/coupon.service';
 
 // 결제 승인 스키마
 const confirmSchema = z.object({
   paymentKey: z.string(),
   orderId: z.string(),
   amount: z.number(),
+  couponId: z.string().optional(), // 쿠폰 ID (선택사항)
 });
 
 // POST /api/payments/confirm - 결제 승인
@@ -23,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { paymentKey, orderId, amount } = confirmSchema.parse(body);
+    const { paymentKey, orderId, amount, couponId } = confirmSchema.parse(body);
 
     // Payment 찾기
     const payment = await prisma.payment.findUnique({
@@ -144,6 +146,16 @@ export async function POST(request: NextRequest) {
             amount: payment.purchase.amount,
           },
         });
+      }
+
+      // 5. 쿠폰 사용 기록 (쿠폰이 있는 경우)
+      if (couponId && payment.purchase.discountAmount) {
+        await CouponService.applyCoupon(
+          couponId,
+          payment.purchaseId,
+          payment.purchase.userId,
+          payment.purchase.discountAmount
+        );
       }
 
       return { enrollment };

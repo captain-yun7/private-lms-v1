@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { CouponService } from '@/lib/services/coupon.service';
 
 // 결제 요청 스키마
 const paymentRequestSchema = z.object({
@@ -9,6 +10,7 @@ const paymentRequestSchema = z.object({
   buyerName: z.string(),
   buyerEmail: z.string().email(),
   buyerPhone: z.string(),
+  couponCode: z.string().optional(), // 쿠폰 코드 (선택사항)
 });
 
 // POST /api/payments/request - 결제 요청 생성
@@ -24,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { courseId, buyerName, buyerEmail, buyerPhone } = paymentRequestSchema.parse(body);
+    const { courseId, buyerName, buyerEmail, buyerPhone, couponCode } = paymentRequestSchema.parse(body);
 
     // 강의 존재 확인
     const course = await prisma.course.findUnique({
@@ -61,6 +63,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 쿠폰 검증 (선택사항)
+    let couponValidation = null;
+    let finalAmount = course.price;
+    let discountAmount = 0;
+
+    if (couponCode) {
+      couponValidation = await CouponService.validateCoupon(
+        couponCode,
+        courseId,
+        session.user.id,
+        course.price
+      );
+
+      if (!couponValidation.isValid) {
+        return NextResponse.json(
+          { error: couponValidation.error },
+          { status: 400 }
+        );
+      }
+
+      finalAmount = couponValidation.finalAmount || course.price;
+      discountAmount = couponValidation.discountAmount || 0;
+    }
+
     // 기존 PENDING 상태 모두 정리 (결제창 닫았거나 실패한 경우)
     // 새로운 결제 시도 시 이전 PENDING은 더 이상 유효하지 않음
     await prisma.purchase.deleteMany({
@@ -71,12 +97,14 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Purchase 생성
+    // Purchase 생성 (쿠폰 할인 정보 포함)
     const purchase = await prisma.purchase.create({
       data: {
         userId: session.user.id,
         courseId,
-        amount: course.price,
+        amount: finalAmount,
+        originalAmount: discountAmount > 0 ? course.price : null,
+        discountAmount: discountAmount > 0 ? discountAmount : null,
         status: 'PENDING',
       },
     });
@@ -97,12 +125,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       orderId,
-      amount: course.price,
+      amount: finalAmount,
+      originalAmount: course.price,
+      discountAmount: discountAmount,
       orderName: course.title,
       customerName: buyerName,
       customerEmail: buyerEmail,
       customerMobilePhone: buyerPhone,
       purchaseId: purchase.id,
+      couponId: couponValidation?.coupon?.id,
     });
   } catch (error) {
     console.error('결제 요청 오류:', error);

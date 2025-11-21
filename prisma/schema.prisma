@@ -35,6 +35,7 @@ model User {
   devices       Device[]
   inquiries     Inquiry[]
   inquiryReplies InquiryReply[] @relation("AdminInquiryReplies")
+  couponUsages   CouponUsage[]
 
   @@map("users")
 }
@@ -103,6 +104,7 @@ model Course {
   courseFiles     CourseFile[]
   purchases       Purchase[]
   enrollments     Enrollment[]
+  applicableCoupons CouponCourse[]
 
   @@map("courses")
 }
@@ -149,7 +151,9 @@ model Purchase {
   id        String         @id @default(cuid())
   userId    String
   courseId  String
-  amount    Int            // 결제 금액
+  amount    Int            // 최종 결제 금액
+  originalAmount Int?       // 원래 가격 (할인 전)
+  discountAmount Int?       // 할인 금액
   status    PurchaseStatus @default(PENDING)
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
@@ -160,6 +164,7 @@ model Purchase {
   receipt     Receipt?
   taxInvoice  TaxInvoice?
   refund      Refund?
+  couponUsage CouponUsage?
 
   @@map("purchases")
   @@index([userId])
@@ -409,4 +414,69 @@ model InquiryReply {
   @@map("inquiry_replies")
   @@index([inquiryId])
   @@index([adminId])
+}
+
+// ===========================
+// 쿠폰 시스템
+// ===========================
+
+model Coupon {
+  id                String         @id @default(cuid())
+  code              String         @unique // 쿠폰 코드 (대소문자 구분 없음)
+  description       String?        @db.Text // 쿠폰 설명
+  discountType      DiscountType   // 할인 타입 (PERCENTAGE or FIXED_AMOUNT)
+  discountValue     Int            // 할인율(0-100) 또는 고정 금액
+  minPurchaseAmount Int?           // 최소 구매 금액
+  maxDiscountAmount Int?           // 최대 할인 금액 (퍼센트 할인 시)
+  validFrom         DateTime       @default(now())
+  validUntil        DateTime?      // null이면 만료 없음
+  usageLimit        Int?           // 전체 사용 제한 (null = 무제한)
+  usageCount        Int            @default(0) // 현재 사용 횟수
+  usageLimitPerUser Int?           // 사용자당 사용 제한 (null = 무제한)
+  isActive          Boolean        @default(true)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  couponUsages      CouponUsage[]
+  applicableCourses CouponCourse[] // 적용 가능한 강의들
+
+  @@map("coupons")
+  @@index([code])
+}
+
+enum DiscountType {
+  PERCENTAGE    // 퍼센트 할인
+  FIXED_AMOUNT  // 고정 금액 할인
+}
+
+model CouponCourse {
+  id       String @id @default(cuid())
+  couponId String
+  courseId String
+
+  coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([couponId, courseId])
+  @@map("coupon_courses")
+  @@index([couponId])
+  @@index([courseId])
+}
+
+model CouponUsage {
+  id             String   @id @default(cuid())
+  couponId       String
+  userId         String
+  purchaseId     String   @unique
+  discountAmount Int      // 실제 적용된 할인 금액
+  usedAt         DateTime @default(now())
+
+  coupon   Coupon   @relation(fields: [couponId], references: [id])
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+
+  @@map("coupon_usages")
+  @@index([couponId])
+  @@index([userId])
+  @@unique([userId, couponId, purchaseId]) // 중복 사용 방지
 }

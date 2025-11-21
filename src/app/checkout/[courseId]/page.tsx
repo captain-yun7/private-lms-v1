@@ -44,6 +44,19 @@ export default function CheckoutPage() {
 
   const [agreeTerms, setAgreeTerms] = useState(false);
 
+  // 쿠폰 관련 상태
+  const [couponCode, setCouponCode] = useState('');
+  const [couponDiscount, setCouponDiscount] = useState<{
+    code: string;
+    description?: string;
+    discountType: 'PERCENTAGE' | 'FIXED_AMOUNT';
+    discountValue: number;
+    discountAmount: number;
+    finalAmount: number;
+  } | null>(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState('');
+
   useEffect(() => {
     if (status === 'loading') return;
 
@@ -84,6 +97,48 @@ export default function CheckoutPage() {
     }
   };
 
+  // 쿠폰 적용 함수
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError('쿠폰 코드를 입력해주세요.');
+      return;
+    }
+
+    setValidatingCoupon(true);
+    setCouponError('');
+
+    try {
+      const response = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: couponCode,
+          courseId: courseId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || '쿠폰 검증에 실패했습니다.');
+      }
+
+      setCouponDiscount(data.data);
+      alert('쿠폰이 적용되었습니다!');
+    } catch (error: any) {
+      setCouponError(error.message || '쿠폰 적용에 실패했습니다.');
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
+
+  // 쿠폰 제거 함수
+  const removeCoupon = () => {
+    setCouponCode('');
+    setCouponDiscount(null);
+    setCouponError('');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -114,6 +169,7 @@ export default function CheckoutPage() {
           buyerName: buyerInfo.name,
           buyerEmail: buyerInfo.email,
           buyerPhone: buyerInfo.phone,
+          couponCode: couponDiscount?.code,
         }),
       });
 
@@ -136,7 +192,7 @@ export default function CheckoutPage() {
         });
       }
 
-      // 3. 결제창 호출
+      // 3. 결제창 호출 (쿠폰 ID를 메타데이터로 전달)
       await tossPayments.current.requestPayment({
         method: 'CARD',
         amount: {
@@ -145,7 +201,7 @@ export default function CheckoutPage() {
         },
         orderId: paymentData.orderId,
         orderName: paymentData.orderName,
-        successUrl: `${window.location.origin}/checkout/success`,
+        successUrl: `${window.location.origin}/checkout/success${paymentData.couponId ? `?couponId=${paymentData.couponId}` : ''}`,
         failUrl: `${window.location.origin}/checkout/fail`,
         customerEmail: paymentData.customerEmail,
         customerName: paymentData.customerName,
@@ -180,6 +236,7 @@ export default function CheckoutPage() {
           buyerPhone: buyerInfo.phone,
           depositorName: bankTransferInfo.depositorName,
           expectedDepositDate: bankTransferInfo.expectedDepositDate,
+          couponCode: couponDiscount?.code,
         }),
       });
 
@@ -235,6 +292,64 @@ export default function CheckoutPage() {
           {/* 결제 정보 입력 */}
           <div className="lg:col-span-2">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* 쿠폰 입력 */}
+              <div className="bg-white rounded-2xl shadow-card p-6">
+                <h2 className="text-xl font-bold text-text-primary mb-4">쿠폰 할인</h2>
+                <div className="space-y-4">
+                  {!couponDiscount ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        placeholder="쿠폰 코드 입력"
+                        className="flex-1 px-4 py-2 border border-border rounded-lg focus:outline-none focus:border-primary"
+                        disabled={validatingCoupon}
+                      />
+                      <button
+                        type="button"
+                        onClick={applyCoupon}
+                        disabled={validatingCoupon || !couponCode.trim()}
+                        className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {validatingCoupon ? '확인 중...' : '적용'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                          <p className="font-semibold text-green-800">{couponDiscount.code}</p>
+                          {couponDiscount.description && (
+                            <p className="text-sm text-green-600 mt-1">{couponDiscount.description}</p>
+                          )}
+                          <p className="text-sm text-green-700 mt-2">
+                            {couponDiscount.discountType === 'PERCENTAGE'
+                              ? `${couponDiscount.discountValue}% 할인`
+                              : `₩${couponDiscount.discountValue.toLocaleString()} 할인`}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={removeCoupon}
+                          className="text-red-500 hover:text-red-700 text-sm"
+                        >
+                          제거
+                        </button>
+                      </div>
+                      <div className="pt-2 border-t border-green-200">
+                        <p className="text-sm font-semibold text-green-800">
+                          할인 금액: -₩{couponDiscount.discountAmount.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {couponError && (
+                    <p className="text-sm text-red-500">{couponError}</p>
+                  )}
+                </div>
+              </div>
+
               {/* 결제 수단 선택 */}
               <div className="bg-white rounded-2xl shadow-card p-6">
                 <h2 className="text-xl font-bold text-text-primary mb-4">결제 수단</h2>
@@ -423,9 +538,16 @@ export default function CheckoutPage() {
                   <span className="font-semibold">₩{course.price.toLocaleString()}</span>
                 </div>
 
+                {couponDiscount && (
+                  <div className="flex justify-between text-green-600">
+                    <span>쿠폰 할인</span>
+                    <span>-₩{couponDiscount.discountAmount.toLocaleString()}</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between text-lg font-bold text-primary pt-3 border-t border-border">
                   <span>최종 결제 금액</span>
-                  <span>₩{course.price.toLocaleString()}</span>
+                  <span>₩{(couponDiscount ? couponDiscount.finalAmount : course.price).toLocaleString()}</span>
                 </div>
               </div>
 
