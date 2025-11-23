@@ -494,9 +494,17 @@ export default function CheckoutPage() {
                   />
                   <span className="text-sm text-text-primary">
                     <span className="font-semibold">[필수]</span> 구매 조건 확인 및 결제 진행에 동의합니다.
-                    <Link href="/terms" className="text-primary hover:underline ml-1" target="_blank">
-                      이용약관 보기
-                    </Link>
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
+                      <Link href="/terms" className="text-primary hover:underline" target="_blank">
+                        이용약관
+                      </Link>
+                      <Link href="/privacy" className="text-primary hover:underline" target="_blank">
+                        개인정보처리방침
+                      </Link>
+                      <Link href="/refund-policy" className="text-primary hover:underline" target="_blank">
+                        환불정책
+                      </Link>
+                    </div>
                   </span>
                 </label>
               </div>
