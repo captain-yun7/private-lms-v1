@@ -50,8 +50,19 @@ export default function Footer() {
 
         {/* Bottom Section */}
         <div className="pt-6 border-t border-gray-700">
-          <div className="text-center text-sm text-gray-400">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
             <p>&copy; {new Date().getFullYear()} 한국해양대학교 김대정 교수. All rights reserved.</p>
+            <div className="flex gap-4">
+              <Link href="/terms" className="hover:text-blue-300 transition-colors">
+                이용약관
+              </Link>
+              <Link href="/privacy" className="hover:text-blue-300 transition-colors">
+                개인정보처리방침
+              </Link>
+              <Link href="/refund-policy" className="hover:text-blue-300 transition-colors">
+                환불정책
+              </Link>
+            </div>
           </div>
         </div>
       </div>

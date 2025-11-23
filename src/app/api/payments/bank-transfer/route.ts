@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { CouponService } from '@/lib/services/coupon.service';
 
 // 무통장입금 요청 스키마
 const bankTransferSchema = z.object({
@@ -11,6 +12,7 @@ const bankTransferSchema = z.object({
   buyerPhone: z.string(),
   depositorName: z.string(),
   expectedDepositDate: z.string(), // ISO date string
+  couponCode: z.string().optional(), // 쿠폰 코드 (선택사항)
 });
 
 // POST /api/payments/bank-transfer - 무통장입금 요청
@@ -26,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { courseId, buyerName, buyerEmail, buyerPhone, depositorName, expectedDepositDate } =
+    const { courseId, buyerName, buyerEmail, buyerPhone, depositorName, expectedDepositDate, couponCode } =
       bankTransferSchema.parse(body);
 
     // 강의 존재 확인
@@ -64,6 +66,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 쿠폰 검증 (선택사항)
+    let couponValidation = null;
+    let finalAmount = course.price;
+    let discountAmount = 0;
+
+    if (couponCode) {
+      couponValidation = await CouponService.validateCoupon(
+        couponCode,
+        courseId,
+        session.user.id,
+        course.price
+      );
+
+      if (!couponValidation.isValid) {
+        return NextResponse.json(
+          { error: couponValidation.error },
+          { status: 400 }
+        );
+      }
+
+      finalAmount = couponValidation.finalAmount || course.price;
+      discountAmount = couponValidation.discountAmount || 0;
+    }
+
     // 기존 PENDING 상태 정리
     await prisma.purchase.deleteMany({
       where: {
@@ -75,12 +101,14 @@ export async function POST(request: NextRequest) {
 
     // 트랜잭션으로 처리
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Purchase 생성
+      // 1. Purchase 생성 (쿠폰 할인 정보 포함)
       const purchase = await tx.purchase.create({
         data: {
           userId: session.user.id,
           courseId,
-          amount: course.price,
+          amount: finalAmount,
+          originalAmount: discountAmount > 0 ? course.price : null,
+          discountAmount: discountAmount > 0 ? discountAmount : null,
           status: 'PENDING',
         },
       });
@@ -108,7 +136,9 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      return { purchase, payment, bankTransfer };
+      // 5. 쿠폰 사용 예약 (실제 사용은 입금 승인 시)
+      // 쿠폰 ID를 저장해두고 나중에 사용
+      return { purchase, payment, bankTransfer, couponId: couponValidation?.coupon?.id };
     });
 
     return NextResponse.json({
@@ -116,9 +146,12 @@ export async function POST(request: NextRequest) {
       message: '무통장입금 요청이 완료되었습니다.',
       purchaseId: result.purchase.id,
       orderId: result.payment.orderId,
-      amount: course.price,
+      amount: finalAmount,
+      originalAmount: course.price,
+      discountAmount: discountAmount,
       courseName: course.title,
       depositorName,
+      couponId: result.couponId,
       bankInfo: {
         bank: '신한은행',
         accountNumber: '110-123-456789',
