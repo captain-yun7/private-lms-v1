@@ -16,7 +16,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-bold text-text-primary mb-4">제1조 (목적)</h2>
               <p className="text-text-secondary leading-relaxed">
-                본 약관은 [회사명] (이하 "회사")이 운영하는 온라인 강의 플랫폼(이하 "서비스")의
+                본 약관은 코로아이 주식회사(이하 &quot;회사&quot;)가 운영하는 온라인 강의 플랫폼(이하 &quot;서비스&quot;)의
                 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을
                 규정함을 목적으로 합니다.
               </p>
@@ -133,9 +133,18 @@ export default function TermsPage() {
             </section>
 
             <section className="pt-8 border-t border-border">
+              <h2 className="text-xl font-bold text-text-primary mb-4">사업자 정보</h2>
+              <div className="bg-bg-light p-4 rounded-lg mb-6">
+                <p className="text-text-secondary">
+                  상호: 코로아이 주식회사<br />
+                  대표자: 서종교<br />
+                  사업자등록번호: 609-81-86463<br />
+                  주소: 경상남도 창원시 성산구 연덕로15번길 83(웅남동)
+                </p>
+              </div>
               <p className="text-text-secondary">
                 <strong>부칙</strong><br />
-                본 약관은 2024년 1월 1일부터 시행됩니다.
+                본 약관은 2025년 1월 1일부터 시행됩니다.
               </p>
             </section>
           </div>

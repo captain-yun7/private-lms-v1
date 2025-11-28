@@ -15,7 +15,7 @@ export default function RefundPolicyPage() {
           <div className="prose prose-gray max-w-none space-y-8">
             <section>
               <p className="text-text-secondary leading-relaxed">
-                [회사명]은 「전자상거래 등에서의 소비자보호에 관한 법률」 및 「콘텐츠산업 진흥법」에
+                코로아이 주식회사는 「전자상거래 등에서의 소비자보호에 관한 법률」 및 「콘텐츠산업 진흥법」에
                 따라 아래와 같은 환불 정책을 운영합니다.
               </p>
             </section>
@@ -160,16 +160,26 @@ export default function RefundPolicyPage() {
               <div className="bg-bg-light p-4 rounded-lg mt-4">
                 <p className="text-text-secondary">
                   <strong>고객센터</strong><br />
-                  이메일: [이메일 주소]<br />
+                  이메일: help@coroai.com<br />
                   운영시간: 평일 10:00 - 18:00 (주말 및 공휴일 휴무)
                 </p>
               </div>
             </section>
 
             <section className="pt-8 border-t border-border">
+              <h2 className="text-xl font-bold text-text-primary mb-4">사업자 정보</h2>
+              <div className="bg-bg-light p-4 rounded-lg mb-6">
+                <p className="text-text-secondary">
+                  상호: 코로아이 주식회사<br />
+                  대표자: 서종교<br />
+                  사업자등록번호: 609-81-86463<br />
+                  주소: 경상남도 창원시 성산구 연덕로15번길 83(웅남동)<br />
+                  이메일: help@coroai.com
+                </p>
+              </div>
               <p className="text-text-secondary">
                 <strong>부칙</strong><br />
-                본 환불정책은 2024년 1월 1일부터 시행됩니다.
+                본 환불정책은 2025년 1월 1일부터 시행됩니다.
               </p>
             </section>
           </div>

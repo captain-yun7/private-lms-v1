@@ -13,7 +13,7 @@ export default function PrivacyPage() {
           <div className="prose prose-gray max-w-none space-y-8">
             <section>
               <p className="text-text-secondary leading-relaxed">
-                [회사명] (이하 "회사")은 개인정보보호법에 따라 이용자의 개인정보 보호 및 권익을
+                코로아이 주식회사(이하 &quot;회사&quot;)는 개인정보보호법에 따라 이용자의 개인정보 보호 및 권익을
                 보호하고 개인정보와 관련한 이용자의 고충을 원활하게 처리할 수 있도록 다음과 같은
                 처리방침을 두고 있습니다.
               </p>
@@ -175,9 +175,9 @@ export default function PrivacyPage() {
               <div className="bg-bg-light p-4 rounded-lg">
                 <p className="text-text-secondary">
                   <strong>개인정보 보호책임자</strong><br />
-                  성명: [담당자명]<br />
-                  직책: [직책]<br />
-                  연락처: [이메일 주소]
+                  성명: 서종교<br />
+                  직책: 대표이사<br />
+                  연락처: help@coroai.com
                 </p>
               </div>
             </section>
@@ -195,9 +195,19 @@ export default function PrivacyPage() {
             </section>
 
             <section className="pt-8 border-t border-border">
+              <h2 className="text-xl font-bold text-text-primary mb-4">사업자 정보</h2>
+              <div className="bg-bg-light p-4 rounded-lg mb-6">
+                <p className="text-text-secondary">
+                  상호: 코로아이 주식회사<br />
+                  대표자: 서종교<br />
+                  사업자등록번호: 609-81-86463<br />
+                  주소: 경상남도 창원시 성산구 연덕로15번길 83(웅남동)<br />
+                  이메일: help@coroai.com
+                </p>
+              </div>
               <p className="text-text-secondary">
                 <strong>부칙</strong><br />
-                본 개인정보처리방침은 2024년 1월 1일부터 시행됩니다.
+                본 개인정보처리방침은 2025년 1월 1일부터 시행됩니다.
               </p>
             </section>
           </div>
