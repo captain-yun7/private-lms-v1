@@ -177,7 +177,7 @@ export default function PrivacyPage() {
                   <strong>개인정보 보호책임자</strong><br />
                   성명: 서종교<br />
                   직책: 대표이사<br />
-                  연락처: help@coroai.com
+                  연락처: shipedu@naver.com
                 </p>
               </div>
             </section>
@@ -202,7 +202,7 @@ export default function PrivacyPage() {
                   대표자: 서종교<br />
                   사업자등록번호: 609-81-86463<br />
                   주소: 경상남도 창원시 성산구 연덕로15번길 83(웅남동)<br />
-                  이메일: help@coroai.com
+                  이메일: shipedu@naver.com
                 </p>
               </div>
               <p className="text-text-secondary">

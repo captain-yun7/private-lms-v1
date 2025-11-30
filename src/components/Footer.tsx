@@ -6,17 +6,17 @@ export default function Footer() {
       <div className="container max-w-6xl mx-auto">
         {/* Main Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          {/* Left - Brand & Info */}
+          {/* Left - Brand & Business Info */}
           <div className="md:col-span-2">
             <Link href="/" className="inline-flex items-center gap-2 mb-4">
-              <span className="text-xl font-bold text-white">김대정 교수</span>
-              <span className="text-sm text-blue-300">한국해양대학교</span>
+              <span className="text-xl font-bold text-white">선박조종연구소</span>
             </Link>
             <div className="space-y-2 text-sm leading-relaxed">
-              <p className="text-blue-200">해양공학 온라인 강의</p>
-              <p>한국해양대학교 해양공학과</p>
-              <p>부산광역시 영도구 태종로 727</p>
-              <p className="mt-4 text-gray-400">강의 및 기술 문의를 환영합니다</p>
+              <p>사업자등록번호: 609-81-86463</p>
+              <p>주식회사 코로아이 (대표: 서종교)</p>
+              <p>사업장 소재지: 경상남도 창원시 성산구 연덕로15번길 83(웅남동)</p>
+              <p>고객센터 전화번호: 055-266-8339</p>
+              <p>이메일: shipedu@naver.com</p>
             </div>
           </div>
 
@@ -31,7 +31,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/about" className="hover:text-blue-300 transition-colors">
-                  교수 소개
+                  강사소개
                 </Link>
               </li>
               <li>
@@ -51,7 +51,7 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="pt-6 border-t border-gray-700">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-            <p>&copy; {new Date().getFullYear()} 한국해양대학교 김대정 교수. All rights reserved.</p>
+            <p>Copyright &copy; {new Date().getFullYear()} 주식회사 코로아이. All rights reserved.</p>
             <div className="flex gap-4">
               <Link href="/terms" className="hover:text-blue-300 transition-colors">
                 이용약관

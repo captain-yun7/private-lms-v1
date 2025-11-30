@@ -3,8 +3,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export const metadata = {
-  title: '교수 소개',
-  description: '한국해양대학교 김대정 교수의 해양공학 온라인 강의입니다.',
+  title: '강사 소개',
+  description: '선박조종연구소의 고급 선박조종이론 온라인 강의입니다.',
 };
 
 export default function AboutPage() {
@@ -20,7 +20,7 @@ export default function AboutPage() {
               {/* Profile */}
               <div className="flex-shrink-0">
                 <div className="w-48 h-48 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full flex items-center justify-center text-white text-6xl font-bold shadow-2xl">
-                  김
+                  강사
                 </div>
               </div>
 
@@ -28,18 +28,18 @@ export default function AboutPage() {
               <div className="flex-1 text-center md:text-left">
                 <div className="mb-3">
                   <span className="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold">
-                    한국해양대학교
+                    선박조종연구소
                   </span>
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                  김대정 교수
+                  강사: 선박조종연구소장
                 </h1>
                 <p className="text-xl text-blue-100 mb-4">
-                  해양공학 전공
+                  선박조종이론 전공
                 </p>
                 <p className="text-lg text-blue-50">
-                  해양 산업의 미래를 이끌 전문가 양성을 위해<br />
-                  체계적이고 실무 중심의 교육을 제공합니다
+                  기존 선박조종이론과 최신 논문 연구 결과를 기반으로<br />
+                  더욱 깊이 있는 지식을 제공합니다.
                 </p>
               </div>
             </div>
@@ -58,74 +58,31 @@ export default function AboutPage() {
               </h2>
               <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-8 md:p-12 border-2 border-blue-100">
                 <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                  해양공학은 단순한 이론 학습을 넘어, 실제 해양 산업 현장에서 직면하는 문제를 해결할 수 있는 실무 능력을 요구합니다.
+                  저의 교육 철학은 실제 해상에서 요구되는 실무 역량과 공학적 원리에 기반한 이론적 깊이를 균형 있게 갖춘 학습을 제공하는 데 있습니다.
                 </p>
                 <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                  저는 학생들이 이론적 기초를 탄탄히 다지면서도, 실무 사례와 최신 기술 동향을 함께 학습할 수 있도록 강의를 구성합니다.
+                  단순한 공식 암기나 사례 소개에 머무르지 않고, 선박이 왜 그렇게 움직이는지에 대한 근본적인 이해와 사고의 확장을 돕는 것을 목표로 합니다.
+                </p>
+                <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                  이를 위해 전통적인 선박조종이론뿐 아니라 최신 연구 성과, 실선 사례, 시뮬레이션 분석 등을 체계적으로 연계하여 학습자가 현장에서 즉시 활용할 수 있는 실질적 지식을 전달하고자 합니다.
                 </p>
                 <p className="text-lg text-gray-700 leading-relaxed">
-                  한국해양대학교에서의 오랜 교육 경험과 연구 성과를 바탕으로, 해양 산업의 미래를 이끌어갈 인재를 양성하는 것이 저의 목표입니다.
+                  또한 다양한 조종 상황을 공학적 관점에서 해석함으로써, 스스로 문제를 진단하고 합리적인 판단을 내릴 수 있는 심층적 사고 능력을 기를 수 있도록 돕는 것이 제 교육의 중요한 목표입니다. 이러한 철학을 바탕으로, 저는 학습자가 선박 전문가로 성장하기 위한 견고한 토대를 마련해 드리고자 합니다.
                 </p>
               </div>
             </div>
 
-            {/* Expertise Areas */}
+            {/* Career & Research */}
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 text-center">
-                전문 분야
+                경력 및 연구
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Area 1 */}
-                <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-blue-100 hover:border-blue-300 transition-all">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-xl flex items-center justify-center mb-4">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">선박 설계 및 구조</h3>
-                  <p className="text-gray-600">
-                    선박 구조 해석, 최적 설계, 강도 평가 등 선박공학의 핵심 분야
-                  </p>
-                </div>
-
-                {/* Area 2 */}
-                <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-cyan-100 hover:border-cyan-300 transition-all">
-                  <div className="w-14 h-14 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-xl flex items-center justify-center mb-4">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">해양 구조물</h3>
-                  <p className="text-gray-600">
-                    해양 플랫폼, 부유식 구조물 등 해양 구조물의 설계 및 안전성 평가
-                  </p>
-                </div>
-
-                {/* Area 3 */}
-                <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-sky-100 hover:border-sky-300 transition-all">
-                  <div className="w-14 h-14 bg-gradient-to-br from-sky-600 to-blue-600 rounded-xl flex items-center justify-center mb-4">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">해양 에너지</h3>
-                  <p className="text-gray-600">
-                    해상풍력, 조류 발전 등 신재생 해양 에너지 시스템
-                  </p>
-                </div>
-
-                {/* Area 4 */}
-                <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-blue-100 hover:border-blue-300 transition-all">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-700 to-cyan-700 rounded-xl flex items-center justify-center mb-4">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">유체역학 및 동역학</h3>
-                  <p className="text-gray-600">
-                    선박 및 해양 구조물의 유체역학적 성능 해석 및 최적화
-                  </p>
-                </div>
+              <div className="bg-white rounded-xl shadow-lg p-8 border-2 border-blue-100">
+                <p className="text-lg text-gray-700 leading-relaxed">
+                  선박조종이론 분야에서 박사학위를 취득한 후, 현재까지 지속적으로 관련 연구를 수행하고 있습니다.
+                  특히 전 세계 상위 5% 이내의 국제 SCI 저널에 매년 여러 편의 연구 논문을 발표하며,
+                  선박 조종·운동 해석 분야에서 학문적 기여를 이어가고 있습니다.
+                </p>
               </div>
             </div>
           </div>
@@ -137,10 +94,10 @@ export default function AboutPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-              함께 해양공학을 배워보세요
+              함께 선박조종이론을 배워보세요
             </h2>
             <p className="text-lg text-gray-700 mb-8">
-              체계적인 강의와 함께 해양 산업의 전문가로 성장하세요
+              체계적인 강의와 함께 선박조종 전문가로 성장하세요
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link

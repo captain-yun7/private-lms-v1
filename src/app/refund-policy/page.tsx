@@ -76,11 +76,11 @@ export default function RefundPolicyPage() {
 
               <h3 className="font-semibold text-text-primary mt-4 mb-2">예시</h3>
               <ul className="list-disc list-inside space-y-2 text-text-secondary">
-                <li>총 강의 20개, 결제금액 100,000원인 강의에서 5개 수강 후 환불 신청</li>
-                <li>강의당 금액: 100,000 ÷ 20 = 5,000원</li>
-                <li>수강분: 5,000 × 5 = 25,000원</li>
-                <li>위약금: 100,000 × 10% = 10,000원</li>
-                <li><strong>환불금액: 100,000 - 25,000 - 10,000 = 65,000원</strong></li>
+                <li>총 강의 28개, 결제금액 990,000원인 강의에서 5개 수강 후 환불 신청</li>
+                <li>강의당 금액: 990,000 ÷ 28 = 35,357원</li>
+                <li>수강분: 35,357 × 5 = 176,785원</li>
+                <li>위약금: 990,000 × 10% = 99,000원</li>
+                <li><strong>환불금액: 990,000 - 176,785 - 99,000 = 714,215원</strong></li>
               </ul>
             </section>
 
@@ -91,7 +91,6 @@ export default function RefundPolicyPage() {
                 <li>수강률이 전체 강의의 50%를 초과한 경우</li>
                 <li>수강 기간이 절반 이상 경과한 경우</li>
                 <li>강의 자료를 다운로드한 경우 (해당 강의에 한함)</li>
-                <li>쿠폰, 포인트 등 할인 혜택을 적용받은 경우 (할인 금액 제외 후 환불)</li>
                 <li>이벤트 또는 프로모션으로 무료 제공된 강의</li>
               </ul>
             </section>
@@ -160,7 +159,7 @@ export default function RefundPolicyPage() {
               <div className="bg-bg-light p-4 rounded-lg mt-4">
                 <p className="text-text-secondary">
                   <strong>고객센터</strong><br />
-                  이메일: help@coroai.com<br />
+                  이메일: shipedu@naver.com<br />
                   운영시간: 평일 10:00 - 18:00 (주말 및 공휴일 휴무)
                 </p>
               </div>
@@ -174,7 +173,7 @@ export default function RefundPolicyPage() {
                   대표자: 서종교<br />
                   사업자등록번호: 609-81-86463<br />
                   주소: 경상남도 창원시 성산구 연덕로15번길 83(웅남동)<br />
-                  이메일: help@coroai.com
+                  이메일: shipedu@naver.com
                 </p>
               </div>
               <p className="text-text-secondary">

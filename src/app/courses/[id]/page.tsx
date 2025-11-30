@@ -216,11 +216,11 @@ export default function CourseDetailPage() {
               {/* Instructor */}
               <div className="flex items-center gap-3 p-4 bg-white/10 backdrop-blur-sm rounded-lg">
                 <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold">
-                  김
+                  강사
                 </div>
                 <div>
-                  <p className="text-sm text-gray-200">한국해양대학교</p>
-                  <p className="font-semibold text-lg">김대정 교수</p>
+                  <p className="text-sm text-gray-200">선박조종연구소</p>
+                  <p className="font-semibold text-lg">선박조종연구소장</p>
                 </div>
               </div>
             </div>
@@ -370,17 +370,17 @@ export default function CourseDetailPage() {
               <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl shadow-card p-8 border-2 border-blue-100">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">강사 소개</h2>
                 <div className="flex items-start gap-6">
-                  <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full flex items-center justify-center text-white text-4xl font-bold flex-shrink-0">
-                    김
+                  <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full flex items-center justify-center text-white text-3xl font-bold flex-shrink-0">
+                    강사
                   </div>
                   <div>
                     <div className="mb-2">
                       <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold mb-2">
-                        한국해양대학교
+                        선박조종연구소
                       </span>
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
-                      김대정 교수
+                      강사: 선박조종연구소장
                     </h3>
                     <p className="text-gray-700 leading-relaxed">
                       {course.instructorIntro}
@@ -399,7 +399,6 @@ export default function CourseDetailPage() {
                       ₩{course.price.toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-sm text-text-secondary">평생 수강 가능</p>
                 </div>
 
                 {course.isEnrolled ? (
@@ -446,7 +445,7 @@ export default function CourseDetailPage() {
                     <svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span className="text-text-primary">평생 수강 가능</span>
+                    <span className="text-text-primary">수강기간: 6개월</span>
                   </div>
 
                   <div className="flex items-center gap-3 text-sm">

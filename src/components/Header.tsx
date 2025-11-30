@@ -19,8 +19,7 @@ export default function Header() {
         <nav className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-blue-600">김대정 교수</span>
-            <span className="hidden sm:inline text-sm text-gray-500 font-normal">한국해양대학교</span>
+            <span className="text-xl font-bold text-blue-600">선박조종연구소</span>
           </Link>
 
           {/* Desktop Navigation */}

@@ -7,22 +7,22 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
 
-      {/* Hero Section - Marine Engineering Theme */}
+      {/* Hero Section - Ship Maneuvering Theme */}
       <section className="pt-32 pb-20 px-6 bg-gradient-to-br from-blue-50 via-cyan-50 to-sky-50">
         <div className="max-w-[1400px] mx-auto">
           <div className="max-w-2xl">
             <div className="mb-4">
               <span className="inline-block px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
-                한국해양대학교
+                선박조종연구소
               </span>
             </div>
             <h1 className="text-[56px] leading-[1.2] font-bold text-gray-900 mb-6">
-              김대정 교수의<br />
-              해양공학 온라인 강의
+              고급 선박조종이론<br />
+              온라인 강의
             </h1>
             <p className="text-xl text-gray-700 mb-12 leading-relaxed">
-              해양 산업의 미래를 이끌 전문가 양성<br />
-              이론과 실무를 겸비한 체계적인 해양공학 교육을 제공합니다
+              선박조종 전문가 양성을 위한 체계적인 교육<br />
+              이론과 실무를 겸비한 깊이 있는 선박조종이론을 제공합니다
             </p>
             <div className="flex gap-4">
               <Link
@@ -34,23 +34,16 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </Link>
-              <Link
-                href="/about"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-700 rounded-lg font-medium border-2 border-gray-200 hover:border-gray-300 transition-all"
-              >
-                교수 소개
-              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section - Marine Engineering Theme */}
+      {/* Features Section - Ship Maneuvering Theme */}
       <section className="py-24 px-6 bg-white">
         <div className="max-w-[1400px] mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">강의 특징</h2>
-            <p className="text-xl text-gray-600">한국해양대학교 김대정 교수의 체계적인 해양공학 교육</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Feature Card 1 */}
@@ -61,9 +54,9 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">해양공학 전문 강의</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">선박조종 전문 강의</h3>
                 <p className="text-gray-700 leading-relaxed mb-6">
-                  선박 설계부터 해양 구조물까지, 해양공학의 핵심 이론을 실무 경험과 함께 전달합니다.
+                  기존 선박조종이론과 최신 논문 연구 결과를 기반으로 더욱 깊이 있는 지식을 제공합니다.
                 </p>
                 <ul className="space-y-3 text-gray-700">
                   <li className="flex items-start gap-3">
@@ -133,7 +126,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">풍부한 학습 자료</h3>
                 <p className="text-gray-700 leading-relaxed mb-6">
-                  해양공학 분야의 핵심 자료와 실습 예제를 제공합니다.
+                  선박조종 분야의 핵심 자료와 실습 예제를 제공합니다.
                 </p>
                 <ul className="space-y-3 text-gray-700">
                   <li className="flex items-start gap-3">
@@ -168,14 +161,14 @@ export default function Home() {
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">1:1 학습 멘토링</h3>
                 <p className="text-gray-700 leading-relaxed mb-6">
-                  강의 중 궁금한 점은 언제든지 교수님께 직접 질문하세요.
+                  강의 중 궁금한 점은 언제든지 강사님께 직접 질문하세요.
                 </p>
                 <ul className="space-y-3 text-gray-700">
                   <li className="flex items-start gap-3">
                     <svg className="w-5 h-5 text-blue-700 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span>교수님의 직접 답변</span>
+                    <span>강사님의 직접 답변</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <svg className="w-5 h-5 text-blue-700 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
