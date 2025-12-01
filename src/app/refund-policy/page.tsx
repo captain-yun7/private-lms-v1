@@ -170,7 +170,7 @@ export default function RefundPolicyPage() {
               <div className="bg-bg-light p-4 rounded-lg mb-6">
                 <p className="text-text-secondary">
                   상호: 코로아이 주식회사<br />
-                  대표자: 서종교<br />
+                  대표자: 서중교<br />
                   사업자등록번호: 609-81-86463<br />
                   주소: 경상남도 창원시 성산구 연덕로15번길 83(웅남동)<br />
                   이메일: shipedu@naver.com

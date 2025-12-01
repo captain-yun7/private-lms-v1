@@ -13,7 +13,8 @@ export default function Footer() {
             </Link>
             <div className="space-y-2 text-sm leading-relaxed">
               <p>사업자등록번호: 609-81-86463</p>
-              <p>주식회사 코로아이 (대표: 서종교)</p>
+              <p>통신판매업신고번호: </p>
+              <p>주식회사 코로아이 (대표: 서중교)</p>
               <p>사업장 소재지: 경상남도 창원시 성산구 연덕로15번길 83(웅남동)</p>
               <p>고객센터 전화번호: 055-266-8339</p>
               <p>이메일: shipedu@naver.com</p>
