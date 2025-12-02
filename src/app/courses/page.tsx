@@ -65,15 +65,12 @@ export default function CoursesPage() {
           <div className="max-w-3xl mx-auto text-center">
             <div className="mb-4">
               <span className="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold">
-                한국해양대학교 김대정 교수
+                선박조종연구소
               </span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              해양공학 강의
+              고급 선박조종이론 강의
             </h1>
-            <p className="text-lg md:text-xl text-blue-100">
-              이론부터 실무까지, 체계적인 해양공학 교육
-            </p>
           </div>
         </div>
       </section>
@@ -86,9 +83,6 @@ export default function CoursesPage() {
             <h2 className="text-2xl font-bold text-text-primary mb-2">
               전체 강의 ({courses.length})
             </h2>
-            <p className="text-text-secondary">
-              체계적인 해양공학 강의를 수강하세요
-            </p>
           </div>
 
           {/* Loading State */}

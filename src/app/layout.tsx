@@ -4,14 +4,14 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | 김대정 교수',
-    default: '김대정 교수 - 한국해양대학교 해양공학 온라인 강의'
+    template: '%s | 선박조종연구소',
+    default: '선박조종연구소 - 고급 선박조종이론 온라인 강의'
   },
-  description: "한국해양대학교 김대정 교수의 해양공학 온라인 강의. 선박 설계, 해양 구조물, 유체역학 등 체계적인 해양공학 교육을 제공합니다.",
-  keywords: ["해양공학", "선박공학", "한국해양대학교", "김대정", "해양 구조물", "선박 설계", "유체역학", "온라인 강의", "해양 에너지"],
-  authors: [{ name: "김대정" }],
-  creator: "김대정",
-  publisher: "한국해양대학교",
+  description: "선박조종연구소의 고급 선박조종이론 온라인 강의. 선박조종 전문가 양성을 위한 체계적인 교육을 제공합니다.",
+  keywords: ["선박조종", "선박조종이론", "선박조종연구소", "선박 조종", "해기사", "온라인 강의", "선박 교육"],
+  authors: [{ name: "선박조종연구소" }],
+  creator: "선박조종연구소",
+  publisher: "선박조종연구소",
   formatDetection: {
     email: false,
     address: false,
@@ -19,17 +19,17 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   openGraph: {
-    title: '김대정 교수 - 한국해양대학교 해양공학 온라인 강의',
-    description: '한국해양대학교 김대정 교수의 해양공학 온라인 강의. 선박 설계, 해양 구조물, 유체역학 등 체계적인 해양공학 교육을 제공합니다.',
+    title: '선박조종연구소 - 고급 선박조종이론 온라인 강의',
+    description: '선박조종연구소의 고급 선박조종이론 온라인 강의. 선박조종 전문가 양성을 위한 체계적인 교육을 제공합니다.',
     url: '/',
-    siteName: '김대정 교수 해양공학 강의',
+    siteName: '선박조종연구소',
     locale: 'ko_KR',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: '김대정 교수 - 한국해양대학교 해양공학 온라인 강의',
-    description: '한국해양대학교 김대정 교수의 해양공학 온라인 강의. 선박 설계, 해양 구조물, 유체역학 등 체계적인 해양공학 교육을 제공합니다.',
+    title: '선박조종연구소 - 고급 선박조종이론 온라인 강의',
+    description: '선박조종연구소의 고급 선박조종이론 온라인 강의. 선박조종 전문가 양성을 위한 체계적인 교육을 제공합니다.',
   },
   robots: {
     index: true,
