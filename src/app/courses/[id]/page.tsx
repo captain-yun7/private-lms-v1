@@ -398,6 +398,7 @@ export default function CourseDetailPage() {
                     <span className="text-4xl font-bold text-primary">
                       ₩{course.price.toLocaleString()}
                     </span>
+                    <span className="text-base text-text-secondary">(VAT 포함)</span>
                   </div>
                 </div>
 

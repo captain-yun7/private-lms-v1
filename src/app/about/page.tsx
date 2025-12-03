@@ -32,7 +32,7 @@ export default function AboutPage() {
                   </span>
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                  강사: 선박조종연구소장
+                  선박조종연구소장
                 </h1>
                 <p className="text-xl text-blue-100 mb-4">
                   선박조종이론 전공
