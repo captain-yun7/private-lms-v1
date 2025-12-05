@@ -1,19 +1,48 @@
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 
+const DEVICE_ID_KEY = 'device_unique_id';
 let fpPromise: Promise<any> | null = null;
 
+// UUID v4 생성 함수
+function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+// 안정적인 디바이스 ID 가져오기
+// localStorage에 저장된 ID를 우선 사용하고, 없으면 새로 생성하여 저장
 export async function getDeviceFingerprint(): Promise<string> {
   try {
-    if (!fpPromise) {
-      fpPromise = FingerprintJS.load();
+    // 1. localStorage에서 기존 ID 확인
+    const storedId = localStorage.getItem(DEVICE_ID_KEY);
+    if (storedId) {
+      return storedId;
     }
 
-    const fp = await fpPromise;
-    const result = await fp.get();
+    // 2. 새 ID 생성 (FingerprintJS + UUID 조합으로 고유성 확보)
+    let fingerprintPart = '';
+    try {
+      if (!fpPromise) {
+        fpPromise = FingerprintJS.load();
+      }
+      const fp = await fpPromise;
+      const result = await fp.get();
+      fingerprintPart = result.visitorId.slice(0, 8);
+    } catch {
+      // FingerprintJS 실패 시 랜덤 문자열 사용
+      fingerprintPart = Math.random().toString(36).slice(2, 10);
+    }
 
-    return result.visitorId;
+    // 3. 고유 ID 생성 및 저장
+    const deviceId = `${fingerprintPart}-${generateUUID()}`;
+    localStorage.setItem(DEVICE_ID_KEY, deviceId);
+
+    return deviceId;
   } catch (error) {
-    console.error('Fingerprint 생성 실패:', error);
+    console.error('Device ID 생성 실패:', error);
     throw error;
   }
 }
