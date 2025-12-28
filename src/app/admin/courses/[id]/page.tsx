@@ -53,6 +53,14 @@ interface Course {
   files: CourseFile[];
 }
 
+// 재생 시간 포맷팅 함수
+const formatDuration = (seconds: number | null) => {
+  if (!seconds || seconds === 0) return '처리 중...';
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+
 // Sortable Video Item 컴포넌트를 외부로 분리
 const SortableVideoItem = memo(function SortableVideoItem({
   video,
@@ -67,6 +75,7 @@ const SortableVideoItem = memo(function SortableVideoItem({
   onDelete,
   onMoveUp,
   onMoveDown,
+  onRefresh,
 }: {
   video: Video;
   index: number;
@@ -80,6 +89,7 @@ const SortableVideoItem = memo(function SortableVideoItem({
   onDelete: (videoId: string) => void;
   onMoveUp: (videoId: string) => void;
   onMoveDown: (videoId: string) => void;
+  onRefresh: (videoId: string) => void;
 }) {
   const {
     attributes,
@@ -207,6 +217,9 @@ const SortableVideoItem = memo(function SortableVideoItem({
                     미리보기
                   </span>
                 )}
+                <span className={`px-2 py-1 text-xs rounded ${video.duration ? 'bg-gray-100 text-gray-600' : 'bg-yellow-100 text-yellow-700'}`}>
+                  {formatDuration(video.duration)}
+                </span>
               </div>
               {video.description && (
                 <p className="text-sm text-gray-600 mt-1">{video.description}</p>
@@ -214,6 +227,17 @@ const SortableVideoItem = memo(function SortableVideoItem({
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {(!video.duration || video.duration === 0) && (
+              <button
+                onClick={() => onRefresh(video.id)}
+                className="px-3 py-1 text-gray-600 hover:text-gray-900"
+                title="Vimeo에서 정보 새로고침"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            )}
             <button
               onClick={() => onEdit(video)}
               className="px-3 py-1 text-primary hover:text-primary-dark"
@@ -538,6 +562,27 @@ export default function EditCoursePage() {
     } catch (error) {
       console.error('Error:', error);
       alert('영상 삭제에 실패했습니다.');
+    }
+  };
+
+  // 영상 정보 새로고침 (Vimeo에서 최신 정보 가져오기)
+  const handleRefreshVideo = async (videoId: string) => {
+    try {
+      const response = await fetch(`/api/admin/courses/${courseId}/videos/${videoId}/refresh`, {
+        method: 'POST',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || '새로고침 실패');
+      }
+
+      alert('영상 정보가 업데이트되었습니다.');
+      fetchCourse();
+    } catch (error: any) {
+      console.error('Error:', error);
+      alert(error.message || '영상 정보 새로고침에 실패했습니다.');
     }
   };
 
@@ -1106,6 +1151,7 @@ export default function EditCoursePage() {
                       onDelete={handleDeleteVideo}
                       onMoveUp={(id) => moveVideo(id, 'up')}
                       onMoveDown={(id) => moveVideo(id, 'down')}
+                      onRefresh={handleRefreshVideo}
                     />
                   ))}
               </div>
