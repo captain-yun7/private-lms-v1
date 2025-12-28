@@ -182,7 +182,7 @@ export default function VimeoPlayer({
   }, [vimeoUrl, autoplay, controls, responsive]);
 
   return (
-    <div className={`relative ${className || 'w-full aspect-video'}`}>
+    <div className={`relative overflow-hidden ${className || 'w-full aspect-video'}`}>
       {/* Loading State */}
       {isLoading && (
         <div className="absolute inset-0 bg-gray-900 flex items-center justify-center z-10">
@@ -206,7 +206,7 @@ export default function VimeoPlayer({
       )}
 
       {/* Vimeo Player Container */}
-      <div ref={containerRef} className="w-full h-full" />
+      <div ref={containerRef} className="absolute inset-0 w-full h-full [&>div]:!relative [&>div]:!w-full [&>div]:!h-full [&>div]:!p-0 [&_iframe]:!absolute [&_iframe]:!inset-0 [&_iframe]:!w-full [&_iframe]:!h-full" />
     </div>
   );
 }

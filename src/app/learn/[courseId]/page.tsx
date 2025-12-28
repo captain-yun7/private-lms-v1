@@ -279,18 +279,18 @@ export default function LearnPage() {
 
       <div className="flex-1 flex overflow-hidden">
         {/* Main Video Player */}
-        <div className="flex-1 flex flex-col bg-black">
+        <div className="flex-1 flex flex-col bg-black min-w-0 overflow-hidden">
           {/* Video Player */}
-          <div className="flex-1 flex items-center justify-center p-8">
+          <div className="w-full bg-black">
             {currentVideo && (
-              <div className="w-full max-w-4xl">
+              <div className="w-full aspect-video max-h-[calc(100vh-250px)]">
                 <DeviceVerifiedPlayer
                   key={currentVideo.id}
                   vimeoUrl={currentVideo.vimeoUrl}
                   controls={true}
                   responsive={true}
                   autoplay={false}
-                  className="w-full aspect-video"
+                  className="w-full h-full"
                   onTimeUpdate={handleTimeUpdate}
                   onEnded={handleVideoEnded}
                 />
