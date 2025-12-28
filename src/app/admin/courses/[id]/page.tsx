@@ -262,6 +262,7 @@ export default function EditCoursePage() {
   });
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // 영상 편집 상태
   const [editingVideoId, setEditingVideoId] = useState<string | null>(null);
@@ -416,22 +417,66 @@ export default function EditCoursePage() {
     }
 
     setUploading(true);
+    setUploadProgress(0);
 
     try {
-      const formData = new FormData();
-      formData.append('file', uploadFile);
-      formData.append('title', videoFormData.title);
-      formData.append('description', videoFormData.description);
-      formData.append('isPreview', videoFormData.isPreview.toString());
-
-      const response = await fetch(`/api/admin/courses/${courseId}/videos/upload`, {
+      // 1단계: 서버에서 Vimeo 업로드 URL 발급받기
+      const initResponse = await fetch(`/api/admin/courses/${courseId}/videos/upload`, {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fileSize: uploadFile.size,
+          fileName: uploadFile.name,
+          title: videoFormData.title,
+          description: videoFormData.description,
+          isPreview: videoFormData.isPreview,
+        }),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || '영상 업로드 실패');
+      if (!initResponse.ok) {
+        const error = await initResponse.json();
+        throw new Error(error.error || '업로드 초기화 실패');
+      }
+
+      const { uploadLink, vimeoId, title, description, isPreview } = await initResponse.json();
+
+      // 2단계: tus-js-client로 Vimeo에 직접 업로드
+      const { Upload } = await import('tus-js-client');
+
+      await new Promise<void>((resolve, reject) => {
+        const upload = new Upload(uploadFile, {
+          uploadUrl: uploadLink,
+          onError: (error) => {
+            console.error('TUS 업로드 오류:', error);
+            reject(new Error('영상 업로드 중 오류가 발생했습니다.'));
+          },
+          onProgress: (bytesUploaded, bytesTotal) => {
+            const percentage = Math.round((bytesUploaded / bytesTotal) * 100);
+            setUploadProgress(percentage);
+          },
+          onSuccess: () => {
+            resolve();
+          },
+        });
+
+        upload.start();
+      });
+
+      // 3단계: 업로드 완료 후 DB 저장
+      const completeResponse = await fetch(`/api/admin/courses/${courseId}/videos/complete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vimeoId,
+          title,
+          description,
+          isPreview,
+        }),
+      });
+
+      if (!completeResponse.ok) {
+        const error = await completeResponse.json();
+        throw new Error(error.error || '영상 정보 저장 실패');
       }
 
       alert('영상이 업로드되었습니다.');
@@ -443,6 +488,7 @@ export default function EditCoursePage() {
         isPreview: false,
       });
       setUploadFile(null);
+      setUploadProgress(0);
       fetchCourse();
     } catch (error: any) {
       console.error('Error:', error);
@@ -993,14 +1039,22 @@ export default function EditCoursePage() {
 
               {uploading && (
                 <div className="p-4 bg-blue-50 rounded-lg space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-900"></div>
-                    <p className="text-sm font-medium text-blue-900">영상을 업로드 중...</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-blue-900">Vimeo에 업로드 중...</p>
+                    <p className="text-sm font-bold text-blue-900">{uploadProgress}%</p>
+                  </div>
+
+                  {/* 진행률 바 */}
+                  <div className="w-full bg-blue-200 rounded-full h-3 overflow-hidden">
+                    <div
+                      className="bg-blue-600 h-full rounded-full transition-all duration-300 ease-out"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
                   </div>
 
                   <div className="space-y-1">
                     <p className="text-xs text-blue-700">
-                      영상을 처리하는 중입니다. 시간이 오래 걸릴 수 있습니다.
+                      브라우저에서 Vimeo로 직접 업로드 중입니다. 창을 닫지 마세요.
                     </p>
                     {uploadFile && (
                       <p className="text-xs text-blue-600">
