@@ -107,6 +107,12 @@ export default function VimeoPlayer({
         responsive: true, // 항상 responsive 모드 사용
         playsinline: true,
         dnt: true,
+        // Vimeo 오버레이 숨기기 (Pro/Business/Premium 플랜에서만 작동)
+        title: false,
+        byline: false,
+        portrait: false,
+        badge: false,
+        vimeo_logo: false,
       };
 
       if (parsedUrl.hash) {
