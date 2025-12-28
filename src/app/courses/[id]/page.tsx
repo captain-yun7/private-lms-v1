@@ -421,7 +421,14 @@ export default function CourseDetailPage() {
                         </p>
                       </div>
                     )}
-                    <Link href={`/learn/${course.id}`} className="btn-primary w-full block text-center">
+                    <Link
+                      href={`/learn/${course.id}`}
+                      className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2 mb-3"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                       {progressData && progressData.progressRate > 0 ? '학습 계속하기' : '학습 시작하기'}
                     </Link>
                   </>
