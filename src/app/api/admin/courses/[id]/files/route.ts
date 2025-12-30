@@ -41,15 +41,17 @@ export async function POST(
     }
 
     // 파일 이름 생성 (중복 방지)
+    // 스토리지 key는 영문/숫자만 사용, 원본 파일명은 DB에 저장
     const timestamp = Date.now();
-    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9가-힣.\-_]/g, '_');
-    const fileName = `${courseId}/${timestamp}_${sanitizedFileName}`;
+    const originalFileName = file.name;
+    const fileExtension = originalFileName.split('.').pop() || '';
+    const storageKey = `${courseId}/${timestamp}_file.${fileExtension}`;
 
     // Supabase Storage에 파일 업로드
     const fileBuffer = await file.arrayBuffer();
     const { error: uploadError } = await supabaseAdmin.storage
       .from(COURSE_FILES_BUCKET)
-      .upload(fileName, fileBuffer, {
+      .upload(storageKey, fileBuffer, {
         contentType: file.type,
         upsert: false,
       });
@@ -65,17 +67,17 @@ export async function POST(
     // Public URL 생성
     const { data: urlData } = supabaseAdmin.storage
       .from(COURSE_FILES_BUCKET)
-      .getPublicUrl(fileName);
+      .getPublicUrl(storageKey);
 
     if (!urlData?.publicUrl) {
       return NextResponse.json({ error: '파일 URL 생성 실패' }, { status: 500 });
     }
 
-    // DB에 파일 정보 저장
+    // DB에 파일 정보 저장 (원본 파일명 유지)
     const courseFile = await prisma.courseFile.create({
       data: {
         courseId,
-        fileName: sanitizedFileName,
+        fileName: originalFileName,
         fileUrl: urlData.publicUrl,
         fileSize: file.size,
       },
