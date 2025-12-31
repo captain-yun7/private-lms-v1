@@ -3,11 +3,17 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import VimeoPlayer from './VimeoPlayer';
+import VdoCipherPlayer from './VdoCipherPlayer';
 import { useDeviceFingerprint } from '@/hooks/useDeviceFingerprint';
 import { generateDeviceName } from '@/lib/fingerprint';
 
 interface DeviceVerifiedPlayerProps {
-  vimeoUrl: string;
+  // Vimeo용 (레거시)
+  vimeoUrl?: string;
+  // VdoCipher용
+  videoId?: string; // DB video ID
+  vdoCipherId?: string; // VdoCipher video ID (있으면 VdoCipher 사용)
+  // 공통
   onReady?: () => void;
   onPlay?: () => void;
   onPause?: () => void;
@@ -172,5 +178,46 @@ export default function DeviceVerifiedPlayer(props: DeviceVerifiedPlayerProps) {
   }
 
   // 기기 검증 완료 - 비디오 플레이어 표시
-  return <VimeoPlayer {...props} />;
+  // VdoCipher 영상인 경우
+  if (props.vdoCipherId && props.videoId) {
+    return (
+      <VdoCipherPlayer
+        videoId={props.videoId}
+        onReady={props.onReady}
+        onPlay={props.onPlay}
+        onPause={props.onPause}
+        onEnded={props.onEnded}
+        onTimeUpdate={props.onTimeUpdate}
+        autoplay={props.autoplay}
+        className={props.className}
+      />
+    );
+  }
+
+  // Vimeo 영상인 경우 (레거시)
+  if (props.vimeoUrl) {
+    return (
+      <VimeoPlayer
+        vimeoUrl={props.vimeoUrl}
+        onReady={props.onReady}
+        onPlay={props.onPlay}
+        onPause={props.onPause}
+        onEnded={props.onEnded}
+        onTimeUpdate={props.onTimeUpdate}
+        autoplay={props.autoplay}
+        controls={props.controls}
+        responsive={props.responsive}
+        className={props.className}
+      />
+    );
+  }
+
+  // 영상 정보 없음
+  return (
+    <div className={props.className || 'w-full aspect-video'}>
+      <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+        <p className="text-white">영상 정보가 없습니다</p>
+      </div>
+    </div>
+  );
 }

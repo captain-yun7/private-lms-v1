@@ -10,8 +10,9 @@ interface Video {
   id: string;
   title: string;
   description: string | null;
-  vimeoUrl: string;
+  vimeoUrl: string | null;
   vimeoId: string | null;
+  vdoCipherId: string | null;
   duration: number;
   order: number;
   isPreview: boolean;
@@ -286,7 +287,9 @@ export default function LearnPage() {
               <div className="w-full aspect-video max-h-[calc(100vh-250px)]">
                 <DeviceVerifiedPlayer
                   key={currentVideo.id}
-                  vimeoUrl={currentVideo.vimeoUrl}
+                  videoId={currentVideo.id}
+                  vdoCipherId={currentVideo.vdoCipherId || undefined}
+                  vimeoUrl={currentVideo.vimeoUrl || undefined}
                   controls={true}
                   responsive={true}
                   autoplay={false}

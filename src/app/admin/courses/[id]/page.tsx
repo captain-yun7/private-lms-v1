@@ -23,8 +23,9 @@ import { CSS } from '@dnd-kit/utilities';
 
 interface Video {
   id: string;
-  vimeoUrl: string;
+  vimeoUrl: string | null;
   vimeoId: string | null;
+  vdoCipherId: string | null;
   title: string;
   description: string | null;
   duration: number | null;
@@ -277,9 +278,7 @@ export default function EditCoursePage() {
 
   // 영상 추가 폼 상태
   const [showVideoForm, setShowVideoForm] = useState(false);
-  const [uploadMethod, setUploadMethod] = useState<'file' | 'url'>('file'); // 'file' or 'url'
   const [videoFormData, setVideoFormData] = useState({
-    vimeoUrl: '',
     title: '',
     description: '',
     isPreview: false,
@@ -419,13 +418,146 @@ export default function EditCoursePage() {
 
   const handleAddVideo = async (e: React.FormEvent) => {
     e.preventDefault();
+    // VdoCipher 업로드 (DRM 보안)
+    await handleVdoCipherUpload();
+  };
 
-    if (uploadMethod === 'file') {
-      // 파일 업로드 방식
-      await handleFileUpload();
-    } else {
-      // URL 입력 방식
-      await handleUrlUpload();
+  // VdoCipher 인코딩 완료 후 duration 자동 업데이트를 위한 폴링
+  const pollVideoDuration = async (videoId: string) => {
+    const maxAttempts = 30; // 5분 (10초 × 30)
+
+    for (let i = 0; i < maxAttempts; i++) {
+      await new Promise(resolve => setTimeout(resolve, 10000)); // 10초 대기
+
+      try {
+        const res = await fetch(`/api/admin/courses/${courseId}/videos/${videoId}/refresh`, {
+          method: 'POST',
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.video?.duration) {
+            fetchCourse(); // 목록 새로고침하여 duration 반영
+            console.log('Video duration updated:', data.video.duration);
+            break;
+          }
+        }
+      } catch (error) {
+        console.log(`Duration polling attempt ${i + 1} failed`);
+      }
+    }
+  };
+
+  const handleVdoCipherUpload = async () => {
+    if (!uploadFile) {
+      alert('파일을 선택해주세요');
+      return;
+    }
+
+    if (!videoFormData.title) {
+      alert('영상 제목을 입력해주세요');
+      return;
+    }
+
+    setUploading(true);
+    setUploadProgress(0);
+
+    try {
+      // 1단계: VdoCipher 업로드 자격증명 발급
+      const initResponse = await fetch(`/api/admin/courses/${courseId}/videos/vdocipher`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: videoFormData.title,
+          description: videoFormData.description,
+          isPreview: videoFormData.isPreview,
+        }),
+      });
+
+      if (!initResponse.ok) {
+        const error = await initResponse.json();
+        throw new Error(error.error || 'VdoCipher 업로드 초기화 실패');
+      }
+
+      const { credentials, vdoCipherId, title, description, isPreview, order } = await initResponse.json();
+
+      // 2단계: VdoCipher에 직접 업로드 (FormData)
+      const formData = new FormData();
+      formData.append('policy', credentials.policy);
+      formData.append('key', credentials.key);
+      formData.append('x-amz-signature', credentials['x-amz-signature']);
+      formData.append('x-amz-algorithm', credentials['x-amz-algorithm']);
+      formData.append('x-amz-date', credentials['x-amz-date']);
+      formData.append('x-amz-credential', credentials['x-amz-credential']);
+      formData.append('success_action_status', '201');
+      formData.append('success_action_redirect', '');
+      formData.append('file', uploadFile);
+
+      // XMLHttpRequest로 진행률 추적
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener('progress', (event) => {
+          if (event.lengthComputable) {
+            const percentage = Math.round((event.loaded / event.total) * 100);
+            setUploadProgress(percentage);
+          }
+        });
+
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve();
+          } else {
+            reject(new Error('VdoCipher 업로드 실패'));
+          }
+        });
+
+        xhr.addEventListener('error', () => reject(new Error('네트워크 오류')));
+
+        xhr.open('POST', credentials.uploadLink);
+        xhr.send(formData);
+      });
+
+      // 3단계: 업로드 완료 후 DB 저장
+      const completeResponse = await fetch(`/api/admin/courses/${courseId}/videos/vdocipher/complete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vdoCipherId,
+          title,
+          description,
+          isPreview,
+          order,
+        }),
+      });
+
+      if (!completeResponse.ok) {
+        const error = await completeResponse.json();
+        throw new Error(error.error || '영상 정보 저장 실패');
+      }
+
+      const completeData = await completeResponse.json();
+
+      alert('영상이 업로드되었습니다. (DRM 보안 적용)\n인코딩 완료 후 재생 시간이 자동 업데이트됩니다.');
+      setShowVideoForm(false);
+      setVideoFormData({
+        title: '',
+        description: '',
+        isPreview: false,
+      });
+      setUploadFile(null);
+      setUploadProgress(0);
+      fetchCourse();
+
+      // duration이 없으면 백그라운드에서 폴링 시작
+      if (completeData.video && !completeData.video.duration) {
+        pollVideoDuration(completeData.video.id);
+      }
+    } catch (error: any) {
+      console.error('VdoCipher upload error:', error);
+      alert(error.message || 'VdoCipher 영상 업로드에 실패했습니다.');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -506,7 +638,6 @@ export default function EditCoursePage() {
       alert('영상이 업로드되었습니다.');
       setShowVideoForm(false);
       setVideoFormData({
-        vimeoUrl: '',
         title: '',
         description: '',
         isPreview: false,
@@ -522,6 +653,7 @@ export default function EditCoursePage() {
     }
   };
 
+  // 레거시: Vimeo URL 입력 방식 (사용 안함, 기존 영상 지원용으로 유지)
   const handleUrlUpload = async () => {
     try {
       const response = await fetch(`/api/admin/courses/${courseId}/videos`, {
@@ -535,7 +667,6 @@ export default function EditCoursePage() {
       alert('영상이 추가되었습니다.');
       setShowVideoForm(false);
       setVideoFormData({
-        vimeoUrl: '',
         title: '',
         description: '',
         isPreview: false,
@@ -985,66 +1116,29 @@ export default function EditCoursePage() {
           <form onSubmit={handleAddVideo} className="mb-6 p-4 bg-gray-50 rounded-lg">
             <div className="space-y-4">
               {/* 업로드 방식 선택 */}
-              <div className="flex gap-4 p-3 bg-white rounded-lg border border-gray-200">
-                <label className="flex items-center cursor-pointer">
+              <div className="p-3 bg-white rounded-lg border border-gray-200">
+                {/* DRM 보안 안내 */}
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm text-green-700">
+                    <strong>DRM 보안 적용:</strong> 화면 녹화 차단 (모바일), 다이나믹 워터마크, 다운로드 방지
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">영상 파일 *</label>
                   <input
-                    type="radio"
-                    name="uploadMethod"
-                    value="file"
-                    checked={uploadMethod === 'file'}
-                    onChange={(e) => setUploadMethod(e.target.value as 'file' | 'url')}
-                    className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    disabled={uploading}
                   />
-                  <span className="ml-2 text-sm font-medium text-gray-700">파일 업로드</span>
-                </label>
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    name="uploadMethod"
-                    value="url"
-                    checked={uploadMethod === 'url'}
-                    onChange={(e) => setUploadMethod(e.target.value as 'file' | 'url')}
-                    className="w-4 h-4 text-primary border-gray-300 focus:ring-primary"
-                  />
-                  <span className="ml-2 text-sm font-medium text-gray-700">Vimeo URL 입력</span>
-                </label>
+                  {uploadFile && (
+                    <p className="mt-1 text-sm text-gray-500">
+                      선택된 파일: {uploadFile.name} ({(uploadFile.size / 1024 / 1024).toFixed(2)} MB)
+                    </p>
+                  )}
+                </div>
               </div>
-
-              {uploadMethod === 'file' ? (
-                <>
-                  {/* 파일 업로드 방식 */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">영상 파일 *</label>
-                    <input
-                      type="file"
-                      accept="video/*"
-                      onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                      disabled={uploading}
-                    />
-                    {uploadFile && (
-                      <p className="mt-1 text-sm text-gray-500">
-                        선택된 파일: {uploadFile.name} ({(uploadFile.size / 1024 / 1024).toFixed(2)} MB)
-                      </p>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* URL 입력 방식 */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Vimeo URL *</label>
-                    <input
-                      type="url"
-                      required={uploadMethod === 'url'}
-                      value={videoFormData.vimeoUrl}
-                      onChange={(e) => setVideoFormData({ ...videoFormData, vimeoUrl: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                      placeholder="https://vimeo.com/123456789"
-                    />
-                  </div>
-                </>
-              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">영상 제목 *</label>
@@ -1115,7 +1209,7 @@ export default function EditCoursePage() {
                 disabled={uploading}
                 className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {uploading ? '업로드 중...' : uploadMethod === 'file' ? '파일 업로드' : '영상 추가'}
+                {uploading ? '업로드 중...' : '영상 업로드'}
               </button>
             </div>
           </form>

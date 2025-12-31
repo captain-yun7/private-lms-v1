@@ -22,6 +22,7 @@ export async function GET(
             description: true,
             vimeoUrl: true,
             vimeoId: true,
+            vdoCipherId: true,
             duration: true,
             order: true,
             isPreview: true,
