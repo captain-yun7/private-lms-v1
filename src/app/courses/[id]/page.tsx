@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import VimeoPlayer from '@/components/VimeoPlayer';
+import VdoCipherPlayer from '@/components/VdoCipherPlayer';
 
 interface Video {
   id: string;
@@ -15,6 +16,7 @@ interface Video {
   description: string | null;
   vimeoUrl: string;
   vimeoId: string | null;
+  vdoCipherId: string | null;
   duration: number;
   order: number;
   isPreview: boolean;
@@ -232,12 +234,19 @@ export default function CourseDetailPage() {
             <div className="w-full">
               <div className="aspect-video rounded-xl shadow-2xl overflow-hidden bg-gray-900">
                 {previewVideo ? (
-                  <VimeoPlayer
-                    vimeoUrl={previewVideo.vimeoUrl}
-                    controls={true}
-                    responsive={true}
-                    className="w-full h-full"
-                  />
+                  previewVideo.vdoCipherId ? (
+                    <VdoCipherPlayer
+                      videoId={previewVideo.id}
+                      className="w-full h-full"
+                    />
+                  ) : (
+                    <VimeoPlayer
+                      vimeoUrl={previewVideo.vimeoUrl}
+                      controls={true}
+                      responsive={true}
+                      className="w-full h-full"
+                    />
+                  )
                 ) : (
                   <Image
                     src={course.thumbnailUrl}
