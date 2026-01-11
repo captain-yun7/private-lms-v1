@@ -233,7 +233,8 @@ export default function StudentDetailPage() {
   const calculateProgress = (enrollment: StudentDetail['enrollments'][0]) => {
     const totalVideos = enrollment.course._count?.videos || 0;
     const completedVideos = enrollment.progress.filter(p => p.isCompleted).length;
-    return totalVideos > 0 ? Math.round((completedVideos / totalVideos) * 100) : 0;
+    const percent = totalVideos > 0 ? Math.round((completedVideos / totalVideos) * 100) : 0;
+    return { percent, completedVideos, totalVideos };
   };
 
   return (
@@ -321,7 +322,7 @@ export default function StudentDetailPage() {
           ) : (
             <div className="space-y-4">
               {student.enrollments.map((enrollment) => {
-                const progress = calculateProgress(enrollment);
+                const { percent, completedVideos, totalVideos } = calculateProgress(enrollment);
                 return (
                   <div key={enrollment.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
@@ -347,14 +348,17 @@ export default function StudentDetailPage() {
                       <div className="flex items-center gap-2">
                         <div className="flex-1 bg-gray-200 rounded-full h-2">
                           <div
-                            className="bg-primary h-2 rounded-full"
-                            style={{ width: `${progress}%` }}
+                            className="bg-primary h-2 rounded-full transition-all"
+                            style={{ width: `${percent}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-medium text-gray-700">
-                          {progress}%
+                        <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                          {percent}%
                         </span>
                       </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {completedVideos} / {totalVideos} 강의 완료
+                      </p>
                     </div>
                   </div>
                 );
