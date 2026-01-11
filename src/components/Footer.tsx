@@ -13,10 +13,10 @@ export default function Footer() {
             </Link>
             <div className="space-y-2 text-sm leading-relaxed">
               <p>사업자등록번호: 609-81-86463</p>
-              <p>통신판매업신고번호: </p>
+              <p>통신판매업신고번호: 제2026-창원성산-0006호</p>
               <p>주식회사 코로아이 (대표: 서중교)</p>
               <p>사업장 소재지: 경상남도 창원시 성산구 연덕로15번길 83(웅남동)</p>
-              <p>고객센터 전화번호: 055-266-8339</p>
+              <p>고객센터 전화번호: 050-6991-6040</p>
               <p>이메일: shipedu@naver.com</p>
             </div>
           </div>
@@ -52,7 +52,7 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="pt-6 border-t border-gray-700">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400">
-            <p>Copyright &copy; {new Date().getFullYear()} 주식회사 코로아이. All rights reserved.</p>
+            <p>Copyright &copy; {new Date().getFullYear()} 한국해양대학교 산학협력단. All rights reserved.</p>
             <div className="flex gap-4">
               <Link href="/terms" className="hover:text-blue-300 transition-colors">
                 이용약관
