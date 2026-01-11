@@ -235,41 +235,15 @@ export default function CheckoutPage() {
           {/* 결제 정보 입력 */}
           <div className="lg:col-span-2">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* 결제 수단 선택 */}
+              {/* 결제 수단 */}
               <div className="bg-white rounded-2xl shadow-card p-6">
                 <h2 className="text-xl font-bold text-text-primary mb-4">결제 수단</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('CARD')}
-                    className={`p-4 border-2 rounded-lg transition-colors ${
-                      paymentMethod === 'CARD'
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:border-primary/50'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">💳</div>
-                      <div className="font-semibold text-text-primary">카드 결제</div>
-                      <div className="text-xs text-text-secondary mt-1">즉시 결제</div>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('BANK_TRANSFER')}
-                    className={`p-4 border-2 rounded-lg transition-colors ${
-                      paymentMethod === 'BANK_TRANSFER'
-                        ? 'border-primary bg-primary/5'
-                        : 'border-border hover:border-primary/50'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">🏦</div>
-                      <div className="font-semibold text-text-primary">무통장입금</div>
-                      <div className="text-xs text-text-secondary mt-1">관리자 승인 필요</div>
-                    </div>
-                  </button>
+                <div className="p-4 border-2 border-primary bg-primary/5 rounded-lg">
+                  <div className="text-center">
+                    <div className="text-2xl mb-2">💳</div>
+                    <div className="font-semibold text-text-primary">카드 결제</div>
+                    <div className="text-xs text-text-secondary mt-1">즉시 결제</div>
+                  </div>
                 </div>
               </div>
 
@@ -323,50 +297,6 @@ export default function CheckoutPage() {
                   </div>
                 </div>
               </div>
-
-              {/* 무통장입금 추가 정보 */}
-              {paymentMethod === 'BANK_TRANSFER' && (
-                <div className="bg-white rounded-2xl shadow-card p-6">
-                  <h2 className="text-xl font-bold text-text-primary mb-4">입금 정보</h2>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-text-primary mb-2">
-                        입금자명 *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={bankTransferInfo.depositorName}
-                        onChange={(e) => setBankTransferInfo({ ...bankTransferInfo, depositorName: e.target.value })}
-                        className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                        placeholder="홍길동"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-text-primary mb-2">
-                        입금 예정일 *
-                      </label>
-                      <input
-                        type="date"
-                        required
-                        value={bankTransferInfo.expectedDepositDate}
-                        onChange={(e) => setBankTransferInfo({ ...bankTransferInfo, expectedDepositDate: e.target.value })}
-                        className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                        min={new Date().toISOString().split('T')[0]}
-                      />
-                    </div>
-
-                    <div className="p-4 bg-blue-50 rounded-lg">
-                      <p className="text-sm text-blue-900 font-medium mb-2">입금 계좌 안내</p>
-                      <p className="text-sm text-blue-800">
-                        신한은행 110-123-456789<br />
-                        예금주: (주)Private LMS
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* 약관 동의 */}
               <div className="bg-white rounded-2xl shadow-card p-6">
