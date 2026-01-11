@@ -122,10 +122,15 @@ export async function POST(request: NextRequest) {
       if (existingEnrollment) {
         enrollment = existingEnrollment;
       } else {
+        // 수강 만료일: 결제일로부터 3개월
+        const expiresAt = new Date();
+        expiresAt.setMonth(expiresAt.getMonth() + 3);
+
         enrollment = await tx.enrollment.create({
           data: {
             userId: payment.purchase.userId,
             courseId: payment.purchase.courseId,
+            expiresAt,
           },
         });
       }

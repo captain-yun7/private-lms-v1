@@ -107,10 +107,15 @@ export async function POST(
         enrollment = existingEnrollment;
       } else {
         // 5. Enrollment 생성 (수강 등록)
+        // 수강 만료일: 결제일로부터 3개월
+        const expiresAt = new Date();
+        expiresAt.setMonth(expiresAt.getMonth() + 3);
+
         enrollment = await tx.enrollment.create({
           data: {
             userId: purchase.userId,
             courseId: purchase.courseId,
+            expiresAt,
           },
         });
       }

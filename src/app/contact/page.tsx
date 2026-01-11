@@ -141,14 +141,14 @@ export default function ContactPage() {
                     <div className="border border-border rounded-lg p-5">
                       <h3 className="font-semibold text-text-primary mb-2">강의는 얼마 동안 볼 수 있나요?</h3>
                       <p className="text-text-secondary text-sm">
-                        구매한 강의는 기간 제한 없이 평생 수강 가능합니다.
+                        구매한 강의는 결제일로부터 3개월 동안 수강 가능합니다.
                       </p>
                     </div>
 
                     <div className="border border-border rounded-lg p-5">
                       <h3 className="font-semibold text-text-primary mb-2">모바일에서도 수강할 수 있나요?</h3>
                       <p className="text-text-secondary text-sm">
-                        네, PC, 태블릿, 모바일 등 모든 기기에서 수강 가능합니다.
+                        네, PC, 태블릿, 모바일 등 모든 기기에서 수강 가능합니다. 단, 최대 2대까지 기기 등록이 가능합니다.
                       </p>
                     </div>
                   </div>

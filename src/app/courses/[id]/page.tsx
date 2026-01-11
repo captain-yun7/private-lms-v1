@@ -456,14 +456,14 @@ export default function CourseDetailPage() {
                     <svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span className="text-text-primary">수강기간: 6개월</span>
+                    <span className="text-text-primary">수강기한: 3개월</span>
                   </div>
 
                   <div className="flex items-center gap-3 text-sm">
                     <svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
-                    <span className="text-text-primary">모든 기기에서 시청</span>
+                    <span className="text-text-primary">모든 기기 지원 (단, 최대 2대까지 등록 가능)</span>
                   </div>
 
                   <div className="flex items-center gap-3 text-sm">

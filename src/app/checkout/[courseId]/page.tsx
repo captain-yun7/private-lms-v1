@@ -435,8 +435,8 @@ export default function CheckoutPage() {
               <div className="mt-6 p-4 bg-bg-light rounded-lg">
                 <p className="text-xs text-text-secondary">
                   ✓ 결제 후 즉시 수강 가능합니다<br />
-                  ✓ 평생 수강 가능<br />
-                  ✓ 모든 기기에서 시청 가능
+                  ✓ 수강기한: 3개월<br />
+                  ✓ 모든 기기 지원 (단, 최대 2대까지 등록 가능)
                 </p>
               </div>
             </div>

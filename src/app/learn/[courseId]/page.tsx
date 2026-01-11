@@ -41,6 +41,8 @@ interface CourseDetail {
   videos: Video[];
   files: CourseFile[];
   isEnrolled: boolean;
+  isExpired: boolean;
+  expiresAt: string | null;
 }
 
 export default function LearnPage() {
@@ -281,9 +283,31 @@ export default function LearnPage() {
       <div className="flex-1 flex overflow-hidden">
         {/* Main Video Player */}
         <div className="flex-1 flex flex-col bg-black min-w-0 overflow-hidden">
-          {/* Video Player */}
+          {/* Video Player or Expired Notice */}
           <div className="w-full bg-black">
-            {currentVideo && (
+            {course.isExpired ? (
+              /* 수강 기한 만료 안내 */
+              <div className="w-full aspect-video max-h-[calc(100vh-250px)] flex items-center justify-center bg-gray-900">
+                <div className="text-center p-8">
+                  <svg className="w-20 h-20 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <h3 className="text-2xl font-bold text-white mb-2">수강 기한이 만료되었습니다</h3>
+                  <p className="text-gray-400 mb-4">
+                    수강 기한: {course.expiresAt ? new Date(course.expiresAt).toLocaleDateString('ko-KR') : '-'} 까지
+                  </p>
+                  <p className="text-gray-500 text-sm mb-6">
+                    계속 수강을 원하시면 강의를 다시 구매해 주세요.
+                  </p>
+                  <Link
+                    href={`/courses/${courseId}`}
+                    className="inline-block px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                  >
+                    강의 페이지로 이동
+                  </Link>
+                </div>
+              </div>
+            ) : currentVideo && (
               <div className="w-full aspect-video max-h-[calc(100vh-250px)]">
                 <DeviceVerifiedPlayer
                   key={currentVideo.id}

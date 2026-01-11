@@ -37,10 +37,15 @@ export async function POST(request: NextRequest) {
     }
 
     // 수강권 부여
+    // 수강 만료일: 결제일로부터 3개월
+    const expiresAt = new Date();
+    expiresAt.setMonth(expiresAt.getMonth() + 3);
+
     const enrollment = await prisma.enrollment.create({
       data: {
         userId,
         courseId,
+        expiresAt,
       },
       include: {
         course: {

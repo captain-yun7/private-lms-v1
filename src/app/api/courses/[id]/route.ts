@@ -63,8 +63,10 @@ export async function GET(
       }
     }
 
-    // 수강 여부 확인
+    // 수강 여부 확인 (만료일 포함)
     let isEnrolled = false;
+    let isExpired = false;
+    let expiresAt: Date | null = null;
     if (session?.user?.id) {
       const enrollment = await prisma.enrollment.findFirst({
         where: {
@@ -72,7 +74,14 @@ export async function GET(
           courseId: id,
         },
       });
-      isEnrolled = !!enrollment;
+      if (enrollment) {
+        isEnrolled = true;
+        expiresAt = enrollment.expiresAt;
+        // 만료일이 있고 현재 시간보다 이전이면 만료
+        if (enrollment.expiresAt && new Date() > enrollment.expiresAt) {
+          isExpired = true;
+        }
+      }
     }
 
     // 총 강의 시간 계산
@@ -97,6 +106,8 @@ export async function GET(
       videoCount: course._count.videos,
       totalDuration, // 초 단위
       isEnrolled,
+      isExpired,
+      expiresAt,
       createdAt: course.createdAt,
       updatedAt: course.updatedAt,
     };

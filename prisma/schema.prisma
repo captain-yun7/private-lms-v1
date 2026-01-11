@@ -304,10 +304,11 @@ enum RefundStatus {
 // ===========================
 
 model Enrollment {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   userId     String
   courseId   String
-  enrolledAt DateTime @default(now())
+  enrolledAt DateTime  @default(now())
+  expiresAt  DateTime? // 수강 만료일 (null이면 무제한)
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
