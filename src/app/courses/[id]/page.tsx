@@ -43,6 +43,9 @@ interface CourseDetail {
   videoCount: number;
   totalDuration: number;
   isEnrolled: boolean;
+  isExpired: boolean;
+  enrolledAt: string | null;
+  expiresAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -404,6 +407,47 @@ export default function CourseDetailPage() {
 
                 {course.isEnrolled ? (
                   <>
+                    {/* 수강 기간 정보 */}
+                    <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                      <h4 className="text-sm font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        수강 기간
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">수강 시작일</span>
+                          <span className="font-medium text-gray-900">
+                            {course.enrolledAt
+                              ? new Date(course.enrolledAt).toLocaleDateString('ko-KR', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                })
+                              : '-'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">수강 종료일</span>
+                          <span className={`font-medium ${course.isExpired ? 'text-red-600' : 'text-gray-900'}`}>
+                            {course.expiresAt
+                              ? new Date(course.expiresAt).toLocaleDateString('ko-KR', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                })
+                              : '무제한'}
+                          </span>
+                        </div>
+                        {course.isExpired && (
+                          <p className="text-xs text-red-600 mt-2 pt-2 border-t border-red-100">
+                            수강 기한이 만료되었습니다. 계속 수강하려면 다시 구매해 주세요.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
                     {progressData && (
                       <div className="mb-4">
                         <div className="flex justify-between items-center mb-2">
@@ -421,16 +465,28 @@ export default function CourseDetailPage() {
                         </p>
                       </div>
                     )}
-                    <Link
-                      href={`/learn/${course.id}`}
-                      className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2 mb-3"
-                    >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      {progressData && progressData.progressRate > 0 ? '학습 계속하기' : '학습 시작하기'}
-                    </Link>
+                    {course.isExpired ? (
+                      <button
+                        onClick={handleEnrollClick}
+                        className="w-full py-4 px-6 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2 mb-3"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        다시 수강하기
+                      </button>
+                    ) : (
+                      <Link
+                        href={`/learn/${course.id}`}
+                        className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2 mb-3"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {progressData && progressData.progressRate > 0 ? '학습 계속하기' : '학습 시작하기'}
+                      </Link>
+                    )}
                   </>
                 ) : (
                   <button

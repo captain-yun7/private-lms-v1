@@ -66,6 +66,7 @@ export async function GET(
     // 수강 여부 확인 (만료일 포함)
     let isEnrolled = false;
     let isExpired = false;
+    let enrolledAt: Date | null = null;
     let expiresAt: Date | null = null;
     if (session?.user?.id) {
       const enrollment = await prisma.enrollment.findFirst({
@@ -76,6 +77,7 @@ export async function GET(
       });
       if (enrollment) {
         isEnrolled = true;
+        enrolledAt = enrollment.enrolledAt;
         expiresAt = enrollment.expiresAt;
         // 만료일이 있고 현재 시간보다 이전이면 만료
         if (enrollment.expiresAt && new Date() > enrollment.expiresAt) {
@@ -107,6 +109,7 @@ export async function GET(
       totalDuration, // 초 단위
       isEnrolled,
       isExpired,
+      enrolledAt,
       expiresAt,
       createdAt: course.createdAt,
       updatedAt: course.updatedAt,
