@@ -594,13 +594,21 @@ export default function CourseDetailPage() {
 
             {/* Video Player */}
             <div className="aspect-video bg-gray-900">
-              <VimeoPlayer
-                vimeoUrl={selectedVideo.vimeoUrl}
-                controls={true}
-                responsive={true}
-                autoplay={true}
-                className="w-full h-full"
-              />
+              {selectedVideo.vdoCipherId ? (
+                <VdoCipherPlayer
+                  videoId={selectedVideo.id}
+                  autoplay={true}
+                  className="w-full h-full"
+                />
+              ) : (
+                <VimeoPlayer
+                  vimeoUrl={selectedVideo.vimeoUrl}
+                  controls={true}
+                  responsive={true}
+                  autoplay={true}
+                  className="w-full h-full"
+                />
+              )}
             </div>
 
             {/* Modal Footer */}

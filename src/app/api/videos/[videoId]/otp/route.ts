@@ -10,10 +10,6 @@ export async function POST(
 ) {
   try {
     const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
-    }
-
     const { videoId } = await params;
 
     // 영상 정보 조회
@@ -22,9 +18,9 @@ export async function POST(
       include: {
         course: {
           include: {
-            enrollments: {
-              where: { userId: session.user.id },
-            },
+            enrollments: session?.user?.id
+              ? { where: { userId: session.user.id } }
+              : { take: 0 },
           },
         },
       },
@@ -39,17 +35,25 @@ export async function POST(
       return NextResponse.json({ error: '이 영상은 VdoCipher를 사용하지 않습니다' }, { status: 400 });
     }
 
-    // 수강 권한 확인 (미리보기 영상은 제외)
-    const isEnrolled = video.course.enrollments.length > 0;
-    const isAdmin = session.user.role === 'ADMIN';
+    // 미리보기 영상은 비로그인 사용자도 시청 가능
+    if (!video.isPreview) {
+      // 미리보기가 아닌 영상은 로그인 필수
+      if (!session?.user) {
+        return NextResponse.json({ error: '로그인이 필요합니다' }, { status: 401 });
+      }
 
-    if (!video.isPreview && !isEnrolled && !isAdmin) {
-      return NextResponse.json({ error: '수강 권한이 없습니다' }, { status: 403 });
+      // 수강 권한 확인
+      const isEnrolled = video.course.enrollments.length > 0;
+      const isAdmin = session.user.role === 'ADMIN';
+
+      if (!isEnrolled && !isAdmin) {
+        return NextResponse.json({ error: '수강 권한이 없습니다' }, { status: 403 });
+      }
     }
 
-    // 사용자 정보로 워터마크 생성
-    const userEmail = session.user.email || 'Unknown';
-    const userId = session.user.id;
+    // 사용자 정보로 워터마크 생성 (비로그인 시 'Guest' 표시)
+    const userEmail = session?.user?.email || 'Guest';
+    const userId = session?.user?.id || 'guest';
 
     // OTP 발급 (워터마크 포함)
     const otpData = await generateOTP(video.vdoCipherId, {
