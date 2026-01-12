@@ -14,6 +14,7 @@ interface Refund {
   processedAt: string | null;
   rejectReason: string | null;
   purchase: {
+    amount: number; // 원결제 금액
     user: {
       name: string;
       email: string;
@@ -39,6 +40,11 @@ export default function AdminRefundsPage() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [processing, setProcessing] = useState(false);
+
+  // 환불 승인 모달 관련 상태
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [approveRefundAmount, setApproveRefundAmount] = useState(0);
+  const [keepEnrollment, setKeepEnrollment] = useState(false);
 
   useEffect(() => {
     fetchRefunds();
@@ -75,19 +81,46 @@ export default function AdminRefundsPage() {
     }
   };
 
-  const handleApprove = async (refund: Refund) => {
-    if (
-      !confirm(
-        `${refund.purchase.user.name}님의 환불 신청을 승인하시겠습니까?\n강의: ${refund.purchase.course.title}\n금액: ${refund.refundAmount.toLocaleString()}원`
-      )
-    ) {
+  // 환불 승인 모달 열기
+  const openApproveModal = (refund: Refund) => {
+    setSelectedRefund(refund);
+    setApproveRefundAmount(refund.refundAmount);
+    setKeepEnrollment(false);
+    setShowApproveModal(true);
+  };
+
+  // 환불 승인 처리
+  const handleApprove = async () => {
+    if (!selectedRefund) return;
+
+    const isPartialRefund = approveRefundAmount < selectedRefund.purchase.amount;
+
+    // 확인 메시지
+    let confirmMessage = `${selectedRefund.purchase.user.name}님의 환불을 승인하시겠습니까?\n\n`;
+    confirmMessage += `강의: ${selectedRefund.purchase.course.title}\n`;
+    confirmMessage += `원결제 금액: ${selectedRefund.purchase.amount.toLocaleString()}원\n`;
+    confirmMessage += `환불 금액: ${approveRefundAmount.toLocaleString()}원\n`;
+
+    if (isPartialRefund) {
+      confirmMessage += `\n※ 부분 환불입니다.\n`;
+      confirmMessage += `수강권 유지: ${keepEnrollment ? "예" : "아니오 (수강 취소됨)"}\n`;
+    }
+
+    if (!confirm(confirmMessage)) {
       return;
     }
 
     try {
       setProcessing(true);
-      const response = await fetch(`/api/admin/refunds/${refund.id}/approve`, {
+      const response = await fetch(`/api/admin/refunds/${selectedRefund.id}/approve`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          refundAmount: approveRefundAmount,
+          keepEnrollment: isPartialRefund ? keepEnrollment : false,
+        }),
       });
 
       const data = await response.json();
@@ -97,6 +130,7 @@ export default function AdminRefundsPage() {
       }
 
       alert(data.message);
+      setShowApproveModal(false);
       fetchRefunds(); // 목록 새로고침
     } catch (err) {
       console.error("환불 승인 에러:", err);
@@ -316,7 +350,7 @@ export default function AdminRefundsPage() {
                         {refund.status === "PENDING" && (
                           <div className="flex gap-2">
                             <button
-                              onClick={() => handleApprove(refund)}
+                              onClick={() => openApproveModal(refund)}
                               disabled={processing}
                               className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
                             >
@@ -338,6 +372,100 @@ export default function AdminRefundsPage() {
               </table>
             </div>
           )}
+
+      {/* 환불 승인 모달 */}
+      {showApproveModal && selectedRefund && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">환불 승인</h2>
+
+            {/* 결제 정보 */}
+            <div className="bg-gray-50 rounded-lg p-4 mb-4">
+              <div className="text-sm text-gray-600 space-y-1">
+                <p><span className="font-medium">구매자:</span> {selectedRefund.purchase.user.name}</p>
+                <p><span className="font-medium">강의:</span> {selectedRefund.purchase.course.title}</p>
+                <p><span className="font-medium">원결제 금액:</span> {selectedRefund.purchase.amount.toLocaleString()}원</p>
+                <p><span className="font-medium">신청 환불 금액:</span> {selectedRefund.refundAmount.toLocaleString()}원</p>
+              </div>
+            </div>
+
+            {/* 환불 금액 입력 */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                실제 환불 금액
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={approveRefundAmount}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value) || 0;
+                    // 원결제 금액을 초과하지 않도록 제한
+                    setApproveRefundAmount(Math.min(value, selectedRefund.purchase.amount));
+                  }}
+                  max={selectedRefund.purchase.amount}
+                  min={0}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">원</span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                최대 {selectedRefund.purchase.amount.toLocaleString()}원 (원결제 금액)
+              </p>
+            </div>
+
+            {/* 부분 환불 시 수강권 유지 옵션 */}
+            {approveRefundAmount > 0 && approveRefundAmount < selectedRefund.purchase.amount && (
+              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800 font-medium mb-2">
+                  ⚠️ 부분 환불입니다 ({((approveRefundAmount / selectedRefund.purchase.amount) * 100).toFixed(0)}%)
+                </p>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={keepEnrollment}
+                    onChange={(e) => setKeepEnrollment(e.target.checked)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-700">수강권 유지 (학습 계속 가능)</span>
+                </label>
+                {!keepEnrollment && (
+                  <p className="text-xs text-red-600 mt-1">
+                    체크 해제 시 수강권이 취소되고 학습 기록이 삭제됩니다.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* 전액 환불 안내 */}
+            {approveRefundAmount === selectedRefund.purchase.amount && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  ℹ️ 전액 환불입니다. 수강권이 자동으로 취소됩니다.
+                </p>
+              </div>
+            )}
+
+            {/* 버튼 */}
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setShowApproveModal(false)}
+                disabled={processing}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleApprove}
+                disabled={processing || approveRefundAmount <= 0}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+              >
+                {processing ? "처리 중..." : `${approveRefundAmount.toLocaleString()}원 환불`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 거절 사유 입력 모달 */}
       {showRejectModal && selectedRefund && (

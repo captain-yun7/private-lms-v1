@@ -29,7 +29,9 @@ export async function GET(request: NextRequest) {
       where: whereClause,
       include: {
         purchase: {
-          include: {
+          select: {
+            id: true,
+            amount: true, // 원결제 금액 (부분 환불용)
             user: {
               select: {
                 id: true,

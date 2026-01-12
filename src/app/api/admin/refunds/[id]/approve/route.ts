@@ -20,6 +20,18 @@ export async function POST(
 
     const { id } = await params;
 
+    // 요청 본문에서 환불 금액과 수강권 유지 여부 확인
+    let requestedRefundAmount: number | undefined;
+    let keepEnrollment = false; // 부분 환불 시 수강권 유지 여부
+
+    try {
+      const body = await request.json();
+      requestedRefundAmount = body.refundAmount;
+      keepEnrollment = body.keepEnrollment ?? false;
+    } catch {
+      // body가 없으면 기본값 사용 (기존 호환성 유지)
+    }
+
     // 환불 신청 조회
     const refund = await prisma.refund.findUnique({
       where: { id },
@@ -59,7 +71,43 @@ export async function POST(
       );
     }
 
-    const { purchase, payment } = refund.purchase;
+    const purchase = refund.purchase;
+    const payment = refund.purchase.payment;
+
+    // 결제 정보 확인
+    if (!payment) {
+      return NextResponse.json(
+        { error: "결제 정보를 찾을 수 없습니다" },
+        { status: 404 }
+      );
+    }
+
+    // ========================================
+    // 환불 금액 검증
+    // ========================================
+    // 요청된 금액이 있으면 사용, 없으면 신청된 금액 사용
+    const finalRefundAmount = requestedRefundAmount ?? refund.refundAmount;
+
+    // 환불 금액 검증
+    if (finalRefundAmount <= 0) {
+      return NextResponse.json(
+        { error: "환불 금액은 0원보다 커야 합니다" },
+        { status: 400 }
+      );
+    }
+
+    if (finalRefundAmount > purchase.amount) {
+      return NextResponse.json(
+        {
+          error: "환불 금액이 원결제 금액을 초과합니다",
+          detail: `원결제 금액: ${purchase.amount.toLocaleString()}원, 요청 금액: ${finalRefundAmount.toLocaleString()}원`
+        },
+        { status: 400 }
+      );
+    }
+
+    // 전액 환불인지 부분 환불인지 확인
+    const isPartialRefund = finalRefundAmount < purchase.amount;
 
     // ========================================
     // TossPayments API 제한: 1년 경과 여부 확인
@@ -109,6 +157,23 @@ export async function POST(
 
       try {
         // 토스페이먼츠 결제 취소 API 호출
+        // 부분 환불 시 cancelAmount 지정, 전액 환불 시 생략
+        const cancelBody: { cancelReason: string; cancelAmount?: number } = {
+          cancelReason: refund.reason || "고객 요청에 의한 환불",
+        };
+
+        // 부분 환불인 경우에만 cancelAmount 지정
+        if (isPartialRefund) {
+          cancelBody.cancelAmount = finalRefundAmount;
+        }
+
+        console.log("[환불] 토스페이먼츠 취소 요청:", {
+          paymentKey: payment.paymentKey,
+          isPartialRefund,
+          cancelAmount: cancelBody.cancelAmount,
+          originalAmount: purchase.amount,
+        });
+
         const tossResponse = await fetch(
           `https://api.tosspayments.com/v1/payments/${payment.paymentKey}/cancel`,
           {
@@ -119,9 +184,7 @@ export async function POST(
               )}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              cancelReason: refund.reason,
-            }),
+            body: JSON.stringify(cancelBody),
           }
         );
 
@@ -151,56 +214,70 @@ export async function POST(
 
     // 트랜잭션으로 환불 처리
     await prisma.$transaction(async (tx) => {
-      // 1. Refund 상태 업데이트
+      // 1. Refund 상태 및 실제 환불 금액 업데이트
       await tx.refund.update({
         where: { id },
         data: {
           status: "COMPLETED",
+          refundAmount: finalRefundAmount, // 실제 환불된 금액으로 업데이트
           processedAt: new Date(),
         },
       });
 
       // 2. Purchase 상태 업데이트
+      // 부분 환불 + 수강권 유지인 경우 COMPLETED 유지, 그 외에는 REFUNDED
+      const newPurchaseStatus = isPartialRefund && keepEnrollment ? "COMPLETED" : "REFUNDED";
       await tx.purchase.update({
         where: { id: refund.purchaseId },
         data: {
-          status: "REFUNDED",
+          status: newPurchaseStatus,
         },
       });
 
       // 3. Payment 상태 업데이트
+      // 부분 환불인 경우 COMPLETED 유지 (추가 환불 가능), 전액 환불인 경우 CANCELED
+      const newPaymentStatus = isPartialRefund ? "COMPLETED" : "CANCELED";
       await tx.payment.update({
         where: { id: payment.id },
         data: {
-          status: "CANCELED",
+          status: newPaymentStatus,
         },
       });
 
-      // 4. Enrollment 삭제 (수강 등록 취소)
-      await tx.enrollment.deleteMany({
-        where: {
-          userId: refund.purchase.userId,
-          courseId: refund.purchase.courseId,
-        },
-      });
-
-      // 5. Progress 삭제 (진도 기록 삭제 - optional)
-      // 진도 기록은 유지할 수도 있지만, 환불 시 삭제하는 것이 일반적
-      const courseVideos = await tx.video.findMany({
-        where: { courseId: refund.purchase.courseId },
-        select: { id: true },
-      });
-
-      if (courseVideos.length > 0) {
-        await tx.progress.deleteMany({
+      // 4. 수강권 처리 (전액 환불 또는 부분 환불 + 수강권 취소인 경우에만)
+      if (!isPartialRefund || !keepEnrollment) {
+        // Enrollment 삭제 (수강 등록 취소)
+        await tx.enrollment.deleteMany({
           where: {
-            userId: refund.purchase.userId,
-            videoId: {
-              in: courseVideos.map((v) => v.id),
-            },
+            userId: purchase.userId,
+            courseId: purchase.courseId,
           },
         });
+
+        // 5. Progress 삭제 (진도 기록 삭제)
+        const courseVideos = await tx.video.findMany({
+          where: { courseId: purchase.courseId },
+          select: { id: true },
+        });
+
+        if (courseVideos.length > 0) {
+          await tx.progress.deleteMany({
+            where: {
+              userId: purchase.userId,
+              videoId: {
+                in: courseVideos.map((v) => v.id),
+              },
+            },
+          });
+        }
       }
+    });
+
+    console.log("[환불] 처리 완료:", {
+      refundId: id,
+      isPartialRefund,
+      finalRefundAmount,
+      keepEnrollment,
     });
 
     // TODO: 이메일 알림 발송
@@ -211,13 +288,28 @@ export async function POST(
     //   body: `...`,
     // });
 
+    // 응답 메시지 생성
+    let message = "";
+    if (isPartialRefund) {
+      message = `부분 환불(${finalRefundAmount.toLocaleString()}원)이 승인되었습니다.`;
+      if (keepEnrollment) {
+        message += " 수강권은 유지됩니다.";
+      } else {
+        message += " 수강권이 취소되었습니다.";
+      }
+    } else {
+      message = payment.method === "CARD"
+        ? "환불이 승인되었습니다. 카드사를 통해 환불 처리됩니다."
+        : "환불이 승인되었습니다. 입력하신 계좌로 환불 처리됩니다.";
+    }
+
     return NextResponse.json({
       success: true,
-      message:
-        payment.method === "CARD"
-          ? "환불이 승인되었습니다. 카드사를 통해 환불 처리됩니다."
-          : "환불이 승인되었습니다. 입력하신 계좌로 환불 처리됩니다.",
+      message,
       refundMethod: payment.method,
+      refundAmount: finalRefundAmount,
+      isPartialRefund,
+      keepEnrollment: isPartialRefund ? keepEnrollment : false,
     });
   } catch (error) {
     console.error("환불 승인 에러:", error);
