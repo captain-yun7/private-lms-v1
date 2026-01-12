@@ -15,6 +15,7 @@ export default function NewCoursePage() {
     instructorName: '',
     instructorIntro: '',
     thumbnailUrl: '',
+    enrollmentDuration: '3', // 기본값 3개월
     isPublished: false,
   });
 
@@ -78,6 +79,7 @@ export default function NewCoursePage() {
         body: JSON.stringify({
           ...formData,
           price: parseInt(formData.price),
+          enrollmentDuration: formData.enrollmentDuration === '' ? null : parseInt(formData.enrollmentDuration),
         }),
       });
 
@@ -148,6 +150,27 @@ export default function NewCoursePage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="50000"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                수강 기간 *
+              </label>
+              <select
+                value={formData.enrollmentDuration}
+                onChange={(e) => setFormData({ ...formData, enrollmentDuration: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              >
+                <option value="1">1개월</option>
+                <option value="2">2개월</option>
+                <option value="3">3개월</option>
+                <option value="6">6개월</option>
+                <option value="12">12개월</option>
+                <option value="">무제한</option>
+              </select>
+              <p className="mt-1 text-xs text-gray-500">
+                수강 등록 후 해당 기간 동안 강의를 시청할 수 있습니다
+              </p>
             </div>
 
             <div>

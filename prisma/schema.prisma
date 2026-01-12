@@ -100,16 +100,17 @@ model PasswordResetToken {
 // ===========================
 
 model Course {
-  id              String   @id @default(cuid())
-  title           String
-  description     String   @db.Text
-  price           Int      // 가격 (원 단위)
-  thumbnailUrl    String?
-  instructorName  String
-  instructorIntro String?  @db.Text
-  isPublished     Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  title              String
+  description        String   @db.Text
+  price              Int      // 가격 (원 단위)
+  thumbnailUrl       String?
+  instructorName     String
+  instructorIntro    String?  @db.Text
+  enrollmentDuration Int?     // 수강 기간 (개월 단위, null이면 무제한)
+  isPublished        Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   videos          Video[]
   courseFiles     CourseFile[]

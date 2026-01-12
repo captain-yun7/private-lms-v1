@@ -49,6 +49,7 @@ interface Course {
   thumbnailUrl: string | null;
   instructorName: string;
   instructorIntro: string | null;
+  enrollmentDuration: number | null;
   isPublished: boolean;
   videos: Video[];
   files: CourseFile[];
@@ -273,6 +274,7 @@ export default function EditCoursePage() {
     instructorName: '',
     instructorIntro: '',
     thumbnailUrl: '',
+    enrollmentDuration: '3',
     isPublished: false,
   });
 
@@ -331,6 +333,7 @@ export default function EditCoursePage() {
         instructorName: data.instructorName,
         instructorIntro: data.instructorIntro || '',
         thumbnailUrl: data.thumbnailUrl || '',
+        enrollmentDuration: data.enrollmentDuration?.toString() || '',
         isPublished: data.isPublished,
       });
     } catch (error) {
@@ -401,6 +404,7 @@ export default function EditCoursePage() {
         body: JSON.stringify({
           ...formData,
           price: parseInt(formData.price),
+          enrollmentDuration: formData.enrollmentDuration === '' ? null : parseInt(formData.enrollmentDuration),
         }),
       });
 
@@ -978,7 +982,7 @@ export default function EditCoursePage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">가격 (원) *</label>
               <input
@@ -988,6 +992,22 @@ export default function EditCoursePage() {
                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">수강 기간 *</label>
+              <select
+                value={formData.enrollmentDuration}
+                onChange={(e) => setFormData({ ...formData, enrollmentDuration: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              >
+                <option value="1">1개월</option>
+                <option value="2">2개월</option>
+                <option value="3">3개월</option>
+                <option value="6">6개월</option>
+                <option value="12">12개월</option>
+                <option value="">무제한</option>
+              </select>
             </div>
 
             <div>

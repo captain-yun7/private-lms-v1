@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, price, instructorName, instructorIntro, thumbnailUrl, isPublished } = body;
+    const { title, description, price, instructorName, instructorIntro, thumbnailUrl, isPublished, enrollmentDuration } = body;
 
     // 유효성 검사
     if (!title || !description || !price || !instructorName) {
@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
         instructorIntro: instructorIntro || null,
         thumbnailUrl: thumbnailUrl || null,
         isPublished: isPublished || false,
+        enrollmentDuration: enrollmentDuration ?? null,
       },
     });
 

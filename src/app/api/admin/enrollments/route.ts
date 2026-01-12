@@ -36,10 +36,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '이미 수강 중인 강의입니다' }, { status: 400 });
     }
 
+    // 강의 정보 조회 (수강 기간 확인)
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
+      select: { enrollmentDuration: true, title: true },
+    });
+
+    if (!course) {
+      return NextResponse.json({ error: '강의를 찾을 수 없습니다' }, { status: 404 });
+    }
+
     // 수강권 부여
-    // 수강 만료일: 결제일로부터 3개월
-    const expiresAt = new Date();
-    expiresAt.setMonth(expiresAt.getMonth() + 3);
+    // 수강 만료일: 강의 설정에 따름 (null이면 무제한)
+    let expiresAt: Date | null = null;
+    if (course.enrollmentDuration) {
+      expiresAt = new Date();
+      expiresAt.setMonth(expiresAt.getMonth() + course.enrollmentDuration);
+    }
 
     const enrollment = await prisma.enrollment.create({
       data: {
