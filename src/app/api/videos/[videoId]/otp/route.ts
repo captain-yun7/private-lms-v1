@@ -72,9 +72,15 @@ export async function POST(
       playbackInfo: otpData.playbackInfo,
     });
   } catch (error) {
-    console.error('OTP generation error:', error);
+    console.error('OTP generation error:', {
+      error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
+
+    // 클라이언트에 더 구체적인 에러 메시지 전달
+    const errorMessage = error instanceof Error ? error.message : 'OTP 발급 중 오류가 발생했습니다';
     return NextResponse.json(
-      { error: 'OTP 발급 중 오류가 발생했습니다' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

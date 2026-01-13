@@ -56,7 +56,8 @@ export default function VdoCipherPlayer({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [iframeSrc, setIframeSrc] = useState<string | null>(null);
-  const [apiLoaded, setApiLoaded] = useState(false);
+  // Script가 이미 로드되어 있으면 true로 시작
+  const [apiLoaded, setApiLoaded] = useState(() => typeof window !== 'undefined' && !!window.VdoPlayer);
 
   // 콜백 함수들을 ref로 저장
   const onReadyRef = useRef(onReady);
@@ -73,8 +74,18 @@ export default function VdoCipherPlayer({
     onTimeUpdateRef.current = onTimeUpdate;
   });
 
+  // 컴포넌트 마운트 시 VdoPlayer API가 이미 로드되어 있는지 확인
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.VdoPlayer && !apiLoaded) {
+      console.log('[VdoCipherPlayer] VdoPlayer API already loaded');
+      setApiLoaded(true);
+    }
+  }, []);
+
   // OTP 발급 및 iframe URL 생성
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+
     async function fetchOTP() {
       try {
         setIsLoading(true);
@@ -94,6 +105,18 @@ export default function VdoCipherPlayer({
         // iframe URL 생성
         const src = `https://player.vdocipher.com/v2/?otp=${data.otp}&playbackInfo=${data.playbackInfo}${autoplay ? '&autoplay=true' : ''}`;
         setIframeSrc(src);
+
+        // 15초 타임아웃 - 플레이어 초기화가 안 되면 에러 표시
+        timeoutId = setTimeout(() => {
+          // playerRef가 설정되지 않았으면 초기화 실패
+          if (!playerRef.current) {
+            console.error('[VdoCipherPlayer] Player initialization timeout');
+            const errorMessage = '영상 로딩 시간이 초과되었습니다. 페이지를 새로고침 해주세요.';
+            setError(errorMessage);
+            setIsLoading(false);
+            onError?.(errorMessage);
+          }
+        }, 15000);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'OTP 발급 중 오류 발생';
         setError(errorMessage);
@@ -105,6 +128,12 @@ export default function VdoCipherPlayer({
     if (videoId) {
       fetchOTP();
     }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [videoId, autoplay]);
 
   // 플레이어 이벤트 핸들러들
@@ -144,7 +173,7 @@ export default function VdoCipherPlayer({
   const initializePlayer = useCallback(() => {
     if (!iframeRef.current || !window.VdoPlayer) {
       console.log('[VdoCipherPlayer] Cannot initialize: iframe or VdoPlayer API not ready');
-      return;
+      return false;
     }
 
     try {
@@ -161,10 +190,16 @@ export default function VdoCipherPlayer({
 
       setIsLoading(false);
       onReadyRef.current?.();
+      return true;
     } catch (err) {
       console.error('[VdoCipherPlayer] Failed to initialize player:', err);
+      const errorMessage = '플레이어 초기화에 실패했습니다. 잠시 후 다시 시도해주세요.';
+      setError(errorMessage);
+      setIsLoading(false);
+      onError?.(errorMessage);
+      return false;
     }
-  }, [handlePlay, handlePause, handleEnded, handleTimeUpdate]);
+  }, [handlePlay, handlePause, handleEnded, handleTimeUpdate, onError]);
 
   // iframe 로드 완료 후 플레이어 초기화
   const handleIframeLoad = useCallback(() => {

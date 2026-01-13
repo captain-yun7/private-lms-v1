@@ -72,8 +72,31 @@ export async function generateOTP(
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('VdoCipher OTP error:', errorText);
-    throw new Error(`Failed to generate OTP: ${response.status}`);
+    console.error('VdoCipher OTP error:', {
+      status: response.status,
+      statusText: response.statusText,
+      videoId,
+      body: errorText,
+    });
+
+    // VdoCipher 에러 응답 파싱 시도
+    try {
+      const errorJson = JSON.parse(errorText);
+      if (errorJson.message) {
+        throw new Error(`VdoCipher 오류: ${errorJson.message}`);
+      }
+    } catch {
+      // JSON 파싱 실패 시 기본 에러
+    }
+
+    // 일반적인 에러 상황별 메시지
+    if (response.status === 404) {
+      throw new Error('영상을 찾을 수 없습니다. VdoCipher에서 영상이 삭제되었거나 ID가 잘못되었습니다.');
+    } else if (response.status === 401 || response.status === 403) {
+      throw new Error('VdoCipher 인증 오류입니다. API 키를 확인해주세요.');
+    }
+
+    throw new Error(`영상 재생 준비 실패 (${response.status})`);
   }
 
   return response.json();
